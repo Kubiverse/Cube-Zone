@@ -49,7 +49,7 @@ export default {
       this.loading.untrackRoomSolves = true;
       try {        
         let { data } = await this.$apollo.mutate({
-          mutation: UNTRACK_SOLVES_FROM_ROOM,
+          mutation: UNTRACK_SOLVES_FROM_ROOM_MUTATION,
           variables: {
             room_id: this.selectedItem.id
           },

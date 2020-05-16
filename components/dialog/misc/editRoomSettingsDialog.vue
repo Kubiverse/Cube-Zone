@@ -78,7 +78,7 @@ export default {
       inputs: null,
 
       inputMethods: [
-        { text: "Keyboard", value: "keyboard" },
+        { text: "Keyboard (Space Bar)", value: "keyboard" },
         { text: "Manual Entry", value: "manual" },
         { text: "Stackmat Timer", value: "stackmat" },
       ],
