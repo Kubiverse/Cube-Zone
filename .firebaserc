@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "social-cubing-ui"
+  },
+  "targets": {
+    "social-cubing-ui": {
+      "hosting": {
+        "production": [
+          "social-cubing-ui"
+        ],
+        "staging": [
+          "social-cubing-ui-staging"
+        ]
+      }
+    }
+  }
+}
