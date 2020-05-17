@@ -13,7 +13,7 @@
       @update:options="handleUpdateOptions"
     >
       <template v-slot:item.name="{ item }">
-        <PreviewCuberPopover :selectedItem="item"></PreviewCuberPopover>
+        <PreviewCuberPopover :selected-item="item"></PreviewCuberPopover>
       </template>
       <template v-slot:no-data>
         No results
@@ -23,13 +23,22 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
+import sharedService from '~/services/shared.js'
 import { CUBER_FOLLOWERS_QUERY } from '~/gql/query/cuber.js'
 import PreviewCuberPopover from '~/components/popover/previewCuberPopover'
 
 export default {
   components: {
-    PreviewCuberPopover
+    PreviewCuberPopover,
+  },
+
+  props: {
+    status: {
+      type: Boolean,
+    },
+
+    cuber: {},
+    generation: {},
   },
 
   data() {
@@ -52,34 +61,21 @@ export default {
         groupDesc: [],
         multiSort: false,
         mustSort: false,
-        initialLoad: true
+        initialLoad: true,
       },
 
       followers: {
         paginatorInfo: {
           total: 0,
-          count: 0
+          count: 0,
         },
-        data: []
+        data: [],
       },
 
       footerOptions: {
-        "items-per-page-options": [5,10,25,50]
+        'items-per-page-options': [5, 10, 25, 50],
       },
     }
-  },
-
-  props: {
-    status: {
-      type: Boolean
-    },
-
-    cuber: {},
-    generation: {},
-  },
-
-  created() {
-    this.reset();
   },
 
   apollo: {
@@ -90,19 +86,39 @@ export default {
           id: this.cuber.id,
           first: this.options.itemsPerPage,
           page: this.options.page,
-        };
+        }
       },
 
       manual: true,
 
       result({ data }) {
-        if(data && data.cuber) {
-          this.followers = data.cuber.followers;
+        if (data && data.cuber) {
+          this.followers = data.cuber.followers
         }
       },
-      
+
       fetchPolicy: 'network-only',
-    }
+    },
+  },
+
+  computed: {},
+
+  watch: {
+    status(_val) {
+      if (this.status) {
+        this.reset()
+      }
+    },
+
+    generation(_val) {
+      if (this.status) {
+        this.reset()
+      }
+    },
+  },
+
+  created() {
+    this.reset()
   },
 
   methods: {
@@ -110,38 +126,20 @@ export default {
     generateMomentString: sharedService.generateMomentString,
 
     handleUpdateOptions(options) {
-      if(options.initialLoad) {
-        options.initialLoad = false;
+      if (options.initialLoad) {
+        options.initialLoad = false
       } else {
         //this.reset();
       }
     },
 
     reloadData() {
-      this.$apollo.queries.cuber.refresh();
+      this.$apollo.queries.cuber.refresh()
     },
 
     reset() {
-      this.$apollo.queries.cuber.refresh();
-    }
-  },
-
-  watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
-      }
-      
+      this.$apollo.queries.cuber.refresh()
     },
-
-    generation(val) {
-      if(this.status) {
-        this.reset();
-      }
-    }
   },
-
-  computed: {
-  }
 }
 </script>

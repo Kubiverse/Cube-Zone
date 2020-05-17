@@ -1,9 +1,9 @@
 import gql from 'graphql-tag'
-import { 
-  cuberFragment, 
+import {
+  cuberFragment,
   cuberBasicFragment,
   roomFragment,
-  eventFragment
+  eventFragment,
 } from '~/gql/fragments.js'
 
 export const CUBER_PROFILE_QUERY = gql`
@@ -21,7 +21,7 @@ export const CUBER_PROFILE_QUERY = gql`
 `
 
 export const CUBER_FOLLOWERS_QUERY = gql`
-  query cuber($id:ID!, $first:Int!, $page:Int) {
+  query cuber($id: ID!, $first: Int!, $page: Int) {
     cuber(id: $id) {
       id
       followers(first: $first, page: $page) {
@@ -39,7 +39,7 @@ export const CUBER_FOLLOWERS_QUERY = gql`
 `
 
 export const CUBER_FOLLOWS_QUERY = gql`
-  query cuber($id:ID!, $first:Int!, $page:Int) {
+  query cuber($id: ID!, $first: Int!, $page: Int) {
     cuber(id: $id) {
       id
       follows(first: $first, page: $page) {
@@ -57,7 +57,12 @@ export const CUBER_FOLLOWS_QUERY = gql`
 `
 
 export const CUBER_ROOMS_QUERY = gql`
-  query cuber($id:ID!, $first:Int!, $page:Int, $sorting: [RoomsSortingEnum]) {
+  query cuber(
+    $id: ID!
+    $first: Int!
+    $page: Int
+    $sorting: [RoomsSortingEnum]
+  ) {
     cuber(id: $id) {
       id
       rooms(first: $first, page: $page, sorting: $sorting) {

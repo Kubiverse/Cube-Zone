@@ -10,7 +10,13 @@
             <p>Effective date: September 03, 2019</p>
             <p>TBD</p>
 
-            <p>Furthermore, you can manage the types of cookies that our Service sets on your browser by visiting the <nuxt-link to="/legal/cookie">Cookie Preferences Center</nuxt-link></p>
+            <p>
+              Furthermore, you can manage the types of cookies that our Service
+              sets on your browser by visiting the
+              <nuxt-link to="/legal/cookie"
+                >Cookie Preferences Center</nuxt-link
+              >
+            </p>
           </v-card-text>
         </v-card>
       </v-flex>

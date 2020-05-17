@@ -1,13 +1,25 @@
 <template>
-  <v-dialog v-model="status" scrollable max-width="800px" @click:outside="close()" :retain-focus="false">
+  <v-dialog
+    v-model="status"
+    scrollable
+    max-width="800px"
+    :retain-focus="false"
+    @click:outside="close()"
+  >
     <v-card v-if="selectedItem">
       <v-card-title>
         <v-icon left>mdi-badge-account-horizontal</v-icon>
-        <span class="headline">{{ selectedItem.contextualAccumulator.pivot_label }} for {{selectedItem.cuber.name }}</span>
+        <span class="headline"
+          >{{ selectedItem.contextualAccumulator.pivot_label }} for
+          {{ selectedItem.cuber.name }}</span
+        >
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
-        <ViewAccumulatedResultInterface :status="status" :selectedId="selectedItem.id"></ViewAccumulatedResultInterface>
+        <ViewAccumulatedResultInterface
+          :status="status"
+          :selected-id="selectedItem.id"
+        ></ViewAccumulatedResultInterface>
       </v-card-text>
 
       <v-card-actions>
@@ -19,41 +31,38 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-import ViewAccumulatedResultInterface from '~/components/interface/viewAccumulatedResultInterface.vue';
+import ViewAccumulatedResultInterface from '~/components/interface/viewAccumulatedResultInterface.vue'
 
 export default {
   components: {
-    ViewAccumulatedResultInterface
-  },
-
-  data() {
-    return {
-    }
+    ViewAccumulatedResultInterface,
   },
 
   props: {
     status: {
-      type: Boolean
+      type: Boolean,
     },
-    selectedItem: {}
+    selectedItem: {},
+  },
+
+  data() {
+    return {}
+  },
+
+  watch: {
+    status(_val) {
+      if (this.status) {
+        this.reset()
+      }
+    },
   },
 
   methods: {
     close() {
-      this.$emit('close');
+      this.$emit('close')
     },
 
-    reset() {
-    }
-  },
-
-  watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
-      }
-    }
+    reset() {},
   },
 }
 </script>

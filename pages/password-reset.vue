@@ -1,31 +1,17 @@
 <template>
-  <v-container
-    fluid
-    fill-height
-  >
-    <v-layout
-      align-center
-      justify-center
-    >
-      <v-flex
-        xs12
-        sm8
-        md4
-      >
+  <v-container fluid fill-height>
+    <v-layout align-center justify-center>
+      <v-flex xs12 sm8 md4>
         <v-card class="elevation-12">
-          <v-toolbar
-            color="primary"
-            dark
-            flat
-          >
+          <v-toolbar color="primary" dark flat>
             <v-toolbar-title>Reset Password</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn text nuxt to="/login">Login</v-btn>
           </v-toolbar>
           <v-card-text>
             <v-text-field
-              label="Email"
               v-model="inputs.email"
+              label="Email"
               name="email"
               prepend-icon="mdi-account"
               type="text"
@@ -33,7 +19,12 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" :disabled="loading.submitting" @click="handleSubmit()">Reset Password</v-btn>
+            <v-btn
+              color="primary"
+              :disabled="loading.submitting"
+              @click="handleSubmit()"
+              >Reset Password</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -43,46 +34,50 @@
 
 <script>
 import { FORGOT_PASSWORD_MUTATION } from '~/gql/mutation/auth.js'
-import sharedService from '~/services/shared.js';
+import sharedService from '~/services/shared.js'
 
 export default {
-  middleware: "router-auth",
+  middleware: 'router-auth',
 
   components: {},
-
-  head() {
-    return {
-      title: "Reset Password"
-    }
-  },
 
   data() {
     return {
       inputs: {
-        email: "",
+        email: '',
       },
 
       loading: {
-        submitting: false
-      }
-    };
+        submitting: false,
+      },
+    }
   },
 
-  methods:{
+  methods: {
     async handleSubmit() {
-      this.loading.submitting = true;
+      this.loading.submitting = true
       try {
         let { data } = await this.$apollo.mutate({
           mutation: FORGOT_PASSWORD_MUTATION,
-          variables: this.inputs
-        });
+          variables: this.inputs,
+        })
 
-        sharedService.generateSnackbar(this.$root, data.forgotPassword.message, 'success');
-      } catch(err) {
-        sharedService.handleError(err, this.$root);
+        sharedService.generateSnackbar(
+          this.$root,
+          data.forgotPassword.message,
+          'success',
+        )
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
       }
-      this.loading.submitting = false;
+      this.loading.submitting = false
     },
-  }
+  },
+
+  head() {
+    return {
+      title: 'Reset Password',
+    }
+  },
 }
 </script>

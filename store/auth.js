@@ -1,19 +1,19 @@
 export const state = () => ({
-	user: null,
+  user: null,
 })
 
 export const mutations = {
-	setUserInit(state, authPayload) {
-		state.user = authPayload.user || null;
-	},
+  setUserInit(state, authPayload) {
+    state.user = authPayload.user || null
+  },
 
   unsetUser(state) {
-		state.user = null;
-	},
+    state.user = null
+  },
 }
 
 export const getters = {
-  user (state) {
+  user(state) {
     return state.user
-	},
+  },
 }
