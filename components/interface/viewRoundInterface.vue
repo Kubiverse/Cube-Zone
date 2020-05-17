@@ -3,23 +3,25 @@
     <v-progress-linear indeterminate></v-progress-linear>
   </div>
   <div v-else-if="round">
-    <div>
-      Scramble: <Scramble :scramble="round.scramble" />
-    </div>
+    <div>Scramble: <Scramble :scramble="round.scramble" /></div>
     <div>
       Room Name:
       <span v-if="round.room">
         {{ round.room.name }}
-        <v-icon v-if="hasEditPermissions" small @click.stop="openUntrackRoomSolvesDialog(round.room)" title="Untrack Room Solves" right color="error">mdi-alarm-off</v-icon>
+        <v-icon
+          v-if="hasEditPermissions"
+          small
+          title="Untrack Room Solves"
+          right
+          color="error"
+          @click.stop="openUntrackRoomSolvesDialog(round.room)"
+          >mdi-alarm-off</v-icon
+        >
       </span>
       <i v-else>(Deleted)</i>
     </div>
-    <div>
-      Round Number: {{ round.round_number }}
-    </div>
-    <div>
-      When: {{ generateMomentString(round.created_at) }}
-    </div>
+    <div>Round Number: {{ round.round_number }}</div>
+    <div>When: {{ generateMomentString(round.created_at) }}</div>
     <v-simple-table dense>
       <template v-slot:default>
         <thead>
@@ -33,12 +35,19 @@
             <td>
               {{ item.cuber.name }}
             </td>
-            <td :class="{ 'winner-text': item.is_winner }">{{ generateSolveString(item) }}</td>
+            <td :class="{ 'winner-text': item.is_winner }">
+              {{ generateSolveString(item) }}
+            </td>
           </tr>
         </tbody>
       </template>
     </v-simple-table>
-    <UntrackRoomSolvesDialog :status="dialogs.untrackRoomSolves" :selectedItem="selectedItem" @close="dialogs.untrackRoomSolves = false" @room-untracked="handleRoomUntracked"></UntrackRoomSolvesDialog>
+    <UntrackRoomSolvesDialog
+      :status="dialogs.untrackRoomSolves"
+      :selected-item="selectedItem"
+      @close="dialogs.untrackRoomSolves = false"
+      @room-untracked="handleRoomUntracked"
+    ></UntrackRoomSolvesDialog>
   </div>
 </template>
 
@@ -46,111 +55,110 @@
 import sharedService from '~/services/shared.js'
 import { ROUND_QUERY } from '~/gql/query/round.js'
 import Scramble from '~/components/shared/scramble'
-import UntrackRoomSolvesDialog from '~/components/dialog/room/untrackRoomSolvesDialog.vue';
+import UntrackRoomSolvesDialog from '~/components/dialog/room/untrackRoomSolvesDialog.vue'
 
 export default {
   components: {
     Scramble,
-    UntrackRoomSolvesDialog
+    UntrackRoomSolvesDialog,
+  },
+
+  props: {
+    status: {
+      type: Boolean,
+    },
+
+    roundId: {},
+    hasEditPermissions: {
+      type: Boolean,
+    },
   },
 
   data() {
     return {
       round: null,
       loading: {
-        loadRound: false
+        loadRound: false,
       },
       dialogs: {
-        untrackRoomSolves: false
+        untrackRoomSolves: false,
       },
       selectedItem: null,
     }
   },
 
-  props: {
-    status: {
-      type: Boolean
+  computed: {},
+
+  watch: {
+    status(_val) {
+      if (this.status) {
+        this.reset()
+      }
     },
 
-    roundId: {},
-    hasEditPermissions: {
-      type: Boolean
-    }
+    roundId(_val) {
+      if (this.status) {
+        this.reset()
+      }
+    },
   },
 
   created() {
-    this.reset();
+    this.reset()
   },
 
   methods: {
     generateSolveString: sharedService.generateSolveString.bind(sharedService),
     generateMomentString: sharedService.generateMomentString,
     handleUpdateOptions(options) {
-      if(options.initialLoad) {
-        options.initialLoad = false;
+      if (options.initialLoad) {
+        options.initialLoad = false
       } else {
         //this.reset();
       }
     },
 
     handleRoomUntracked() {
-      this.$emit('room-untracked');
+      this.$emit('room-untracked')
     },
 
     openUntrackRoomSolvesDialog(item) {
-      this.selectedItem = item;
-      this.openDialog('untrackRoomSolves');
+      this.selectedItem = item
+      this.openDialog('untrackRoomSolves')
     },
 
     openDialog(dialogName) {
-      if(dialogName in this.dialogs) {
-        this.dialogs[dialogName] = true;
+      if (dialogName in this.dialogs) {
+        this.dialogs[dialogName] = true
       }
     },
 
     reloadData() {
-      this.$apollo.queries.round.refresh();
+      this.$apollo.queries.round.refresh()
     },
 
     async loadData() {
-      this.loading.loadRound = true;
+      this.loading.loadRound = true
       try {
         let { data } = await this.$apollo.query({
           query: ROUND_QUERY,
           variables: {
-            id: this.roundId
+            id: this.roundId,
           },
           fetchPolicy: 'no-cache',
-        });
+        })
 
-        this.round = data.round;
-      } catch(err) {
-        sharedService.handleError(err, this.$root);
+        this.round = data.round
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
       }
-      this.loading.loadRound = false;
+      this.loading.loadRound = false
     },
 
     reset() {
-      this.loadData();
-    }
-  },
-
-  watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
-      }
+      this.loadData()
     },
-
-    roundId(val) {
-      if(this.status) {
-        this.reset();
-      }
-    }
   },
-
-  computed: {
-  }
 }
 </script>
 

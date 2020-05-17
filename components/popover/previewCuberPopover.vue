@@ -1,12 +1,12 @@
 <template>
   <v-menu
+    v-model="status"
     :close-on-content-click="false"
     :width="300"
     offset-x
-    v-model="status"
   >
     <template v-slot:activator="{ on }">
-      <a v-on="on" v-if="selectedItem">
+      <a v-if="selectedItem" v-on="on">
         <v-avatar size="24" class="mr-1">
           <v-img v-if="selectedItem.avatar" :src="selectedItem.avatar" />
           <v-icon v-else>mdi-account</v-icon>
@@ -24,12 +24,23 @@
           </v-list-item-avatar>
 
           <v-list-item-content>
-            <v-progress-linear indeterminate v-if="$apollo.queries.cuber.loading"></v-progress-linear>
+            <v-progress-linear
+              v-if="$apollo.queries.cuber.loading"
+              indeterminate
+            ></v-progress-linear>
             <template v-else-if="cuber">
-              <v-list-item-title>{{ cuber.name }}</v-list-item-title>             <v-list-item-subtitle>WCA ID: <a @click="goToWcaProfile(cuber.wca_id)">{{ cuber.wca_id }}</a></v-list-item-subtitle>
-              <v-list-item-subtitle>Nationality: {{ countriesMap[cuber.nationality] }}</v-list-item-subtitle>
+              <v-list-item-title>{{ cuber.name }}</v-list-item-title>
+              <v-list-item-subtitle
+                >WCA ID:
+                <a @click="goToWcaProfile(cuber.wca_id)">{{
+                  cuber.wca_id
+                }}</a></v-list-item-subtitle
+              >
+              <v-list-item-subtitle
+                >Nationality:
+                {{ countriesMap[cuber.nationality] }}</v-list-item-subtitle
+              >
             </template>
-
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -56,7 +67,12 @@
         </v-tooltip>
         <v-spacer></v-spacer>
         <template v-if="cuber">
-          <v-btn color="primary" @click="toggleFollowCuber(!cuber.is_followed_by_you)" :loading="loading.toggleFollow">{{ cuber.is_followed_by_you ? "Un-Follow" : "Follow" }}</v-btn>
+          <v-btn
+            color="primary"
+            :loading="loading.toggleFollow"
+            @click="toggleFollowCuber(!cuber.is_followed_by_you)"
+            >{{ cuber.is_followed_by_you ? 'Un-Follow' : 'Follow' }}</v-btn
+          >
         </template>
       </v-card-actions>
     </v-card>
@@ -64,12 +80,18 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-import { countriesMap } from '~/services/constants.js';
+import sharedService from '~/services/shared.js'
+import { countriesMap } from '~/services/constants.js'
 import { CUBER_PROFILE_QUERY } from '~/gql/query/cuber.js'
-import { FOLLOW_CUBER_MUTATION, UNFOLLOW_CUBER_MUTATION } from '~/gql/mutation/cuber.js'
+import {
+  FOLLOW_CUBER_MUTATION,
+  UNFOLLOW_CUBER_MUTATION,
+} from '~/gql/mutation/cuber.js'
 
 export default {
+  props: {
+    selectedItem: {},
+  },
   data() {
     return {
       countriesMap,
@@ -77,12 +99,9 @@ export default {
       cuber: null,
 
       loading: {
-        toggleFollow: false
-      }
-    };
-  },
-  props: {
-    selectedItem: {},
+        toggleFollow: false,
+      },
+    }
   },
 
   apollo: {
@@ -90,56 +109,62 @@ export default {
       query: CUBER_PROFILE_QUERY,
       variables() {
         return {
-          id: this.selectedItem.id
-        };
+          id: this.selectedItem.id,
+        }
       },
-      skip: true
-    }
+      skip: true,
+    },
+  },
+
+  watch: {
+    status(val) {
+      if (val) {
+        this.$apollo.queries.cuber.skip = false
+      } else {
+        this.$apollo.queries.cuber.skip = true
+      }
+    },
   },
 
   methods: {
     goToWcaProfile: sharedService.goToWcaProfile,
 
     async toggleFollowCuber(follow = true) {
-      this.loading.toggleFollow = true;
+      this.loading.toggleFollow = true
       try {
-        let { data } = await this.$apollo.mutate({
+        await this.$apollo.mutate({
           mutation: follow ? FOLLOW_CUBER_MUTATION : UNFOLLOW_CUBER_MUTATION,
           variables: {
-            id: this.selectedItem.id
+            id: this.selectedItem.id,
           },
-          fetchPolicy: 'no-cache'
-        });
+          fetchPolicy: 'no-cache',
+        })
 
         //this.cuber.is_followed_by_you = data.unfollowCuber.is_followed_by_you;
-        this.cuber.is_followed_by_you = follow;
+        this.cuber.is_followed_by_you = follow
 
-        sharedService.generateSnackbar(this.$root, "Cuber " + (follow ? "" : "un-") + "followed", "success");
-      } catch(err) {
-        sharedService.handleError(err, this.$root);
+        sharedService.generateSnackbar(
+          this.$root,
+          'Cuber ' + (follow ? '' : 'un-') + 'followed',
+          'success',
+        )
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
       }
-      this.loading.toggleFollow = false;
+      this.loading.toggleFollow = false
     },
 
     openCuberProfile() {
-      let routeData = this.$router.resolve({name: 'cuber', query: { id: this.selectedItem.id }});
-      window.open(routeData.href, '_blank');
+      let routeData = this.$router.resolve({
+        name: 'cuber',
+        query: { id: this.selectedItem.id },
+      })
+      window.open(routeData.href, '_blank')
     },
 
     openCuberLookupDialog() {
-      this.$root.$emit("cuber-lookup", this.cuber);
-    }
+      this.$root.$emit('cuber-lookup', this.cuber)
+    },
   },
-
-  watch: {
-    status(val) {
-      if(val) {
-        this.$apollo.queries.cuber.skip = false;
-      } else {
-        this.$apollo.queries.cuber.skip = true;
-      }
-    }
-  }
 }
 </script>
-

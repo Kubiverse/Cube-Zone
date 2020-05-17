@@ -1,5 +1,10 @@
 <template>
-  <v-dialog v-model="status" scrollable max-width="800px" @click:outside="close()">
+  <v-dialog
+    v-model="status"
+    scrollable
+    max-width="800px"
+    @click:outside="close()"
+  >
     <v-card>
       <v-card-title v-if="cuber">
         <v-icon left>mdi-badge-account-horizontal</v-icon>
@@ -12,7 +17,11 @@
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
-        <ViewCuberSolvesInterface :status="status" :cuber="cuber" :filterObject="filterObject"></ViewCuberSolvesInterface>
+        <ViewCuberSolvesInterface
+          :status="status"
+          :cuber="cuber"
+          :filter-object="filterObject"
+        ></ViewCuberSolvesInterface>
       </v-card-text>
 
       <v-card-actions>
@@ -24,51 +33,51 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-import ViewCuberSolvesInterface from '~/components/interface/viewCuberSolvesInterface.vue';
+import ViewCuberSolvesInterface from '~/components/interface/viewCuberSolvesInterface.vue'
 
 export default {
   components: {
-    ViewCuberSolvesInterface
+    ViewCuberSolvesInterface,
+  },
+
+  props: {
+    status: {
+      type: Boolean,
+    },
+    cuber: {},
   },
 
   data() {
     return {
       filterObject: {
         event_id: null,
-        is_tracked: true
-      }
-    }
-  },
-
-  props: {
-    status: {
-      type: Boolean
-    },
-    cuber: {},
-  },
-
-  methods: {
-    close() {
-      this.$emit('close');
-    },
-
-    openCuberProfile() {
-      let routeData = this.$router.resolve({name: 'cuber', query: { id: this.cuber.id }});
-      window.open(routeData.href, '_blank');
-    },
-
-    reset() {
-
+        is_tracked: true,
+      },
     }
   },
 
   watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
+    status(_val) {
+      if (this.status) {
+        this.reset()
       }
     },
+  },
+
+  methods: {
+    close() {
+      this.$emit('close')
+    },
+
+    openCuberProfile() {
+      let routeData = this.$router.resolve({
+        name: 'cuber',
+        query: { id: this.cuber.id },
+      })
+      window.open(routeData.href, '_blank')
+    },
+
+    reset() {},
   },
 }
 </script>

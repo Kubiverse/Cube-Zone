@@ -6,7 +6,7 @@
     {{ event.name }}
   </v-chip>
   <div v-else>
-    <span class="cubing-icon" :class="event.icon"></span> 
+    <span class="cubing-icon" :class="event.icon"></span>
     <span v-if="full">
       {{ event.name }}
     </span>
@@ -14,7 +14,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     event: {},
@@ -24,14 +23,14 @@ export default {
     },
     chip: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 }
 </script>
 
 <style scoped>
-  span {
-    vertical-align: middle;
-  }
+span {
+  vertical-align: middle;
+}
 </style>

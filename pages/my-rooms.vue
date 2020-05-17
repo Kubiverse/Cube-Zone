@@ -1,15 +1,7 @@
 <template>
   <v-container fluid>
-    <v-layout
-      column
-      justify-left
-      align-left
-    >
-      <v-flex
-        xs12
-        sm8
-        md6
-      >
+    <v-layout column justify-left align-left>
+      <v-flex xs12 sm8 md6>
         <v-card class="mt-2">
           <v-toolbar flat color="accent">
             <v-toolbar-title>
@@ -32,32 +24,35 @@
             </v-btn>
           </v-toolbar>
 
-          <ViewCuberRoomsInterface :status="true" :generation="generation.solves" :cuber="cuber" allowEdit></ViewCuberRoomsInterface>
+          <ViewCuberRoomsInterface
+            :status="true"
+            :generation="generation.solves"
+            :cuber="cuber"
+            allow-edit
+          ></ViewCuberRoomsInterface>
         </v-card>
       </v-flex>
     </v-layout>
-    <AddRoomDialog :status="dialogs.addRoom" @close="dialogs.addRoom = false" @submit="reset"></AddRoomDialog>
+    <AddRoomDialog
+      :status="dialogs.addRoom"
+      @close="dialogs.addRoom = false"
+      @submit="reset"
+    ></AddRoomDialog>
   </v-container>
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-import ViewCuberRoomsInterface from '~/components/interface/viewCuberRoomsInterface.vue';
-import AddRoomDialog from '~/components/dialog/room/addRoomDialog.vue';
-import { mapGetters } from 'vuex';
+import sharedService from '~/services/shared.js'
+import ViewCuberRoomsInterface from '~/components/interface/viewCuberRoomsInterface.vue'
+import AddRoomDialog from '~/components/dialog/room/addRoomDialog.vue'
+import { mapGetters } from 'vuex'
 
 export default {
-  middleware: "router-auth",
-
-  head() {
-    return {
-      title: "My Rooms"
-    }
-  },
+  middleware: 'router-auth',
 
   components: {
     ViewCuberRoomsInterface,
-    AddRoomDialog
+    AddRoomDialog,
   },
 
   data() {
@@ -69,45 +64,48 @@ export default {
         addRoom: false,
       },
 
-      loading: {
-      },
+      loading: {},
 
       errorMessage: null,
-    };
-  },
-
-  mounted() {
-  },
-
-  methods: {
-    openAddRoomDialog() {
-      //must be logged in
-      if(!this.$store.getters["auth/user"]) {
-        this.$root.$emit("login-dialog", this.$route.fullPath);
-        sharedService.generateSnackbar(this.$root, "Login required", "error");
-      } else {
-        this.openDialog('addRoom');
-      }
-    },
-
-    openDialog(dialogName) {
-      if(dialogName in this.dialogs) {
-        this.dialogs[dialogName] = true;
-      }
-    },
-
-    reset() {
-      this.generation.solves++;
-    },
+    }
   },
 
   computed: {
     ...mapGetters({
-      cuber: "auth/user"
-    })
-  }
+      cuber: 'auth/user',
+    }),
+  },
+
+  mounted() {},
+
+  methods: {
+    openAddRoomDialog() {
+      //must be logged in
+      if (!this.$store.getters['auth/user']) {
+        this.$root.$emit('login-dialog', this.$route.fullPath)
+        sharedService.generateSnackbar(this.$root, 'Login required', 'error')
+      } else {
+        this.openDialog('addRoom')
+      }
+    },
+
+    openDialog(dialogName) {
+      if (dialogName in this.dialogs) {
+        this.dialogs[dialogName] = true
+      }
+    },
+
+    reset() {
+      this.generation.solves++
+    },
+  },
+
+  head() {
+    return {
+      title: 'My Rooms',
+    }
+  },
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

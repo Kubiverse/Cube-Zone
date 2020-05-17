@@ -6,53 +6,66 @@
         <span class="headline">Delete Room</span>
       </v-card-title>
       <v-card-text class="py-0">
-        <v-alert type="error" v-if="selectedItem">
+        <v-alert v-if="selectedItem" type="error">
           Confirm Delete Room: {{ selectedItem.name }}
         </v-alert>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn color="error" text :loading="loading.deleteRoom" @click="deleteRoom()">Delete</v-btn>
+        <v-btn
+          color="error"
+          text
+          :loading="loading.deleteRoom"
+          @click="deleteRoom()"
+          >Delete</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-import { ROOMS_QUERY } from '~/gql/query/room.js'
+import sharedService from '~/services/shared.js'
 import { DELETE_ROOM_MUTATION } from '~/gql/mutation/room.js'
 
 export default {
+  props: {
+    status: {
+      type: Boolean,
+    },
+    selectedItem: {
+      type: Object,
+    },
+  },
   data() {
     return {
       loading: {
-        deleteRoom: false
-      }
+        deleteRoom: false,
+      },
     }
   },
-  props: {
-    status: {
-      type: Boolean
+
+  watch: {
+    status(_val) {
+      if (this.status) {
+        this.reset()
+      }
     },
-    selectedItem: {
-      type: Object
-    }
   },
 
   methods: {
     close() {
-      this.$emit('close');
+      this.$emit('close')
     },
 
     async deleteRoom() {
-      this.loading.deleteRoom = true;
-      try {        
+      this.loading.deleteRoom = true
+      try {
         let { data } = await this.$apollo.mutate({
           mutation: DELETE_ROOM_MUTATION,
           variables: {
-            id: this.selectedItem.id
+            id: this.selectedItem.id,
           },
 
           /*
@@ -68,29 +81,20 @@ export default {
             }
           },
           */
-        });
+        })
 
-        sharedService.generateSnackbar(this.$root, "Room Deleted", "success");
+        sharedService.generateSnackbar(this.$root, 'Room Deleted', 'success')
 
-         this.$emit('submit', data);
+        this.$emit('submit', data)
 
-        this.close();
-      } catch(err) {
-        sharedService.handleError(err, this.$root);
+        this.close()
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
       }
-      this.loading.deleteRoom = false;
+      this.loading.deleteRoom = false
     },
 
-    reset() {
-    }
+    reset() {},
   },
-
-  watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
-      }
-    }
-  }
 }
 </script>

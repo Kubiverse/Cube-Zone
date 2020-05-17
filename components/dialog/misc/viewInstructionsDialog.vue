@@ -1,5 +1,10 @@
 <template>
-  <v-dialog v-model="status" scrollable max-width="800px" @click:outside="close()">
+  <v-dialog
+    v-model="status"
+    scrollable
+    max-width="800px"
+    @click:outside="close()"
+  >
     <v-card>
       <v-card-title>
         <v-icon left>mdi-info</v-icon>
@@ -19,41 +24,32 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-import ViewRoundInterface from '~/components/interface/viewRoundInterface.vue';
-
 export default {
-  components: {
-    ViewRoundInterface
+  props: {
+    status: {
+      type: Boolean,
+    },
+    roundId: {},
   },
 
   data() {
-    return {
-    }
+    return {}
   },
 
-  props: {
-    status: {
-      type: Boolean
+  watch: {
+    status(_val) {
+      if (this.status) {
+        this.reset()
+      }
     },
-    roundId: {}
   },
 
   methods: {
     close() {
-      this.$emit('close');
+      this.$emit('close')
     },
 
-    reset() {
-    }
-  },
-
-  watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
-      }
-    }
+    reset() {},
   },
 }
 </script>

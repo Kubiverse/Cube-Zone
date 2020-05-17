@@ -13,7 +13,7 @@
       @update:options="handleUpdateOptions"
     >
       <template v-slot:item.name="{ item }">
-        <PreviewCuberPopover :selectedItem="item"></PreviewCuberPopover>
+        <PreviewCuberPopover :selected-item="item"></PreviewCuberPopover>
       </template>
       <template v-slot:no-data>
         No results
@@ -23,13 +23,22 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
+import sharedService from '~/services/shared.js'
 import { CUBER_FOLLOWS_QUERY } from '~/gql/query/cuber.js'
 import PreviewCuberPopover from '~/components/popover/previewCuberPopover'
 
 export default {
   components: {
-    PreviewCuberPopover
+    PreviewCuberPopover,
+  },
+
+  props: {
+    status: {
+      type: Boolean,
+    },
+
+    cuber: {},
+    generation: {},
   },
 
   data() {
@@ -52,34 +61,40 @@ export default {
         groupDesc: [],
         multiSort: false,
         mustSort: false,
-        initialLoad: true
+        initialLoad: true,
       },
 
       follows: {
         paginatorInfo: {
           total: 0,
-          count: 0
+          count: 0,
         },
-        data: []
+        data: [],
       },
 
       footerOptions: {
-        "items-per-page-options": [5,10,25,50]
+        'items-per-page-options': [5, 10, 25, 50],
       },
     }
   },
+  computed: {},
 
-  props: {
-    status: {
-      type: Boolean
+  watch: {
+    status(_val) {
+      if (this.status) {
+        this.reset()
+      }
     },
 
-    cuber: {},
-    generation: {},
+    generation(_val) {
+      if (this.status) {
+        this.reset()
+      }
+    },
   },
 
   created() {
-    this.reset();
+    this.reset()
   },
 
   apollo: {
@@ -90,19 +105,19 @@ export default {
           id: this.cuber.id,
           first: this.options.itemsPerPage,
           page: this.options.page,
-        };
+        }
       },
 
       manual: true,
 
       result({ data }) {
-        if(data && data.cuber) {
-          this.follows = data.cuber.follows;
+        if (data && data.cuber) {
+          this.follows = data.cuber.follows
         }
       },
-      
+
       fetchPolicy: 'network-only',
-    }
+    },
   },
 
   methods: {
@@ -110,38 +125,20 @@ export default {
     generateMomentString: sharedService.generateMomentString,
 
     handleUpdateOptions(options) {
-      if(options.initialLoad) {
-        options.initialLoad = false;
+      if (options.initialLoad) {
+        options.initialLoad = false
       } else {
         //this.reset();
       }
     },
 
     reloadData() {
-      this.$apollo.queries.cuber.refresh();
+      this.$apollo.queries.cuber.refresh()
     },
 
     reset() {
-      this.$apollo.queries.cuber.refresh();
-    }
-  },
-
-  watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
-      }
-      
+      this.$apollo.queries.cuber.refresh()
     },
-
-    generation(val) {
-      if(this.status) {
-        this.reset();
-      }
-    }
   },
-
-  computed: {
-  }
 }
 </script>

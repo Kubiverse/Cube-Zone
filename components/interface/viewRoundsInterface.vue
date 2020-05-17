@@ -23,13 +23,18 @@
       {{ generateMomentString(item.created_at) }}
     </template>
 
-      <template v-slot:item.winning_result="{ item }"> 
-        <span :class="{ 'winner-text': item.is_winner }">{{ generateSolveString(item.winning_solve) }}</span>
-      </template>
+    <template v-slot:item.winning_result="{ item }">
+      <span :class="{ 'winner-text': item.is_winner }">{{
+        generateSolveString(item.winning_solve)
+      }}</span>
+    </template>
 
     <template v-slot:expanded-item="{ headers, item }">
       <td :colspan="headers.length">
-        <ViewRoundInterface :status="status" :roundId="item.id"></ViewRoundInterface>
+        <ViewRoundInterface
+          :status="status"
+          :round-id="item.id"
+        ></ViewRoundInterface>
       </td>
     </template>
     <template v-slot:no-data>
@@ -39,13 +44,21 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
+import sharedService from '~/services/shared.js'
 import { ROUNDS_BASIC_QUERY } from '~/gql/query/round.js'
-import ViewRoundInterface from '~/components/interface/viewRoundInterface.vue';
+import ViewRoundInterface from '~/components/interface/viewRoundInterface.vue'
 
 export default {
   components: {
-    ViewRoundInterface
+    ViewRoundInterface,
+  },
+
+  props: {
+    status: {
+      type: Boolean,
+    },
+
+    roomId: {},
   },
 
   data() {
@@ -53,9 +66,9 @@ export default {
       rounds: {
         paginatorInfo: {
           total: 0,
-          count: 0
+          count: 0,
         },
-        data: []
+        data: [],
       },
 
       headers: [
@@ -87,8 +100,8 @@ export default {
       ],
 
       sortNameMap: {
-        "created_at": "CREATION",
-        "round_number": "ROUND_NUMBER"
+        created_at: 'CREATION',
+        round_number: 'ROUND_NUMBER',
       },
 
       options: {
@@ -100,25 +113,24 @@ export default {
         groupDesc: [],
         multiSort: true,
         mustSort: true,
-        initialLoad: true
+        initialLoad: true,
       },
 
       footerOptions: {
-        "items-per-page-options": [5,10,25]
+        'items-per-page-options': [5, 10, 25],
       },
     }
   },
+  computed: {},
 
-  props: {
-    status: {
-      type: Boolean
+  watch: {
+    status(_val) {
+      this.reset()
     },
-
-    roomId: {}
   },
 
   created() {
-    this.reset();
+    this.reset()
   },
 
   apollo: {
@@ -129,39 +141,34 @@ export default {
           first: this.options.itemsPerPage,
           page: this.options.page,
           room_id: this.roomId,
-          sorting: this.options.sortBy.map((ele, index) => this.sortNameMap[ele] + "_" + (this.options.sortDesc[index] ? "DESC" : "ASC")),
-        };
+          sorting: this.options.sortBy.map(
+            (ele, index) =>
+              this.sortNameMap[ele] +
+              '_' +
+              (this.options.sortDesc[index] ? 'DESC' : 'ASC'),
+          ),
+        }
       },
       fetchPolicy: 'network-only',
-    }
+    },
   },
 
   methods: {
     generateSolveString: sharedService.generateSolveString.bind(sharedService),
     generateMomentString: sharedService.generateMomentString,
     handleUpdateOptions(options) {
-      if(options.initialLoad) {
-        options.initialLoad = false;
+      if (options.initialLoad) {
+        options.initialLoad = false
       } else {
         //this.reset();
       }
     },
 
     reloadData() {
-      this.$apollo.queries.round.refresh();
+      this.$apollo.queries.round.refresh()
     },
 
-    reset() {
-    }
+    reset() {},
   },
-
-  watch: {
-    status(val) {
-      this.reset();
-    },
-  },
-
-  computed: {
-  }
 }
 </script>

@@ -1,5 +1,10 @@
 <template>
-  <v-dialog v-model="status" scrollable max-width="800px" @click:outside="close()">
+  <v-dialog
+    v-model="status"
+    scrollable
+    max-width="800px"
+    @click:outside="close()"
+  >
     <v-card>
       <v-card-title>
         <v-icon left>mdi-badge-account-horizontal</v-icon>
@@ -7,7 +12,10 @@
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
-        <ViewRoundInterface :status="status" :roundId="roundId"></ViewRoundInterface>
+        <ViewRoundInterface
+          :status="status"
+          :round-id="roundId"
+        ></ViewRoundInterface>
       </v-card-text>
 
       <v-card-actions>
@@ -19,41 +27,38 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-import ViewRoundInterface from '~/components/interface/viewRoundInterface.vue';
+import ViewRoundInterface from '~/components/interface/viewRoundInterface.vue'
 
 export default {
   components: {
-    ViewRoundInterface
-  },
-
-  data() {
-    return {
-    }
+    ViewRoundInterface,
   },
 
   props: {
     status: {
-      type: Boolean
+      type: Boolean,
     },
-    roundId: {}
+    roundId: {},
+  },
+
+  data() {
+    return {}
+  },
+
+  watch: {
+    status(_val) {
+      if (this.status) {
+        this.reset()
+      }
+    },
   },
 
   methods: {
     close() {
-      this.$emit('close');
+      this.$emit('close')
     },
 
-    reset() {
-    }
-  },
-
-  watch: {
-    status(val) {
-      if(this.status) {
-        this.reset();
-      }
-    }
+    reset() {},
   },
 }
 </script>

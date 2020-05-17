@@ -1,5 +1,13 @@
 import gql from 'graphql-tag'
-import { cuberBasicFragment, roomFragment, roundBasicFragment, accumulatedResultFragment, scrambleFragment, eventFragment, solveFragment } from '~/gql/fragments.js'
+import {
+  cuberBasicFragment,
+  roomFragment,
+  roundBasicFragment,
+  accumulatedResultFragment,
+  scrambleFragment,
+  eventFragment,
+  solveFragment,
+} from '~/gql/fragments.js'
 
 export const ROOM_MEMBERS_UPDATED_SUBSCRIPTION = gql`
   subscription roomMembersUpdated($room_id: ID!) {

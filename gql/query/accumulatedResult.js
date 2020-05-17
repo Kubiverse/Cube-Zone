@@ -1,15 +1,15 @@
 import gql from 'graphql-tag'
-import { 
+import {
   roundBasicFragment,
-  roomBasicFragment, 
-  solveFragment, 
-  cuberBasicFragment, 
+  roomBasicFragment,
+  solveFragment,
+  cuberBasicFragment,
   eventFragment,
-  accumulatedResultFragment
+  accumulatedResultFragment,
 } from '~/gql/fragments.js'
 
 export const ACCUMULATED_RESULT_QUERY = gql`
-  query accumulatedResult($id:ID!, $first:Int!, $page: Int) {
+  query accumulatedResult($id: ID!, $first: Int!, $page: Int) {
     accumulatedResult(id: $id) {
       ...AccumulatedResult
       cuber {

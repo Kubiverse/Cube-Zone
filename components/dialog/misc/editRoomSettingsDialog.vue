@@ -1,5 +1,10 @@
 <template>
-  <v-dialog v-model="status" scrollable max-width="800px" @click:outside="close()">
+  <v-dialog
+    v-model="status"
+    scrollable
+    max-width="800px"
+    @click:outside="close()"
+  >
     <v-card>
       <v-card-title>
         <v-icon left>mdi-cog</v-icon>
@@ -10,16 +15,23 @@
         <v-row>
           <v-col cols="4" class="py-0">
             <v-select
+              v-model="inputs.inputMethod"
               filled
               dense
               :items="inputMethods"
-              v-model="inputs.inputMethod"
               label="Time Input Method"
             >
             </v-select>
           </v-col>
           <v-col cols="4" class="py-0">
-            <v-text-field v-model="inputs.timerTriggerDuration" label="Timer Trigger Duration (ms)" filled type="number" min=0 hint="Enter 0 for short tap"></v-text-field>
+            <v-text-field
+              v-model="inputs.timerTriggerDuration"
+              label="Timer Trigger Duration (ms)"
+              filled
+              type="number"
+              min="0"
+              hint="Enter 0 for short tap"
+            ></v-text-field>
           </v-col>
           <v-col cols="4" class="py-0">
             <v-switch
@@ -37,16 +49,23 @@
           <v-col cols="4" class="py-0">
             <v-select
               v-if="inputs.showScramblePreview"
+              v-model="inputs.scramblePreviewVisualization"
               filled
               dense
               :items="scrambleVisualizationOptions"
-              v-model="inputs.scramblePreviewVisualization"
               label="Scramble Visualization"
             >
             </v-select>
           </v-col>
           <v-col cols="4" class="py-0">
-            <v-text-field v-model="inputs.scrambleFontSize" label="Scramble Font Size" filled type="number" min=0 hint="Default 32"></v-text-field>
+            <v-text-field
+              v-model="inputs.scrambleFontSize"
+              label="Scramble Font Size"
+              filled
+              type="number"
+              min="0"
+              hint="Default 32"
+            ></v-text-field>
           </v-col>
         </v-row>
         <v-col cols="4" class="py-0">
@@ -67,10 +86,15 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js';
-
 export default {
-  components: {
+  components: {},
+
+  props: {
+    status: {
+      type: Boolean,
+    },
+
+    settingsObject: {},
   },
 
   data() {
@@ -78,46 +102,38 @@ export default {
       inputs: null,
 
       inputMethods: [
-        { text: "Keyboard (Space Bar)", value: "keyboard" },
-        { text: "Manual Entry", value: "manual" },
-        { text: "Stackmat Timer", value: "stackmat" },
+        { text: 'Keyboard (Space Bar)', value: 'keyboard' },
+        { text: 'Manual Entry', value: 'manual' },
+        { text: 'Stackmat Timer', value: 'stackmat' },
       ],
 
       scrambleVisualizationOptions: [
-        { text: "2D", value: "2D" },
-        { text: "3D (Not available on all puzzles)", value: "3D" },
+        { text: '2D', value: '2D' },
+        { text: '3D (Not available on all puzzles)', value: '3D' },
       ],
-    };
-  },
-
-  props: {
-    status: {
-      type: Boolean
-    },
-
-    settingsObject: {}
-  },
-
-  methods: {
-    close() {
-      this.$emit('close');
-    },
-
-    submit() {
-      this.$emit("update-settings", this.inputs);
-      this.close();
-    },
-
-    reset() {
-      if(!this.status) return;
-      this.inputs = Object.assign({}, this.settingsObject);
     }
   },
 
   watch: {
-    status(val) {
-      this.reset();
-    }
+    status(_val) {
+      this.reset()
+    },
+  },
+
+  methods: {
+    close() {
+      this.$emit('close')
+    },
+
+    submit() {
+      this.$emit('update-settings', this.inputs)
+      this.close()
+    },
+
+    reset() {
+      if (!this.status) return
+      this.inputs = Object.assign({}, this.settingsObject)
+    },
   },
 }
 </script>

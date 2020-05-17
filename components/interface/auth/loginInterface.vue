@@ -2,8 +2,8 @@
   <v-card>
     <v-card-text>
       <v-text-field
-        label="Login"
         v-model="inputs.email"
+        label="Login"
         name="login"
         prepend-icon="mdi-account"
         type="text"
@@ -16,21 +16,26 @@
         name="password"
         prepend-icon="mdi-lock"
         type="password"
-        v-on:keyup.enter="handleSubmit()"
+        @keyup.enter="handleSubmit()"
       ></v-text-field>
     </v-card-text>
     <v-card-actions>
       <v-btn text nuxt to="/password-reset">Password Forgotten</v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="primary" :loading="loading.submitting" @click="handleSubmit()">Login</v-btn>
+      <v-btn
+        color="primary"
+        :loading="loading.submitting"
+        @click="handleSubmit()"
+        >Login</v-btn
+      >
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
 import { LOGIN_MUTATION } from '~/gql/mutation/auth.js'
-import sharedService from '~/services/shared.js';
-import authService from '~/services/auth.js';
+import sharedService from '~/services/shared.js'
+import authService from '~/services/auth.js'
 
 export default {
   components: {},
@@ -38,33 +43,33 @@ export default {
   data() {
     return {
       inputs: {
-        email: "",
-        password: ""
+        email: '',
+        password: '',
       },
 
       loading: {
-        submitting: false
-      }
-    };
+        submitting: false,
+      },
+    }
   },
 
-  methods:{
+  methods: {
     async handleSubmit() {
-      this.loading.submitting = true;
+      this.loading.submitting = true
       try {
         let { data } = await this.$apollo.mutate({
           mutation: LOGIN_MUTATION,
-          variables: this.inputs
-        });
+          variables: this.inputs,
+        })
 
-        await authService.handleLogin(this, data.login);
+        await authService.handleLogin(this, data.login)
 
-        this.$emit('login-success');
-      } catch(err) {
-        sharedService.handleError(err, this.$root);
+        this.$emit('login-success')
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
       }
-      this.loading.submitting = false;
+      this.loading.submitting = false
     },
-  }
+  },
 }
 </script>

@@ -1,26 +1,17 @@
 <template>
-  <v-container
-    fluid
-    fill-height
-  >
-    <v-layout
-      align-center
-      justify-center
-    >
-      <v-flex
-        xs12
-        sm8
-        md4
-      >
-        <v-toolbar
-          color="primary"
-          dark
-          flat
-        >
+  <v-container fluid fill-height>
+    <v-layout align-center justify-center>
+      <v-flex xs12 sm8 md4>
+        <v-toolbar color="primary" dark flat>
           <v-toolbar-title>Login</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn text @click="goToWcaAuth()">
-            <img src="../static/WCAlogo_notext.svg" alt="" style="width: 32px;" class="pr-2">
+            <img
+              src="../static/WCAlogo_notext.svg"
+              alt=""
+              style="width: 32px;"
+              class="pr-2"
+            />
             WCA Login
           </v-btn>
           <v-btn text nuxt to="/register">Register</v-btn>
@@ -32,32 +23,31 @@
 </template>
 
 <script>
-import authService from '~/services/auth.js';
-import LoginInterface from '~/components/interface/auth/loginInterface.vue';
+import authService from '~/services/auth.js'
+import LoginInterface from '~/components/interface/auth/loginInterface.vue'
 
 export default {
-  middleware: "router-auth",
+  middleware: 'router-auth',
   components: {
-    LoginInterface
-  },
-
-  head () {
-    return {
-      title: "Login"
-    }
+    LoginInterface,
   },
 
   data() {
-    return {
-    };
+    return {}
   },
 
   methods: {
     goToWcaAuth: authService.goToWcaAuth,
 
     handleLoginSuccess() {
-      this.$router.push("/");
+      this.$router.push('/')
     },
-  }
+  },
+
+  head() {
+    return {
+      title: 'Login',
+    }
+  },
 }
 </script>

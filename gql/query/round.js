@@ -1,33 +1,33 @@
 import gql from 'graphql-tag'
-import { 
-  roundBasicFragment, 
-  scrambleFragment, 
-  roomBasicFragment, 
-  solveFragment, 
-  cuberBasicFragment, 
+import {
+  roundBasicFragment,
+  scrambleFragment,
+  roomBasicFragment,
+  solveFragment,
+  cuberBasicFragment,
   eventFragment,
   accumulatedResultFragment,
 } from '~/gql/fragments.js'
 
 export const ROUND_QUERY = gql`
-  query round($id:ID!) {
+  query round($id: ID!) {
     round(id: $id) {
-        ...RoundBasic
-        scramble {
-          ...Scramble
-          event {
-            ...Event
-          }
+      ...RoundBasic
+      scramble {
+        ...Scramble
+        event {
+          ...Event
         }
-        room {
-          ...RoomBasic
+      }
+      room {
+        ...RoomBasic
+      }
+      solves {
+        ...Solve
+        cuber {
+          ...CuberBasic
         }
-        solves {
-          ...Solve
-          cuber {
-            ...CuberBasic
-          }
-        }
+      }
     }
   }
   ${roundBasicFragment}
@@ -39,7 +39,12 @@ export const ROUND_QUERY = gql`
 `
 
 export const ROUNDS_QUERY = gql`
-  query rounds($first:Int, $page:Int, $sorting:[RoundSortingEnum!], $room_id:ID) {
+  query rounds(
+    $first: Int
+    $page: Int
+    $sorting: [RoundSortingEnum!]
+    $room_id: ID
+  ) {
     rounds(first: $first, page: $page, sorting: $sorting, room_id: $room_id) {
       paginatorInfo {
         count
@@ -81,32 +86,37 @@ export const ROUNDS_QUERY = gql`
 `
 
 export const ROUNDS_BASIC_QUERY = gql`
-query rounds($first:Int, $page:Int, $sorting:[RoundSortingEnum!], $room_id:ID) {
-  rounds(first: $first, page: $page, sorting: $sorting, room_id: $room_id) {
-    paginatorInfo {
-      count
-      total
-    }
-    data {
-      ...RoundBasic
-      scramble {
-        ...Scramble
+  query rounds(
+    $first: Int
+    $page: Int
+    $sorting: [RoundSortingEnum!]
+    $room_id: ID
+  ) {
+    rounds(first: $first, page: $page, sorting: $sorting, room_id: $room_id) {
+      paginatorInfo {
+        count
+        total
       }
-      winning_solve {
-        ...Solve
-        cuber {
-          ...CuberBasic
+      data {
+        ...RoundBasic
+        scramble {
+          ...Scramble
         }
-      }
-      solves {
-        ...Solve
-        cuber {
-          ...CuberBasic
+        winning_solve {
+          ...Solve
+          cuber {
+            ...CuberBasic
+          }
+        }
+        solves {
+          ...Solve
+          cuber {
+            ...CuberBasic
+          }
         }
       }
     }
   }
-}
   ${roundBasicFragment}
   ${scrambleFragment}
   ${solveFragment}
