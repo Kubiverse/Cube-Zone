@@ -92,3 +92,4 @@ sw.*
 .firebase/
 
 .deploy_info
+\.vscode/
