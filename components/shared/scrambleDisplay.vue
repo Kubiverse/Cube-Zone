@@ -8,6 +8,10 @@
 </template>
 
 <script>
+if (process.client) {
+  require('scramble-display')
+}
+
 export default {
   props: {
     scramble: {},

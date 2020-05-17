@@ -5,8 +5,11 @@
   <div v-else-if="accumulatedResult">
     <div>Result: {{ generateAccumulatedResultString(accumulatedResult) }}</div>
     <div>
-      Where: <span v-if="round.room">{{ accumulatedResult.room.name }}</span
-      ><i v-else>(Deleted)</i>
+      Where:
+      <span v-if="accumulatedResult.room">
+        {{ accumulatedResult.room.name }}
+      </span>
+      <i v-else>(Deleted)</i>
     </div>
     <div>
       Solves: {{ solvesString }}
