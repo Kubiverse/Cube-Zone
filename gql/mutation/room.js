@@ -166,10 +166,11 @@ export const INVITE_CUBER_MUTATION = gql`
 export const UPDATE_SOLVE_MUTATION = gql`
   mutation updateSolve(
     $solve_id: ID!
-    $state: SolveState!
+    $state: SolveState
     $time: Milliseconds
     $penalties: Milliseconds
     $is_dnf: Boolean
+    $is_tracked: Boolean
   ) {
     updateSolve(
       input: {
@@ -178,6 +179,7 @@ export const UPDATE_SOLVE_MUTATION = gql`
         time: $time
         penalties: $penalties
         is_dnf: $is_dnf
+        is_tracked: $is_tracked
       }
     ) {
       ...Solve

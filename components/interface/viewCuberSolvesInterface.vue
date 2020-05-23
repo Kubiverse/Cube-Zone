@@ -18,6 +18,14 @@
         <span :class="{ 'winner-text': item.is_winner }">{{
           generateSolveString(item)
         }}</span>
+        <v-icon
+          v-if="hasEditPermissions"
+          small
+          title="Toggle Track"
+          :color="item.is_tracked ? null : 'error'"
+          @click.stop="toggleSolveTracked(item)"
+          >{{ item.is_tracked ? 'mdi-alarm' : 'mdi-alarm-off' }}</v-icon
+        >
       </template>
       <template v-slot:item.created_at="{ item }">
         {{ generateMomentString(item.created_at) }}
@@ -52,6 +60,7 @@
 <script>
 import sharedService from '~/services/shared.js'
 import { SOLVES_QUERY } from '~/gql/query/solve.js'
+import { UPDATE_SOLVE_MUTATION } from '~/gql/mutation/room.js'
 import ViewRoundInterface from '~/components/interface/viewRoundInterface.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
 
@@ -138,11 +147,17 @@ export default {
       footerOptions: {
         'items-per-page-options': [5, 10, 25, 50],
       },
+
+      loading: {
+        updateSolve: false,
+      },
     }
   },
   computed: {
     hasEditPermissions() {
-      return this.$store.getters['auth/user']?.id === this.cuber.id
+      return (
+        this.cuber && this.$store.getters['auth/user']?.id === this.cuber?.id
+      )
     },
   },
 
@@ -202,6 +217,30 @@ export default {
       } else {
         //this.reset();
       }
+    },
+
+    async toggleSolveTracked(solve) {
+      this.loading.updateSolve = true
+      try {
+        let { data } = await this.$apollo.mutate({
+          mutation: UPDATE_SOLVE_MUTATION,
+          variables: {
+            solve_id: solve.id,
+            is_tracked: !solve.is_tracked,
+          },
+        })
+
+        solve.is_tracked = data.updateSolve.is_tracked;
+
+        sharedService.generateSnackbar(
+          this.$root,
+          'Solve ' + (solve.is_tracked ? 'Re' : 'Un') + '-tracked',
+          'success',
+        )
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
+      }
+      this.loading.updateSolve = false
     },
 
     reloadData() {

@@ -786,7 +786,7 @@ input UpdateRoomInput {
 
 input UpdateSolveInput {
   id: ID!
-  state: SolveState!
+  state: SolveState
   time: Milliseconds
   penalties: Milliseconds
   is_dnf: Boolean
