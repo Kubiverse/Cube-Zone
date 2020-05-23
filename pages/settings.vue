@@ -105,8 +105,9 @@ export default {
   mounted() {
     if (!this.$store.getters['auth/user']) {
       this.$router.push('/login')
+    } else {
+      this.reset()
     }
-    this.reset()
   },
 
   methods: {

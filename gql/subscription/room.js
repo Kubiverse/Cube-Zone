@@ -13,6 +13,10 @@ export const ROOM_MEMBERS_UPDATED_SUBSCRIPTION = gql`
   subscription roomMembersUpdated($room_id: ID!) {
     roomMembersUpdated(room_id: $room_id) {
       ...CuberBasic
+      pivot {
+        type
+        last_activity_at
+      }
     }
   }
   ${cuberBasicFragment}
@@ -57,6 +61,10 @@ export const ROUND_STARTED_SUBSCRIPTION = gql`
         ...Solve
         cuber {
           ...CuberBasic
+          pivot {
+            type
+            last_activity_at
+          }
         }
       }
       accumulated_results {
@@ -99,5 +107,19 @@ export const SOLVE_UPDATED_SUBSCRIPTION = gql`
     }
   }
   ${solveFragment}
+  ${cuberBasicFragment}
+`
+
+//not real subscription
+export const ROOM_MEMBER_STATUS_UPDATED_SUBSCRIPTION = gql`
+  subscription roomMemberStatusUpdated($room_id: ID!) {
+    roomMemberStatusUpdated(room_id: $room_id) {
+      type
+      last_activity_at
+      cuber {
+        ...CuberBasic
+      }
+    }
+  }
   ${cuberBasicFragment}
 `

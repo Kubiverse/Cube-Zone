@@ -162,6 +162,12 @@
                   {{ generateMomentString(props.item.created_at) }}
                 </td>
                 <td class="text-xs-left">
+                  <v-icon
+                    small
+                    title="Spectate room"
+                    @click.stop="enterRoom(props.item, 'SPECTATING')"
+                    >mdi-eye</v-icon
+                  >
                   <template v-if="isItemCreator(props.item)">
                     <v-icon small @click.stop="openEditRoomDialog(props.item)"
                       >mdi-pencil</v-icon
@@ -269,6 +275,7 @@ export default {
       },
 
       selectedItem: null,
+      enterRoomStatus: null,
 
       options: {
         page: 1,
@@ -346,7 +353,7 @@ export default {
           text: 'Actions',
           sortable: false,
           value: 'action',
-          width: '66px',
+          width: '90px',
         },
       ],
 
@@ -411,7 +418,7 @@ export default {
     },
 
     addItem(item, secret) {
-      this.enterRoom(item, secret)
+      this.enterRoom(item, null, secret)
     },
 
     deleteItem(_item) {
@@ -422,9 +429,10 @@ export default {
       //this.reset();
     },
 
-    enterRoom(room, secret = null) {
+    enterRoom(room, status = null, secret = null) {
       if (room.has_secret && !secret) {
         this.selectedItem = room
+        this.enterRoomStatus = status
         this.openDialog('inputSecret')
       } else {
         this.$router.push({
@@ -432,6 +440,7 @@ export default {
           query: {
             id: room.id,
             ...(secret && { secret }),
+            ...(status && { status }),
           },
         })
       }
@@ -443,6 +452,7 @@ export default {
         query: {
           id: this.selectedItem.id,
           secret: secret,
+          ...(this.enterRoomStatus && { status: this.enterRoomStatus }),
         },
       })
     },

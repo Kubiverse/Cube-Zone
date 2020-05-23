@@ -76,6 +76,12 @@
                       :scramble="activeRound.scramble"
                       :size="settingsObject.scrambleFontSize"
                     />
+                    <div v-if="settingsObject.inspectionTimer" class="overline">
+                      Inspection Mode On: Hit space bar to start inspection.
+                    </div>
+                    <div class="overline">
+                      Timer input method: {{ settingsObject.inputMethod }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -147,7 +153,10 @@
                             @click="assignNewManager(item.id)"
                             >mdi-gavel</v-icon
                           >
-                          <v-icon v-if="!item.isActive" small title="Away"
+                          <v-icon
+                            v-if="item.cuber.pivot.type !== 'PARTICIPATING'"
+                            small
+                            title="Away"
                             >mdi-sleep</v-icon
                           >
                         </td>
@@ -194,6 +203,7 @@
               v-if="isRoomManager"
               id="v-step-startroom"
               :loading="loading.startingNextRound"
+              color="primary"
               @click="startNextRound()"
               >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
             >
@@ -202,6 +212,22 @@
             <!--
             <v-btn @click="toggleIdleMode()" :loading="loading.idling">Spectator Mode</v-btn>
             -->
+            <v-menu offset-y>
+              <template v-slot:activator="{ on }">
+                <v-btn :loading="loading.updateRoomStatus" v-on="on">
+                  Your Status: {{ cuberStatusMap[currentUserStatus] }}
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item
+                  v-for="(item, index) in cuberStatusOptions"
+                  :key="index"
+                  @click="updateRoomStatus(item.value)"
+                >
+                  <v-list-item-title>{{ item.text }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
             <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
             <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
             <v-btn @click="startTutorial()">Tutorial</v-btn>
@@ -214,6 +240,24 @@
             </v-btn>
           </v-col>
         </v-row>
+        <div v-if="room.spectating_cubers.paginatorInfo.total > 0">
+          <v-row justify="center">
+            <span class="caption grey--text">
+              {{ room.spectating_cubers.paginatorInfo.total }} Spectator(s):
+            </span>
+          </v-row>
+          <v-row justify="center">
+            <div>
+              <PreviewCuberPopover
+                v-for="(item, i) in room.spectating_cubers.data"
+                :key="item.id"
+                :selected-item="item"
+                chip
+              >
+              </PreviewCuberPopover>
+            </div>
+          </v-row>
+        </div>
       </div>
     </v-layout>
     <v-bottom-navigation :value="true" height="auto" absolute>
@@ -302,15 +346,16 @@ import {
   NEXT_ROUND_MUTATION,
   SEND_ROOM_CHAT_MESSAGE_MUTATION,
   UPDATE_SOLVE_MUTATION,
+  CHANGE_ROOM_STATUS_MUTATION,
 } from '~/gql/mutation/room.js'
 import { IDLE_MUTATION } from '~/gql/mutation/cuber.js'
 import {
-  ROOM_MEMBERS_UPDATED_SUBSCRIPTION,
   ROOM_UPDATED_SUBSCRIPTION,
   ROOM_CHAT_MESSAGE_RECEIVED_SUBSCRIPTION,
   ROUND_STARTED_SUBSCRIPTION,
   ROUND_FINISHED_SUBSCRIPTION,
   SOLVE_UPDATED_SUBSCRIPTION,
+  ROOM_MEMBER_STATUS_UPDATED_SUBSCRIPTION,
 } from '~/gql/subscription/room.js'
 import CubeTimerOverlay from '~/components/overlay/cubeTimerOverlay'
 import PreviewCuberPopover from '~/components/popover/previewCuberPopover'
@@ -418,6 +463,7 @@ export default {
         updatingSolve: false,
         idling: false,
         assigningManager: false,
+        updateRoomStatus: false,
       },
 
       dialogs: {
@@ -443,6 +489,21 @@ export default {
       timerState: 0,
       timerStatus: false,
       stopPropagation: false,
+
+      cuberStatusOptions: [
+        { value: 'PARTICIPATING', text: 'Active' },
+        { value: 'IDLING', text: 'Idle' },
+        { value: 'SPECTATING', text: 'Spectating' },
+      ],
+
+      cuberStatusMap: {
+        VISITED: 'Left',
+        PARTICIPATING: 'Active',
+        IDLING: 'IDLE',
+        SPECTATING: 'Spectating',
+      },
+
+      currentUserStatus: null,
     }
   },
 
@@ -654,7 +715,7 @@ export default {
     },
 
     //adds an array of active cubers to the cuberResults, if not already in there
-    addActiveCubers(activeCubers, initialLoad) {
+    updateActiveCubers(activeCubers, initialLoad) {
       if (!Array.isArray(activeCubers)) return
       activeCubers.forEach((active_cuber) => {
         let foundResult = this.cuberResults.find(
@@ -665,30 +726,79 @@ export default {
           !initialLoad &&
             this.handleChatMessageReceived({
               user: active_cuber,
-              message: 'has just joined the room!',
+              message:
+                'has just joined the room! (' + active_cuber.pivot.type + ')',
               system: true,
             })
 
-          this.cuberResults.push({
-            id: active_cuber.id,
-            cuber: active_cuber,
-            updating: false,
-            isActive: true,
-            recentActiveRound: null,
-          })
-        } else if (foundResult && !foundResult.isActive) {
+          //if joining as spectator or visited, do not add to cuberResults
+          if (
+            active_cuber.pivot.type !== 'SPECTATING' &&
+            active_cuber.pivot.type !== 'VISITED'
+          ) {
+            this.cuberResults.push({
+              id: active_cuber.id,
+              cuber: active_cuber,
+              updating: false,
+              recentActiveRound: null,
+            })
+          }
+        } else if (foundResult) {
           !initialLoad &&
             this.handleChatMessageReceived({
               user: active_cuber,
-              message: 'has just joined the room!',
+              message: 'has just set status to: ' + active_cuber.pivot.type,
               system: true,
             })
 
-          foundResult.isActive = true
+          //if cuber status is spectating or visited, user should be removed from cuberResults if they did not participate.
+          if (
+            active_cuber.pivot.type === 'SPECTATING' ||
+            active_cuber.pivot.type === 'VISITED'
+          ) {
+            //if result not found, remove if cuber didn't participate
+            if (!foundResult.recentActiveRound) {
+              let index = this.cuberResults.indexOf(foundResult)
+              if (index !== -1) {
+                this.cuberResults.splice(index, 1)
+              }
+            }
+          } else {
+            //else, update the cuber status
+            foundResult.cuber.pivot = active_cuber.pivot
+          }
+        }
+
+        //if cuber is spectating, add to room.spectating_cubers if not exists
+        if (active_cuber.pivot.type === 'SPECTATING') {
+          const foundSpectator = this.room.spectating_cubers.data.find(
+            (cuber) => cuber.id === active_cuber.id,
+          )
+
+          if (!foundSpectator) {
+            this.room.spectating_cubers.data.unshift(active_cuber)
+            this.room.spectating_cubers.paginatorInfo.total++
+          }
+        } else {
+          //else, check the room.spectating_cubers and remove if in there
+          const foundSpectator = this.room.spectating_cubers.data.find(
+            (cuber) => cuber.id === active_cuber.id,
+          )
+
+          if (foundSpectator) {
+            const index = this.room.spectating_cubers.data.indexOf(
+              foundSpectator,
+            )
+            if (index !== -1) {
+              this.room.spectating_cubers.data.splice(index, 1)
+              this.room.spectating_cubers.paginatorInfo.total--
+            }
+          }
         }
       })
     },
 
+    /*
     removeActiveCubers(activeCubers, initialLoad) {
       if (!Array.isArray(activeCubers)) return
 
@@ -718,12 +828,15 @@ export default {
         }
       })
     },
+    */
 
     //compares a list of activeCubers with the cuberResults array, and makes adjustments
+    /*
     updateActiveCubers(activeCubers, initialLoad = false) {
       this.addActiveCubers(activeCubers, initialLoad)
       this.removeActiveCubers(activeCubers, initialLoad)
     },
+    */
 
     handleChatMessageReceived(chatMessage) {
       this.chatMessages.push(chatMessage)
@@ -743,12 +856,17 @@ export default {
             (cuber) => cuber.id == solve.cuber.id,
           )
 
+          //if not found, means that cuber must be of type VISITED
           if (!foundResult) {
             this.cuberResults.push({
               id: solve.cuber.id,
-              cuber: solve.cuber,
+              cuber: {
+                ...solve.cuber,
+                pivot: {
+                  type: 'VISITED',
+                },
+              },
               updating: false,
-              isActive: true,
               recentActiveRound: round,
             })
           } else {
@@ -774,12 +892,17 @@ export default {
           (cuber) => cuber.id == solve.cuber.id,
         )
 
+        //if not found, means that cuber must be of type VISITED (should probably never happen)
         if (!foundResult) {
           this.cuberResults.push({
             id: solve.cuber.id,
-            cuber: solve.cuber,
+            cuber: {
+              ...solve.cuber,
+              pivot: {
+                type: 'VISITED',
+              },
+            },
             updating: false,
-            isActive: true,
             recentActiveRound: round,
           })
         } else {
@@ -805,11 +928,13 @@ export default {
     //checks the cuber results to see if anyone needs to be removed (if past 5 results are all null)
     checkCuberResults() {
       for (let i = this.cuberResults.length - 1; i >= 0; i--) {
-        //detect if off the scoreboard
+        //detect if off the scoreboard (allow to remain on scoreboard if not spectating or visited)
         if (
           !this.cuberResults[i].recentActiveRound ||
-          this.cuberResults[i].recentActiveRound.round_number <=
-            this.activeRoundNumber - this.tableRounds
+          (this.cuberResults[i].recentActiveRound.round_number <=
+            this.activeRoundNumber - this.tableRounds &&
+            (this.cuberResults[i].cuber.pivot.type === 'SPECTATING' ||
+              this.cuberResults[i].cuber.pivot.type === 'VISITED'))
         ) {
           this.cuberResults.splice(i, 1)
         }
@@ -825,13 +950,19 @@ export default {
           throw sharedService.generateError('Login required to join room.')
         }
 
+        const participationType = this.$route.query.status || 'PARTICIPATING'
+
         await this.$apollo.mutate({
           mutation: JOIN_ROOM_MUTATION,
           variables: {
             room_id: this.$route.query.id,
             secret: this.$route.query.secret,
+            participationType: participationType,
           },
         })
+
+        this.currentUserStatus = participationType
+
         this.$apollo.queries.room.skip = false
 
         this.$apollo.subscriptions.roomChatMessageReceived.skip = false
@@ -839,7 +970,7 @@ export default {
         this.$apollo.subscriptions.roundStarted.skip = false
         this.$apollo.subscriptions.solveUpdated.skip = false
         this.$apollo.subscriptions.roomUpdated.skip = false
-        this.$apollo.subscriptions.roomMembersUpdated.skip = false
+        this.$apollo.subscriptions.roomMemberStatusUpdated.skip = false
       } catch (err) {
         sharedService.handleError(err, this.$root)
         this.errorMessage = sharedService.sanitizeErrorMessage(err.message)
@@ -990,6 +1121,28 @@ export default {
       this.loading.idling = false
     },
 
+    async updateRoomStatus(status) {
+      this.loading.updateRoomStatus = true
+      try {
+        await this.$apollo.mutate({
+          mutation: CHANGE_ROOM_STATUS_MUTATION,
+          variables: {
+            room_id: this.$route.query.id,
+            participationType: status,
+          },
+        })
+
+        sharedService.generateSnackbar(
+          this.$root,
+          'Updated user status',
+          'success',
+        )
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
+      }
+      this.loading.updateRoomStatus = false
+    },
+
     async assignNewManager(cuberId) {
       this.loading.assigningManager = true
       try {
@@ -1090,8 +1243,8 @@ export default {
             this.updateActiveRound(this.rounds[0])
             this.findCurrentUserSolve()
             this.updateSolvesMap(this.rounds)
-            this.buildCuberResults()
             this.updateActiveCubers(this.room.active_cubers.data, true)
+            this.buildCuberResults()
           }
         }
       },
@@ -1203,16 +1356,26 @@ export default {
         skip: true,
       },
 
-      roomMembersUpdated: {
-        query: ROOM_MEMBERS_UPDATED_SUBSCRIPTION,
+      roomMemberStatusUpdated: {
+        query: ROOM_MEMBER_STATUS_UPDATED_SUBSCRIPTION,
         variables() {
           return {
             room_id: this.$route.query.id,
           }
         },
         result({ data }) {
-          this.room.active_cubers.data = data.roomMembersUpdated
-          this.updateActiveCubers(this.room.active_cubers.data)
+          //re-organize the data
+          data.roomMemberStatusUpdated.cuber.pivot = {
+            type: data.roomMemberStatusUpdated.type,
+          }
+          //update the active cubers.
+          this.updateActiveCubers([data.roomMemberStatusUpdated.cuber])
+
+          //if the cuber is current user, also update currentUserStatus
+          if (data.roomMemberStatusUpdated.cuber.id === this.user.id) {
+            this.currentUserStatus =
+              data.roomMemberStatusUpdated.cuber.pivot.type
+          }
         },
         fetchPolicy: 'no-cache',
         skip: true,

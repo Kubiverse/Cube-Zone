@@ -53,8 +53,16 @@ export const DELETE_ROOM_MUTATION = gql`
 `
 
 export const JOIN_ROOM_MUTATION = gql`
-  mutation joinRoom($room_id: ID!, $secret: String) {
-    joinRoom(id: $room_id, secret: $secret) {
+  mutation joinRoom(
+    $room_id: ID!
+    $secret: String
+    $participationType: CuberRoomRelationTypeEnum
+  ) {
+    joinRoom(
+      id: $room_id
+      secret: $secret
+      participationType: $participationType
+    ) {
       id
     }
   }
@@ -180,4 +188,15 @@ export const UPDATE_SOLVE_MUTATION = gql`
   }
   ${solveFragment}
   ${cuberBasicFragment}
+`
+
+export const CHANGE_ROOM_STATUS_MUTATION = gql`
+  mutation changeRoomStatus(
+    $room_id: ID!
+    $participationType: CuberRoomRelationTypeEnum
+  ) {
+    changeRoomStatus(room_id: $room_id, participationType: $participationType) {
+      id
+    }
+  }
 `

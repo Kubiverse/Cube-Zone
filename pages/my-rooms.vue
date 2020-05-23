@@ -48,8 +48,6 @@ import AddRoomDialog from '~/components/dialog/room/addRoomDialog.vue'
 import { mapGetters } from 'vuex'
 
 export default {
-  middleware: 'router-auth',
-
   components: {
     ViewCuberRoomsInterface,
     AddRoomDialog,
@@ -76,7 +74,12 @@ export default {
     }),
   },
 
-  mounted() {},
+  mounted() {
+    //login required, else redirect to home
+    if (!this.$store.getters['auth/user']) {
+      this.$router.push('/')
+    }
+  },
 
   methods: {
     openAddRoomDialog() {

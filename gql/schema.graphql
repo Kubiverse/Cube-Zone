@@ -337,6 +337,7 @@ type Cuber {
     first: Int!
     page: Int
   ): CuberPaginator
+  pivot: CuberRoomPivot
   created_at: DateTime!
   updated_at: DateTime
 }
@@ -353,6 +354,20 @@ type CuberPaginator {
 type CuberRoom {
   cuber: Cuber!
   room: Room!
+}
+
+type CuberRoomPivot {
+  type: CuberRoomRelationTypeEnum!
+  last_activity_at: DateTime!
+  cuber: Cuber!
+  room: Room!
+}
+
+enum CuberRoomRelationTypeEnum {
+  VISITED
+  PARTICIPATING
+  IDLING
+  SPECTATING
 }
 
 scalar Date
@@ -418,13 +433,20 @@ scalar Milliseconds
 type Mutation {
   sendRoomChatMessage(room_id: ID!, message: String!): RoomChatMessage!
   updateCuber(input: UpdateCuberInput): Cuber!
-  idle: Cuber
   followCuber(id: ID): Cuber
   unfollowCuber(id: ID): Cuber
   inviteCuber(room_id: ID!, cuber_id: ID!): CuberRoom!
   createRoom(input: CreateRoomInput!): Room!
   updateRoom(input: UpdateRoomInput!): Room!
-  joinRoom(id: ID!, secret: String): Room!
+  joinRoom(
+    id: ID!
+    secret: String
+    participationType: CuberRoomRelationTypeEnum
+  ): Room!
+  changeRoomStatus(
+    room_id: ID!
+    participationType: CuberRoomRelationTypeEnum
+  ): Room!
   leaveRoom(id: ID!): Room!
   deleteRoom(id: ID!): Room!
   untrackSolvesFromRoom(room_id: ID!): [Solve!]
@@ -573,6 +595,18 @@ type Room {
     first: Int!
     page: Int
   ): CuberPaginator
+  participating_cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  idling_cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  spectating_cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
   active_cubers(
     first: Int!
     page: Int
@@ -592,6 +626,7 @@ type Room {
   is_full: Boolean!
   creator: Cuber!
   accumulators: [Accumulator!]
+  pivot: CuberRoomPivot
   manager: Cuber
   created_at: DateTime!
   updated_at: DateTime
@@ -720,6 +755,7 @@ type Subscription {
   roomChatMessageReceived(room_id: ID!): RoomChatMessage
   cuberNotificationReceived: CuberNotification
   roomMembersUpdated(room_id: ID!): [Cuber!]
+  roomMemberStatusUpdated(room_id: ID!): CuberRoomPivot
   roomUpdated(room_id: ID!): Room
   roundStarted(room_id: ID!): Round
   roundFinished(room_id: ID!): Round
