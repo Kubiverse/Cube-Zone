@@ -154,10 +154,22 @@
                             >mdi-gavel</v-icon
                           >
                           <v-icon
-                            v-if="item.cuber.pivot.type !== 'PARTICIPATING'"
+                            v-if="item.cuber.pivot.type === 'IDLING'"
                             small
                             title="Away"
                             >mdi-sleep</v-icon
+                          >
+                          <v-icon
+                            v-else-if="item.cuber.pivot.type === 'SPECTATING'"
+                            small
+                            title="Spectating"
+                            >mdi-eye</v-icon
+                          >
+                          <v-icon
+                            v-else-if="item.cuber.pivot.type === 'VISITED'"
+                            small
+                            title="Not in room"
+                            >mdi-exit-run</v-icon
                           >
                         </td>
                         <td
@@ -208,10 +220,6 @@
               >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
             >
             <span v-else id="v-step-startroom">&nbsp;</span>
-            <v-btn nuxt to="/rooms">Leave Room</v-btn>
-            <!--
-            <v-btn @click="toggleIdleMode()" :loading="loading.idling">Spectator Mode</v-btn>
-            -->
             <v-menu offset-y>
               <template v-slot:activator="{ on }">
                 <v-btn :loading="loading.updateRoomStatus" v-on="on">
@@ -348,7 +356,6 @@ import {
   UPDATE_SOLVE_MUTATION,
   CHANGE_ROOM_STATUS_MUTATION,
 } from '~/gql/mutation/room.js'
-import { IDLE_MUTATION } from '~/gql/mutation/cuber.js'
 import {
   ROOM_UPDATED_SUBSCRIPTION,
   ROOM_CHAT_MESSAGE_RECEIVED_SUBSCRIPTION,
@@ -461,7 +468,6 @@ export default {
         joiningRoom: false,
         startingNextRound: false,
         updatingSolve: false,
-        idling: false,
         assigningManager: false,
         updateRoomStatus: false,
       },
@@ -492,14 +498,14 @@ export default {
 
       cuberStatusOptions: [
         { value: 'PARTICIPATING', text: 'Active' },
-        { value: 'IDLING', text: 'Idle' },
+        { value: 'IDLING', text: 'Away' },
         { value: 'SPECTATING', text: 'Spectating' },
       ],
 
       cuberStatusMap: {
         VISITED: 'Left',
         PARTICIPATING: 'Active',
-        IDLING: 'IDLE',
+        IDLING: 'Away',
         SPECTATING: 'Spectating',
       },
 
@@ -727,7 +733,9 @@ export default {
             this.handleChatMessageReceived({
               user: active_cuber,
               message:
-                'has just joined the room! (' + active_cuber.pivot.type + ')',
+                'has just joined the room! (' +
+                this.cuberStatusMap[active_cuber.pivot.type] +
+                ')',
               system: true,
             })
 
@@ -744,12 +752,21 @@ export default {
             })
           }
         } else if (foundResult) {
-          !initialLoad &&
+          if (!initialLoad) {
+            const message =
+              active_cuber.pivot.type === 'VISITED'
+                ? 'has just left the room'
+                : 'has just set status to: ' +
+                  this.cuberStatusMap[active_cuber.pivot.type]
             this.handleChatMessageReceived({
               user: active_cuber,
-              message: 'has just set status to: ' + active_cuber.pivot.type,
+              message: message,
               system: true,
             })
+          }
+
+          //update the cuber status
+          foundResult.cuber.pivot = active_cuber.pivot
 
           //if cuber status is spectating or visited, user should be removed from cuberResults if they did not participate.
           if (
@@ -763,9 +780,6 @@ export default {
                 this.cuberResults.splice(index, 1)
               }
             }
-          } else {
-            //else, update the cuber status
-            foundResult.cuber.pivot = active_cuber.pivot
           }
         }
 
@@ -797,46 +811,6 @@ export default {
         }
       })
     },
-
-    /*
-    removeActiveCubers(activeCubers, initialLoad) {
-      if (!Array.isArray(activeCubers)) return
-
-      this.cuberResults.forEach((cuber) => {
-        let foundResult = activeCubers.find(
-          (active_cuber) => active_cuber.id == cuber.id,
-        )
-
-        if (!foundResult) {
-          if (cuber.isActive && !initialLoad) {
-            this.handleChatMessageReceived({
-              user: cuber.cuber,
-              message: 'has just left the room!',
-              system: true,
-            })
-          }
-
-          //if result not found, remove if cuber didn't participate
-          if (!cuber.recentActiveRound) {
-            let index = this.cuberResults.indexOf(cuber)
-            if (index !== -1) {
-              this.cuberResults.splice(index, 1)
-            }
-          } else {
-            cuber.isActive = false
-          }
-        }
-      })
-    },
-    */
-
-    //compares a list of activeCubers with the cuberResults array, and makes adjustments
-    /*
-    updateActiveCubers(activeCubers, initialLoad = false) {
-      this.addActiveCubers(activeCubers, initialLoad)
-      this.removeActiveCubers(activeCubers, initialLoad)
-    },
-    */
 
     handleChatMessageReceived(chatMessage) {
       this.chatMessages.push(chatMessage)
@@ -1105,20 +1079,6 @@ export default {
 
     startTutorial() {
       this.$tours['myTour'].start()
-    },
-
-    async toggleIdleMode() {
-      this.loading.idling = true
-      try {
-        await this.$apollo.mutate({
-          mutation: IDLE_MUTATION,
-        })
-
-        sharedService.generateSnackbar(this.$root, 'Idled User', 'success')
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-      }
-      this.loading.idling = false
     },
 
     async updateRoomStatus(status) {
