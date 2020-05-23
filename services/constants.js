@@ -1233,3 +1233,9 @@ export const booleanOptionsArray = [
   { id: true, name: 'Yes' },
   { id: false, name: 'No' },
 ]
+
+export const inputMethodMap = {
+  keyboard: 'Keyboard (Space Bar)',
+  manual: 'Manual Entry',
+  stackmat: 'Stackmat Timer',
+}

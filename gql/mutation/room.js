@@ -53,8 +53,16 @@ export const DELETE_ROOM_MUTATION = gql`
 `
 
 export const JOIN_ROOM_MUTATION = gql`
-  mutation joinRoom($room_id: ID!, $secret: String) {
-    joinRoom(id: $room_id, secret: $secret) {
+  mutation joinRoom(
+    $room_id: ID!
+    $secret: String
+    $participationType: CuberRoomRelationTypeEnum
+  ) {
+    joinRoom(
+      id: $room_id
+      secret: $secret
+      participationType: $participationType
+    ) {
       id
     }
   }
@@ -158,10 +166,11 @@ export const INVITE_CUBER_MUTATION = gql`
 export const UPDATE_SOLVE_MUTATION = gql`
   mutation updateSolve(
     $solve_id: ID!
-    $state: SolveState!
+    $state: SolveState
     $time: Milliseconds
     $penalties: Milliseconds
     $is_dnf: Boolean
+    $is_tracked: Boolean
   ) {
     updateSolve(
       input: {
@@ -170,6 +179,7 @@ export const UPDATE_SOLVE_MUTATION = gql`
         time: $time
         penalties: $penalties
         is_dnf: $is_dnf
+        is_tracked: $is_tracked
       }
     ) {
       ...Solve
@@ -180,4 +190,15 @@ export const UPDATE_SOLVE_MUTATION = gql`
   }
   ${solveFragment}
   ${cuberBasicFragment}
+`
+
+export const CHANGE_ROOM_STATUS_MUTATION = gql`
+  mutation changeRoomStatus(
+    $room_id: ID!
+    $participationType: CuberRoomRelationTypeEnum
+  ) {
+    changeRoomStatus(room_id: $room_id, participationType: $participationType) {
+      id
+    }
+  }
 `

@@ -93,5 +93,6 @@ export const solveFragment = gql`
     is_dnf
     time
     is_winner
+    is_tracked
   }
 `

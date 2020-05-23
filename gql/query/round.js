@@ -62,6 +62,9 @@ export const ROUNDS_QUERY = gql`
           ...Solve
           cuber {
             ...CuberBasic
+            pivot {
+              type
+            }
           }
         }
         accumulated_results {

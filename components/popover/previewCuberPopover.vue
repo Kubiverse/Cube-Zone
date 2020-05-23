@@ -6,7 +6,14 @@
     offset-x
   >
     <template v-slot:activator="{ on }">
-      <a v-if="selectedItem" v-on="on">
+      <v-chip v-if="chip && selectedItem" v-on="on">
+        <v-avatar left>
+          <v-img v-if="selectedItem.avatar" :src="selectedItem.avatar" />
+          <v-icon v-else>mdi-account</v-icon>
+        </v-avatar>
+        {{ selectedItem.name }}
+      </v-chip>
+      <a v-else-if="selectedItem" v-on="on">
         <v-avatar size="24" class="mr-1">
           <v-img v-if="selectedItem.avatar" :src="selectedItem.avatar" />
           <v-icon v-else>mdi-account</v-icon>
@@ -91,6 +98,10 @@ import {
 export default {
   props: {
     selectedItem: {},
+    chip: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {

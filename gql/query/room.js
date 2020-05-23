@@ -21,6 +21,17 @@ export const ROOM_QUERY = gql`
       active_cubers(first: 10) {
         data {
           ...CuberBasic
+          pivot {
+            type
+          }
+        }
+      }
+      spectating_cubers(first: 10) {
+        paginatorInfo {
+          total
+        }
+        data {
+          ...CuberBasic
         }
       }
     }

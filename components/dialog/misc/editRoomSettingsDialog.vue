@@ -109,7 +109,7 @@ export default {
 
       scrambleVisualizationOptions: [
         { text: '2D', value: '2D' },
-        { text: '3D (Not available on all puzzles)', value: '3D' },
+        { text: '3D (Select Puzzles Only)', value: '3D' },
       ],
     }
   },

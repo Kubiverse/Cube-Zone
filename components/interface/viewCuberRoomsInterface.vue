@@ -272,7 +272,7 @@ export default {
       }
     },
     async loadData() {
-      this.loading.loadData = true
+      //this.loading.loadData = true
       try {
         let { data } = await this.$apollo.query({
           query: CUBER_ROOMS_QUERY,
@@ -294,11 +294,11 @@ export default {
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }
-      this.loading.loadData = false
+      //this.loading.loadData = false
     },
 
     reset(initialLoad = false) {
-      if (!this.status) return
+      if (!this.status || !this.cuber) return
       if (initialLoad) this.options.initialLoad = true
 
       this.loadData()
