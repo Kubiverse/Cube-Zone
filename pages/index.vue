@@ -56,6 +56,45 @@
           </div>
 
           <div class="release">
+            <span class="headline">v1.1.0 (23 May 2020)</span>
+            <ul>
+              <li>Can now join a room as a spectator</li>
+              <li>
+                Can now toggle between spectating, away, and active within a
+                room
+              </li>
+              <li>
+                Can now untrack/retrack individual solves via the cuber profile
+                page
+              </li>
+              <li>Fix error with My Rooms page not refreshing properly</li>
+              <li>
+                Add hints for the current input method and inspection mode under
+                the scramble
+              </li>
+              <li>Update room page table headers</li>
+            </ul>
+          </div>
+
+          <div class="release">
+            <span class="headline">v1.0.7 (20 May 2020)</span>
+            <ul>
+              <li>
+                Upgraded scramble-display package to latest, so more scrambles
+                should be displaying properly
+              </li>
+              <li>
+                Fixed a bug with the accumulated results pop up not rendering
+              </li>
+              <li>Fixed untracking solves from a room</li>
+              <li>
+                Behind the Scenes: Add linting and formatting guidelines for the
+                code
+              </li>
+            </ul>
+          </div>
+
+          <div class="release">
             <span class="headline">v1.0.6 (16 May 2020)</span>
             <ul>
               <li>
