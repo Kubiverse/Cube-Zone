@@ -336,7 +336,7 @@ export default {
         },
         { text: 'Creator', value: 'creator.name', width: '200px' },
         {
-          text: 'Max Capacity',
+          text: 'Capacity',
           align: 'left',
           sortable: false,
           value: 'max_capacity',
