@@ -8,7 +8,7 @@
 
 > Create your .env file, and copy over the contents of .env.example. You can leave the credentials as they are for the example credentials, or you can replace them with your own.
 
-``` bash
+```bash
 # install dependencies
 $ npm install
 
@@ -17,4 +17,29 @@ $ npm run dev
 
 # generate static project
 $ npm run generate
+```
+
+### Static code analysis
+
+The project is linted with [Eslint](https://eslint.org/) and formatted with [Prettier](https://prettier.io/).
+
+A pre-commit hooks checks that both linting and format validation pass (run `npm run validate` to check locally).
+
+The following scripts are available:
+
+```bash
+# check linting issues
+$ npm run lint
+
+# check and fix linting issues
+$ npm run lint --fix
+
+# check code formatting
+$ npm run check-format
+
+# format code
+$ npm run format
+
+# validate code formatting and linting
+$ npm run validate
 ```
