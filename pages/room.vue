@@ -77,10 +77,11 @@
                       :size="settingsObject.scrambleFontSize"
                     />
                     <div v-if="settingsObject.inspectionTimer" class="overline">
-                      Inspection Mode On: Hit space bar to start inspection.
+                      Inspection Mode On: Press spacebar to start inspection
                     </div>
                     <div class="overline">
-                      Timer input method: {{ settingsObject.inputMethod }}
+                      Timer input method:
+                      {{ inputMethodMap[settingsObject.inputMethod] }}
                     </div>
                   </div>
                 </div>
@@ -345,6 +346,7 @@
 
 <script>
 import sharedService from '~/services/shared.js'
+import { inputMethodMap } from '~/services/constants.js'
 import { ROOM_QUERY } from '~/gql/query/room.js'
 import { ROUNDS_QUERY } from '~/gql/query/round.js'
 import {
@@ -390,6 +392,7 @@ export default {
 
   data() {
     return {
+      inputMethodMap,
       room: null,
       rounds: [],
       activeRound: null,
