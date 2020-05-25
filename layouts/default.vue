@@ -299,14 +299,14 @@ export default {
 
     async logout() {
       try {
+        this.$router.push('/')
+
         await this.$apollo.mutate({
           mutation: LOGOUT_MUTATION,
           variables: {},
         })
 
         await authService.handleLogout(this)
-
-        this.$router.push('/')
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }
