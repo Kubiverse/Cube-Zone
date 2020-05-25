@@ -570,6 +570,21 @@ export default {
       window.addEventListener('blur', this.onPageBlur)
       window.addEventListener('focus', this.onPageFocus)
       window.addEventListener('keyup', this.handleKeyUp)
+      window.addEventListener('beforeunload', (event) => {
+        event.preventDefault()
+        if (event) {
+          event.returnValue = ''
+        }
+
+        this.$apollo.mutate({
+          mutation: LEAVE_ROOM_MUTATION,
+          variables: {
+            room_id: this.$route.query.id,
+          },
+        })
+
+        return ''
+      })
     }
   },
 
