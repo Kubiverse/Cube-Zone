@@ -65,6 +65,14 @@
           </v-tabs>
 
           <v-tabs-items v-model="tab">
+            <v-tab-item key="pbs">
+              <ViewCuberPbsInterface
+                :status="currentTab == 'pbs'"
+                :generation="generation.solves"
+                :cuber="cuber"
+              ></ViewCuberPbsInterface>
+            </v-tab-item>
+
             <v-tab-item key="solves">
               <v-row>
                 <v-col cols="3">
@@ -155,6 +163,7 @@ import {
   FOLLOW_CUBER_MUTATION,
   UNFOLLOW_CUBER_MUTATION,
 } from '~/gql/mutation/cuber.js'
+import ViewCuberPbsInterface from '~/components/interface/viewCuberPbsInterface.vue'
 import ViewCuberSolvesInterface from '~/components/interface/viewCuberSolvesInterface.vue'
 import ViewCuberRoomsInterface from '~/components/interface/viewCuberRoomsInterface.vue'
 import ViewCuberFollowersInterface from '~/components/interface/viewCuberFollowersInterface.vue'
@@ -163,6 +172,7 @@ import EventLabel from '~/components/shared/eventLabel.vue'
 
 export default {
   components: {
+    ViewCuberPbsInterface,
     ViewCuberSolvesInterface,
     ViewCuberRoomsInterface,
     ViewCuberFollowersInterface,
@@ -197,6 +207,7 @@ export default {
 
       tab: null,
       tabItems: [
+        { tab: 'pbs', title: 'Personal Records' },
         { tab: 'solves', title: 'Solves' },
         { tab: 'rooms', title: 'Recent Rooms' },
         { tab: 'follows', title: 'Follows' },

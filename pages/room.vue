@@ -291,7 +291,8 @@
                 ref="chatbox"
                 v-model="chatMessage"
                 name="chatbox"
-                placeholder="Type your message here"
+                placeholder="Chat is temporarily not working, we apologize for the inconvenience"
+                disabled
                 dense
                 filled
                 hide-details
