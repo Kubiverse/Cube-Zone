@@ -50,8 +50,17 @@
                 Ability to invite someone to your room through notifications
                 instead of sending a link
               </li>
-              <li>Distinction between Spectating and Solving in a room</li>
               <li>Ability to display your personal bests on your profile</li>
+            </ul>
+          </div>
+
+          <div class="release">
+            <span class="headline">v1.1.1 (31 May 2020)</span>
+            <ul>
+              <li>Moved login/user menu to bottom left of navigation drawer</li>
+              <li>Removed the top navigation bar</li>
+              <li>Confirmation dialog when closing the room page</li>
+              <li>Behind the scenes improvements</li>
             </ul>
           </div>
 
