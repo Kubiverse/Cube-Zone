@@ -162,6 +162,9 @@
                   {{ generateMomentString(props.item.created_at) }}
                 </td>
                 <td class="text-xs-left">
+                  <v-icon small title="Join Room" @click.stop="enterRoom(item)"
+                    >mdi-location-enter</v-icon
+                  >
                   <v-icon
                     small
                     title="Spectate room"

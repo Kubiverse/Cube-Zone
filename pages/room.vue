@@ -570,6 +570,7 @@ export default {
       window.addEventListener('blur', this.onPageBlur)
       window.addEventListener('focus', this.onPageFocus)
       window.addEventListener('keyup', this.handleKeyUp)
+      window.addEventListener('beforeunload', this.handlePageClose)
     }
   },
 
@@ -578,6 +579,7 @@ export default {
       window.removeEventListener('blur', this.onPageBlur)
       window.removeEventListener('focus', this.onPageFocus)
       window.removeEventListener('keyup', this.handleKeyUp)
+      window.removeEventListener('beforeunload', this.handlePageClose)
     }
   },
 
@@ -663,6 +665,22 @@ export default {
           }, 250)
         }
       }
+    },
+
+    handlePageClose(e) {
+      e.preventDefault()
+      if (e) {
+        e.returnValue = ''
+      }
+
+      this.$apollo.mutate({
+        mutation: LEAVE_ROOM_MUTATION,
+        variables: {
+          room_id: this.$route.query.id,
+        },
+      })
+
+      return ''
     },
 
     onPageBlur() {

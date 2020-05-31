@@ -82,7 +82,7 @@
 
 <script>
 import sharedService from '~/services/shared.js'
-import Stackmat from 'stackmat/dist/umd/stackmat'
+import Stackmat from '~/services/stackmat.js'
 
 export default {
   props: {
