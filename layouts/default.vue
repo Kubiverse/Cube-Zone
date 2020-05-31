@@ -60,7 +60,13 @@
               <template v-slot:activator="{ on }">
                 <v-list-item key="-2" v-on="on">
                   <v-list-item-action>
-                    <v-img v-if="user.avatar" :src="user.avatar" />
+                    <v-img
+                      v-if="user.avatar"
+                      :src="user.avatar"
+                      height="32"
+                      width="32"
+                      contain
+                    />
                     <v-icon v-else>mdi-account</v-icon>
                   </v-list-item-action>
                   <v-list-item-content>
