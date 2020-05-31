@@ -36,84 +36,110 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+      <template v-slot:append>
+        <v-list>
+          <v-list-item key="-1" @click="miniVariant = !miniVariant">
+            <v-list-item-action>
+              <v-icon v-if="miniVariant">mdi-chevron-right</v-icon>
+            </v-list-item-action>
+            <v-list-item-content></v-list-item-content>
+            <v-list-item-action>
+              <v-btn icon @click.stop="miniVariant = !miniVariant">
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+          <client-only>
+            <v-menu
+              v-if="user"
+              :close-on-content-click="true"
+              :max-width="300"
+              offset-x
+              top
+            >
+              <template v-slot:activator="{ on }">
+                <v-list-item key="-2" v-on="on">
+                  <v-list-item-action>
+                    <v-img v-if="user.avatar" :src="user.avatar" />
+                    <v-icon v-else>mdi-account</v-icon>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ user.name }}</v-list-item-title>
+                    <v-list-item-subtitle>{{
+                      user.wca_id
+                    }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+
+              <v-card>
+                <v-list>
+                  <v-list-item>
+                    <v-list-item-avatar>
+                      <v-img v-if="user.avatar" :src="user.avatar" />
+                      <v-icon v-else>mdi-account</v-icon>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title>{{ user.name }}</v-list-item-title>
+                      <v-list-item-subtitle
+                        >WCA ID: {{ user.wca_id }}</v-list-item-subtitle
+                      >
+                      <v-list-item-subtitle
+                        >Nationality:
+                        {{
+                          countriesMap[user.nationality]
+                        }}</v-list-item-subtitle
+                      >
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+
+                <v-divider></v-divider>
+
+                <v-list dense>
+                  <v-list-item
+                    :key="-1"
+                    :to="currentUserProfileRoute"
+                    exact
+                    nuxt
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>My Profile Page</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <v-list-item
+                    v-for="(item, i) in accountItems"
+                    :key="i"
+                    :to="item.to"
+                    :exact="item.exact"
+                    nuxt
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider></v-divider>
+                  <v-list-item @click="logout()">
+                    <v-list-item-content>
+                      <v-list-item-title>Logout</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </v-menu>
+            <div v-else>
+              <v-list-item to="/login" router exact>
+                <v-list-item-action>
+                  <v-icon>mdi-login</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>Login</v-list-item-content>
+              </v-list-item>
+            </div>
+          </client-only>
+        </v-list>
+      </template>
     </v-navigation-drawer>
-    <v-app-bar :clipped-left="clipped" fixed app>
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-spacer />
-      <client-only>
-        <v-menu
-          v-if="user"
-          :close-on-content-click="true"
-          :max-width="300"
-          offset-y
-        >
-          <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on">
-              <v-avatar>
-                <v-img v-if="user.avatar" :src="user.avatar" />
-                <v-icon v-else>mdi-account</v-icon>
-              </v-avatar>
-            </v-btn>
-          </template>
-
-          <v-card>
-            <v-list>
-              <v-list-item>
-                <v-list-item-avatar>
-                  <v-img v-if="user.avatar" :src="user.avatar" />
-                  <v-icon v-else>mdi-account</v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ user.name }}</v-list-item-title>
-                  <v-list-item-subtitle
-                    >WCA ID: {{ user.wca_id }}</v-list-item-subtitle
-                  >
-                  <v-list-item-subtitle
-                    >Nationality:
-                    {{ countriesMap[user.nationality] }}</v-list-item-subtitle
-                  >
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-
-            <v-divider></v-divider>
-
-            <v-list dense>
-              <v-list-item :key="-1" :to="currentUserProfileRoute" exact nuxt>
-                <v-list-item-content>
-                  <v-list-item-title>My Profile Page</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-
-              <v-list-item
-                v-for="(item, i) in accountItems"
-                :key="i"
-                :to="item.to"
-                :exact="item.exact"
-                nuxt
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-              <v-list-item @click="logout()">
-                <v-list-item-content>
-                  <v-list-item-title>Logout</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-menu>
-        <div v-else>
-          <v-btn nuxt to="/login">
-            Login
-          </v-btn>
-        </div>
-      </client-only>
-    </v-app-bar>
     <v-content>
       <nuxt />
     </v-content>
@@ -336,3 +362,10 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.v-list__tile--buy {
+  margin-top: auto;
+  margin-bottom: 17px;
+}
+</style>
