@@ -360,10 +360,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.v-list__tile--buy {
-  margin-top: auto;
-  margin-bottom: 17px;
-}
-</style>
