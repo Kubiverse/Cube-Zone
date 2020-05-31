@@ -154,11 +154,12 @@ export default {
         //this.cuber.is_followed_by_you = data.unfollowCuber.is_followed_by_you;
         this.cuber.is_followed_by_you = follow
 
-        sharedService.generateSnackbar(
-          this.$root,
-          'Cuber ' + (follow ? '' : 'un-') + 'followed',
-          'success',
-        )
+        const message = follow ? 'Cuber followed' : 'Cuber un-followed'
+
+        this.$notifier.showSnackbar({
+          message,
+          variant: 'success',
+        })
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }

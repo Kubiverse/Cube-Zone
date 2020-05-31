@@ -42,7 +42,6 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js'
 import ViewCuberRoomsInterface from '~/components/interface/viewCuberRoomsInterface.vue'
 import AddRoomDialog from '~/components/dialog/room/addRoomDialog.vue'
 import { mapGetters } from 'vuex'
@@ -86,7 +85,10 @@ export default {
       //must be logged in
       if (!this.$store.getters['auth/user']) {
         this.$root.$emit('login-dialog', this.$route.fullPath)
-        sharedService.generateSnackbar(this.$root, 'Login required', 'error')
+        this.$notifier.showSnackbar({
+          message: 'Login required',
+          variant: 'error',
+        })
       } else {
         this.openDialog('addRoom')
       }

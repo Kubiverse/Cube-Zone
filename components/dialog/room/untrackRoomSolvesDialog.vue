@@ -70,11 +70,10 @@ export default {
           },
         })
 
-        sharedService.generateSnackbar(
-          this.$root,
-          'Room Solves Untracked',
-          'success',
-        )
+        this.$notifier.showSnackbar({
+          message: 'Room Solves Untracked',
+          variant: 'success',
+        })
 
         this.$emit('room-untracked', data)
 

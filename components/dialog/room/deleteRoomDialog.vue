@@ -83,7 +83,10 @@ export default {
           */
         })
 
-        sharedService.generateSnackbar(this.$root, 'Room Deleted', 'success')
+        this.$notifier.showSnackbar({
+          message: 'Room Deleted',
+          variant: 'success',
+        })
 
         this.$emit('submit', data)
 

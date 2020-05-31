@@ -235,7 +235,10 @@ export default {
           */
         })
 
-        sharedService.generateSnackbar(this.$root, 'Room Added', 'success')
+        this.$notifier.showSnackbar({
+          message: 'Room Added',
+          variant: 'success',
+        })
 
         this.$emit('submit', data.createRoom, this.inputs.secret)
 
