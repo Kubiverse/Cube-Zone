@@ -62,11 +62,10 @@ export default {
           variables: this.inputs,
         })
 
-        sharedService.generateSnackbar(
-          this.$root,
-          data.forgotPassword.message,
-          'success',
-        )
+        this.$notifier.showSnackbar({
+          message: data.forgotPassword.message,
+          variant: 'success',
+        })
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }

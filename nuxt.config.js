@@ -40,7 +40,12 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['@/plugins/misc', '@/plugins/apolloAuth', '@/plugins/vuetify'],
+  plugins: [
+    '@/plugins/misc',
+    '@/plugins/apolloAuth',
+    '@/plugins/vuetify',
+    '@/plugins/notifier.js',
+  ],
   /*
    ** Nuxt.js dev-modules
    */
@@ -101,7 +106,7 @@ export default {
           primary: colors.blue.darken2,
           accent: colors.grey.darken3,
           secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
+          info: colors.teal.lighten2,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3,
@@ -110,7 +115,7 @@ export default {
           primary: colors.blue.lighten2,
           accent: colors.grey.lighten3,
           secondary: colors.amber.lighten3,
-          info: colors.teal.lighten1,
+          info: colors.teal.lighten2,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3,

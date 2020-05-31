@@ -230,13 +230,14 @@ export default {
           },
         })
 
-        solve.is_tracked = data.updateSolve.is_tracked;
+        solve.is_tracked = data.updateSolve.is_tracked
 
-        sharedService.generateSnackbar(
-          this.$root,
-          'Solve ' + (solve.is_tracked ? 'Re' : 'Un') + '-tracked',
-          'success',
-        )
+        const message = solve.is_tracked ? 'Solve tracked' : 'Solve un-tracked'
+
+        this.$notifier.showSnackbar({
+          message,
+          variant: 'success',
+        })
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }

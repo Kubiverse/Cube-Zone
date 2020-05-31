@@ -137,11 +137,10 @@ export default {
           user: data.updateCuber,
         })
 
-        sharedService.generateSnackbar(
-          this.$root,
-          'User info updated successfully',
-          'success',
-        )
+        this.$notifier.showSnackbar({
+          message: 'User info updated successfully',
+          variant: 'success',
+        })
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }

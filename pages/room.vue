@@ -258,7 +258,7 @@
           <v-row justify="center">
             <div>
               <PreviewCuberPopover
-                v-for="(item, i) in room.spectating_cubers.data"
+                v-for="item in room.spectating_cubers.data"
                 :key="item.id"
                 :selected-item="item"
                 chip
@@ -595,7 +595,10 @@ export default {
         )
       }
 
-      sharedService.generateSnackbar(this.$root, 'Settings Saved', 'success')
+      this.$notifier.showSnackbar({
+        message: 'Settings Saved',
+        variant: 'success',
+      })
     },
 
     //checks the rounds and deletes any historical rounds and references to solves
@@ -1113,11 +1116,10 @@ export default {
           },
         })
 
-        sharedService.generateSnackbar(
-          this.$root,
-          'Updated user status',
-          'success',
-        )
+        this.$notifier.showSnackbar({
+          message: 'Updated user status',
+          variant: 'success',
+        })
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }
@@ -1138,11 +1140,10 @@ export default {
         //optimistically update the manager
         this.room.manager = data.grantRoomManagementToCuber.manager
 
-        sharedService.generateSnackbar(
-          this.$root,
-          'Assigned New Manager',
-          'success',
-        )
+        this.$notifier.showSnackbar({
+          message: 'Assigned New Manager',
+          variant: 'success',
+        })
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }

@@ -180,7 +180,10 @@ export default {
           },
         })
 
-        sharedService.generateSnackbar(this.$root, 'Room Updated', 'success')
+        this.$notifier.showSnackbar({
+          message: 'Room Updated',
+          variant: 'success',
+        })
 
         this.$emit('submit', data)
 

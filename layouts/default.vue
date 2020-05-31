@@ -192,10 +192,7 @@
         Chat with us!
       </a>
     </v-footer>
-    <v-snackbar v-model="snackbarOpen" :timeout="3000" :color="snackbarColor">
-      {{ snackbarMessage }}
-      <v-btn color="pink" text @click="snackbarOpen = false">Close</v-btn>
-    </v-snackbar>
+    <Snackbar />
     <ViewCuberSolvesDialog
       :cuber="lookupCuber"
       :status="dialogs.viewCuberSolves"
@@ -218,10 +215,12 @@ import { LOGOUT_MUTATION } from '~/gql/mutation/auth.js'
 import { CUBER_NOTIFICATION_RECEIVED_SUBSCRIPTION } from '~/gql/subscription/cuber.js'
 import ViewCuberSolvesDialog from '~/components/dialog/solve/viewCuberSolvesDialog'
 import LoginDialog from '~/components/dialog/auth/loginDialog'
+import Snackbar from '~/components/snackbar'
 
 export default {
   components: {
     ViewCuberSolvesDialog,
+    Snackbar,
     LoginDialog,
   },
   data() {
@@ -259,11 +258,6 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-
-      //snackbars
-      snackbarOpen: false,
-      snackbarColor: '',
-      snackbarMessage: '',
     }
   },
 
@@ -280,24 +274,22 @@ export default {
   watch: {
     user(val) {
       if (val) {
-        sharedService.generateSnackbar(this.$root, 'Login Success', 'success')
+        this.$notifier.showSnackbar({
+          message: 'Login Success',
+          variant: 'success',
+        })
 
         this.subscribeToCuberNotifications()
       } else {
-        sharedService.generateSnackbar(this.$root, 'User Logged Out', 'warning')
+        this.$notifier.showSnackbar({
+          message: 'User Logged Out',
+          variant: 'warning',
+        })
       }
     },
   },
 
   created() {
-    this.$root.$on('snackbar-message', (val) => {
-      if (val.message) {
-        this.snackbarOpen = true
-        this.snackbarMessage = val.message
-        this.snackbarColor = val.color || ''
-      }
-    })
-
     this.$root.$on('cuber-lookup', (cuber) => {
       if (!cuber) return
       this.lookupCuber = cuber

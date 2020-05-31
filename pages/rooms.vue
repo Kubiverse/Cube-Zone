@@ -414,7 +414,10 @@ export default {
       //must be logged in
       if (!this.$store.getters['auth/user']) {
         this.$root.$emit('login-dialog', this.$route.fullPath)
-        sharedService.generateSnackbar(this.$root, 'Login required', 'error')
+        this.$notifier.showSnackbar({
+          message: 'Login required',
+          variant: 'error',
+        })
       } else {
         this.openDialog('addRoom')
       }

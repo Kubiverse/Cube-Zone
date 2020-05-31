@@ -2,25 +2,19 @@ import { solveStateTextMap } from '~/services/constants.js'
 import moment from 'moment'
 
 export default {
-  generateSnackbar: function (root, message, color = null) {
-    root.$emit('snackbar-message', {
-      message: message,
-      color: color,
-    })
-    return false
-  },
-
   handleError: function (err, root = null) {
     if (root) {
       if (err.response && err.response.data.info) {
-        this.generateSnackbar(root, err.response.data.info, 'error')
+        root.$notifier.showSnackbar({
+          message: err.response.data.info,
+          variant: 'error',
+        })
       } else {
         //sanitize error message
-        this.generateSnackbar(
-          root,
-          this.sanitizeErrorMessage(err.message),
-          'error',
-        )
+        root.$notifier.showSnackbar({
+          message: this.sanitizeErrorMessage(err.message),
+          variant: 'error',
+        })
       }
     }
     console.log(err)
@@ -32,7 +26,10 @@ export default {
 
   copyToClipboard(that, content) {
     that.$copyText(content)
-    this.generateSnackbar(that.$root, 'Copied to Clipboard', 'success')
+    that.$notifier.showSnackbar({
+      message: 'Copied to Clipboard',
+      variant: 'success',
+    })
   },
 
   generateError: function (message, errno = null) {

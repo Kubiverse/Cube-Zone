@@ -1,0 +1,56 @@
+<template>
+  <v-snackbar v-model="open" :timeout="3000" :color="variant">
+    <span :style="{ color: textColor }">{{ message }}</span>
+    <v-btn :style="{ color: textColor }" text @click="open = false"
+      >Close</v-btn
+    >
+  </v-snackbar>
+</template>
+
+<script lang="ts">
+export default {
+  data() {
+    return {
+      open: false,
+      variant: '',
+      message: '',
+    }
+  },
+  computed: {
+    textColor: function () {
+      const variantToTextColorMap = {
+        success: '#082218',
+        warning: '#2A150D',
+        error: '#FFF8F8',
+        info: '#050709',
+      }
+      return variantToTextColorMap[this.variant]
+    },
+  },
+  created: function () {
+    this.$store.subscribe((mutation, state) => {
+      if (mutation.type === 'snackbar/showSnackbar') {
+        const message = state.snackbar.message
+        const variant = isAcceptedVariant(state.snackbar.variant)
+          ? state.snackbar.variant
+          : 'info'
+
+        if (message) {
+          this.open = true
+          this.message = message
+          this.variant = variant
+        }
+      }
+    })
+  },
+}
+
+const isAcceptedVariant = (variant) => {
+  return (
+    variant === 'info' ||
+    variant === 'success' ||
+    variant === 'warning' ||
+    variant === 'error'
+  )
+}
+</script>
