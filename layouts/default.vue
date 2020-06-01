@@ -252,6 +252,11 @@ export default {
           title: 'My Recent Rooms',
           to: '/my-rooms',
         },
+        {
+          icon: 'mdi-format-list-numbered',
+          title: 'Global Stats',
+          to: '/stats',
+        },
       ],
 
       accountItems: [{ title: 'Settings', to: '/settings', exact: false }],

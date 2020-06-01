@@ -223,7 +223,11 @@
             <span v-else id="v-step-startroom">&nbsp;</span>
             <v-menu offset-y>
               <template v-slot:activator="{ on }">
-                <v-btn :loading="loading.updateRoomStatus" v-on="on">
+                <v-btn
+                  id="v-step-cuberstatus"
+                  :loading="loading.updateRoomStatus"
+                  v-on="on"
+                >
                   Your Status: {{ cuberStatusMap[currentUserStatus] }}
                 </v-btn>
               </template>
@@ -422,6 +426,13 @@ export default {
             title: 'Room Settings',
           },
           content: `Click this button to view/edit your settings for this room, including the font size of the scramble and various timer settings.`,
+        },
+        {
+          target: '#v-step-cuberstatus',
+          header: {
+            title: 'Your Status',
+          },
+          content: `Click this button to toggle your status within the room as needed.`,
         },
         {
           target: '#v-step-share',
@@ -977,6 +988,16 @@ export default {
     },
 
     async startNextRound() {
+      //confirm
+      if (this.activeRound) {
+        const answer = window.confirm(
+          'Do you really want to force start the next round? Anyone who has not submitted their solve for this round yet will not be able to do so.',
+        )
+        if (!answer) {
+          return
+        }
+      }
+
       this.loading.startingNextRound = true
       try {
         await this.$apollo.mutate({

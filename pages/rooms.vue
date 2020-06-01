@@ -17,6 +17,7 @@
           >
             <template v-slot:top>
               <v-toolbar flat color="accent">
+                <v-icon left>mdi-google-classroom</v-icon>
                 <v-toolbar-title>Rooms</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-btn
