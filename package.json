@@ -24,7 +24,7 @@
     "moment": "^2.26.0",
     "nuxt": "^2.12.2",
     "nuxt-clipboard2": "^0.2.1",
-    "pusher-js": "^5.1.1",
+    "pusher-js": "^6.0.3",
     "randomstring": "^1.1.5",
     "scramble-display": "^0.1.0",
     "vue-tour": "^1.4.0"
