@@ -14,24 +14,24 @@ export default {
       open: false,
       variant: '',
       message: '',
-    }
-  },
-  computed: {
-    textColor: function () {
-      const variantToTextColorMap = {
+      variantToTextColorMap: {
         success: '#082218',
         warning: '#2A150D',
         error: '#FFF8F8',
         info: '#050709',
-      }
-      return variantToTextColorMap[this.variant]
+      },
+    }
+  },
+  computed: {
+    textColor: function () {
+      return this.variantToTextColorMap[this.variant]
     },
   },
   created: function () {
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'snackbar/showSnackbar') {
         const message = state.snackbar.message
-        const variant = isAcceptedVariant(state.snackbar.variant)
+        const variant = this.isAcceptedVariant(state.snackbar.variant)
           ? state.snackbar.variant
           : 'info'
 
@@ -43,14 +43,15 @@ export default {
       }
     })
   },
-}
-
-const isAcceptedVariant = (variant) => {
-  return (
-    variant === 'info' ||
-    variant === 'success' ||
-    variant === 'warning' ||
-    variant === 'error'
-  )
+  methods: {
+    isAcceptedVariant: (variant) => {
+      return (
+        variant === 'info' ||
+        variant === 'success' ||
+        variant === 'warning' ||
+        variant === 'error'
+      )
+    },
+  },
 }
 </script>
