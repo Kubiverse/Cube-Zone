@@ -173,15 +173,6 @@ export default {
       })
       window.open(routeData.href, '_blank')
     },
-
-    isAcceptedVariant: (variant) => {
-      return (
-        variant === 'info' ||
-        variant === 'success' ||
-        variant === 'warning' ||
-        variant === 'error'
-      )
-    },
   },
 }
 </script>
