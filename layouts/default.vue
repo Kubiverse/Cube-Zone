@@ -51,6 +51,28 @@
           </v-list-item>
           <client-only>
             <template v-if="user">
+              <v-list-item
+                key="-3"
+                @click="cuberNotificationStatus = !cuberNotificationStatus"
+              >
+                <v-list-item-action>
+                  <v-badge
+                    :content="messagesCount"
+                    :value="messagesCount"
+                    color="red"
+                    overlap
+                  >
+                    <v-icon>{{
+                      cuberNotificationStatus
+                        ? 'mdi-bell-check'
+                        : 'mdi-bell-cancel'
+                    }}</v-icon>
+                  </v-badge>
+                </v-list-item-action>
+                <v-list-item-content>
+                  {{ messagesCount }} Notifications
+                </v-list-item-content>
+              </v-list-item>
               <v-menu
                 :close-on-content-click="true"
                 :max-width="300"
@@ -134,28 +156,6 @@
                   </v-list>
                 </v-card>
               </v-menu>
-              <v-list-item
-                key="-3"
-                @click="cuberNotificationStatus = !cuberNotificationStatus"
-              >
-                <v-list-item-action>
-                  <v-badge
-                    :content="messagesCount"
-                    :value="messagesCount"
-                    color="red"
-                    overlap
-                  >
-                    <v-icon>{{
-                      cuberNotificationStatus
-                        ? 'mdi-bell-check'
-                        : 'mdi-bell-cancel'
-                    }}</v-icon>
-                  </v-badge>
-                </v-list-item-action>
-                <v-list-item-content>
-                  {{ messagesCount }} Notifications
-                </v-list-item-content>
-              </v-list-item>
             </template>
 
             <div v-else>

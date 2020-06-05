@@ -764,15 +764,24 @@ export default {
         )
 
         if (!foundResult) {
-          !initialLoad &&
-            this.handleChatMessageReceived({
-              user: active_cuber,
-              message:
-                'has just joined the room! (' +
-                this.cuberStatusMap[active_cuber.pivot.type] +
-                ')',
-              system: true,
-            })
+          if (!initialLoad) {
+            if (active_cuber.pivot.type === 'VISITED') {
+              this.handleChatMessageReceived({
+                user: active_cuber,
+                message: 'has just left the room!',
+                system: true,
+              })
+            } else {
+              this.handleChatMessageReceived({
+                user: active_cuber,
+                message:
+                  'has just joined the room! (' +
+                  this.cuberStatusMap[active_cuber.pivot.type] +
+                  ')',
+                system: true,
+              })
+            }
+          }
 
           //if joining as spectator or visited, do not add to cuberResults
           if (
