@@ -290,7 +290,7 @@ export default {
       this.stackmat.on('stopped', (packet) => {
         if (this.timerState == 4) {
           this.timerState = 5
-          this.stop(packet.timeInMilliseconds)
+          this.stop(packet.time)
         }
       })
 

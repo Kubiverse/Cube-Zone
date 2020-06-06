@@ -9,15 +9,6 @@
           Welcome to Cube.Zone
         </v-card-title>
         <v-card-text>
-          <v-btn @click="addTestInvite()">
-            Add Invite
-          </v-btn>
-          <v-btn @click="addTestFollower()">
-            Add New Follower
-          </v-btn>
-          <v-btn @click="addTestFollowJoined()">
-            Followed joined a room
-          </v-btn>
           <p>
             Cube.Zone is a new online platform for social cubing. Please login
             or create an account to get started.
@@ -266,77 +257,11 @@
 </template>
 
 <script>
+
 export default {
   components: {},
 
-  methods: {
-    addTestInvite() {
-      this.$store.commit('cuberNotification/addMessage', {
-        __classname: 'RoomInvitationNotification',
-        initiator: {
-          id: 1,
-          name: 'James Chang',
-          avatar:
-            'https://www.worldcubeassociation.org/assets/missing_avatar_thumb-f0ea801c804765a22892b57636af829edbef25260a65d90aaffbd7873bde74fc.png',
-        },
-        target: {
-          id: 1,
-          name: 'James Chang',
-          avatar:
-            'https://www.worldcubeassociation.org/assets/missing_avatar_thumb-f0ea801c804765a22892b57636af829edbef25260a65d90aaffbd7873bde74fc.png',
-        },
-        room: {
-          id: 1,
-          name: 'Room1',
-          created_at: new Date(),
-        },
-        created_at: new Date(),
-      })
-    },
-
-    addTestFollower() {
-      this.$store.commit('cuberNotification/addMessage', {
-        __classname: 'FollowerReceivedNotification',
-        initiator: {
-          id: 1,
-          name: 'James Chang',
-          avatar:
-            'https://www.worldcubeassociation.org/assets/missing_avatar_thumb-f0ea801c804765a22892b57636af829edbef25260a65d90aaffbd7873bde74fc.png',
-        },
-        target: {
-          id: 1,
-          name: 'James Chang',
-          avatar:
-            'https://www.worldcubeassociation.org/assets/missing_avatar_thumb-f0ea801c804765a22892b57636af829edbef25260a65d90aaffbd7873bde74fc.png',
-        },
-        created_at: new Date(),
-      })
-    },
-
-    addTestFollowJoined() {
-      this.$store.commit('cuberNotification/addMessage', {
-        __classname: 'FollowsJoinedRoomNotification',
-        initiator: {
-          id: 1,
-          name: 'James Chang',
-          avatar:
-            'https://www.worldcubeassociation.org/assets/missing_avatar_thumb-f0ea801c804765a22892b57636af829edbef25260a65d90aaffbd7873bde74fc.png',
-        },
-        target: {
-          id: 1,
-          name: 'James Chang',
-          avatar:
-            'https://www.worldcubeassociation.org/assets/missing_avatar_thumb-f0ea801c804765a22892b57636af829edbef25260a65d90aaffbd7873bde74fc.png',
-        },
-        room: {
-          id: 1,
-          name: 'Room1',
-          created_at: new Date(),
-        },
-        created_at: new Date(),
-      })
-    },
-  },
+  methods: {},
   head() {
     return {
       title: 'Home',
