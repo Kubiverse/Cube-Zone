@@ -318,6 +318,7 @@
       :input-method="settingsObject.inputMethod"
       :timer-trigger-duration="settingsObject.timerTriggerDuration"
       :inspection-timer="settingsObject.inspectionTimer"
+      :streamer-mode="settingsObject.streamerMode"
       @submit-results="updateSolve"
       @timer-state-updated="handleTimerStateUpdate"
       @timer-status-updated="handleTimerStatusUpdate"
@@ -457,6 +458,7 @@ export default {
         scrambleFontSize: 32,
         enableSounds: true,
         scramblePreviewVisualization: '2D',
+        streamerMode: false,
       },
 
       accumulatedResults: [
