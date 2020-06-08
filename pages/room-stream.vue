@@ -1,41 +1,46 @@
+/* eslint-disable prettier/prettier */
 <template>
   <v-container
     fluid
     fill-height
     :class="isChatboxOpened ? 'container-collapsed' : 'container-full'"
   >
-    <v-layout align-center justify-center>
-      <div v-if="errorMessage">
-        <span class="display-1 pl-2">{{ errorMessage }} </span>
-      </div>
-      <div v-else-if="loading.joiningRoom">
-        <span class="display-1 pl-2"
-          >Joining Room...
-          <v-progress-circular indeterminate></v-progress-circular>
-        </span>
-      </div>
-      <div
-        v-else-if="
-          generation.room < 3 &&
-          ($apollo.queries.room.loading || $apollo.queries.rounds.loading)
-        "
-      >
+    <v-layout>
+      <v-layout v-if="loadingText" justify-center align-center>
         <span class="display-1 pl-2"
           >Loading Room...
-          <v-progress-circular indeterminate></v-progress-circular>
+          <v-progress-circular
+            v-if="!errorMessage"
+            indeterminate
+          ></v-progress-circular>
         </span>
-      </div>
-      <div v-else-if="!room">
-        <span class="display-1 pl-2"
-          >Initializing Room...
-          <v-progress-circular indeterminate></v-progress-circular>
-        </span>
-      </div>
+      </v-layout>
       <div v-else style="width: 100%;">
         <template>
           <v-row justify="center">
             <v-col cols="12" class="text-center">
               <div v-if="activeRound" class="text-center justify-center">
+                <div style="display: flex;">
+                  <v-card height="300px" width="40vw" class="resizeable-card">
+                    <v-layout align-center justify-center fill-height>
+                      Hello
+                    </v-layout>
+                  </v-card>
+                  <ScrambleDisplay
+                    style="width: 20vw;"
+                    :puzzle="
+                      activeRound.scramble.event &&
+                      activeRound.scramble.event.puzzle
+                    "
+                    :scramble="activeRound.scramble.scramble"
+                    :solved="
+                      !currentUserSolve ||
+                      (currentUserSolve && currentUserSolve.state == 'FINISHED')
+                    "
+                    :visualization="settingsObject.scramblePreviewVisualization"
+                  ></ScrambleDisplay>
+                  <v-card height="300px" width="40vw" class="resizeable-card"></v-card>
+                </div>
                 <v-layout
                   v-if="settingsObject.showScramblePreview"
                   align-center
@@ -70,15 +75,12 @@
                     class="display-1"
                     >Waiting for next round...</span
                   >
-                  <div v-else :class="{ 'grey--text': chatBoxFocused }">
+                  <div v-else>
                     <Scramble
                       id="v-step-scramble"
                       :scramble="activeRound.scramble"
                       :size="settingsObject.scrambleFontSize"
                     />
-                    <div v-if="settingsObject.inspectionTimer" class="overline">
-                      Inspection Mode On: Press spacebar to start inspection
-                    </div>
                     <div class="overline">
                       Timer input method:
                       {{ inputMethodMap[settingsObject.inputMethod] }}
@@ -212,15 +214,6 @@
         </v-row>
         <v-row justify="center">
           <v-col cols="12" class="text-center">
-            <v-btn
-              v-if="isRoomManager"
-              id="v-step-startroom"
-              :loading="loading.startingNextRound"
-              color="primary"
-              @click="startNextRound()"
-              >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
-            >
-            <span v-else id="v-step-startroom">&nbsp;</span>
             <v-menu offset-y>
               <template v-slot:activator="{ on }">
                 <v-btn
@@ -243,8 +236,6 @@
             </v-menu>
             <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
             <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
-            <v-btn @click="startTutorial()">Tutorial</v-btn>
-            <v-btn @click="openStreamerWindow()">Streamer Window</v-btn>
             <v-btn
               id="v-step-settings"
               icon
@@ -291,25 +282,6 @@
           </v-expansion-panel-header>
           <v-expansion-panel-content>
             <ChatHistoryCard :chat-messages="chatMessages"></ChatHistoryCard>
-            <div class="chat-box">
-              <v-text-field
-                ref="chatbox"
-                v-model="chatMessage"
-                name="chatbox"
-                placeholder="Type your message here"
-                dense
-                filled
-                hide-details
-                solo-inverted
-                append-icon="mdi-send"
-                class="py-0"
-                autocomplete="off"
-                @keyup.enter="sendChatMessage()"
-                @click:append="sendChatMessage()"
-                @focus="chatBoxFocused = true"
-                @blur="chatBoxFocused = false"
-              ></v-text-field>
-            </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -346,7 +318,6 @@
       :status="dialogs.viewAccumulated"
       @close="dialogs.viewAccumulated = false"
     ></ViewAccumulatedResultDialog>
-    <v-tour name="myTour" :steps="steps"></v-tour>
   </v-container>
 </template>
 
@@ -356,11 +327,7 @@ import { inputMethodMap } from '~/services/constants.js'
 import { ROOM_QUERY } from '~/gql/query/room.js'
 import { ROUNDS_QUERY } from '~/gql/query/round.js'
 import {
-  JOIN_ROOM_MUTATION,
-  LEAVE_ROOM_MUTATION,
   GRANT_ROOM_MANAGEMENT_TO_CUBER_MUTATION,
-  NEXT_ROUND_MUTATION,
-  SEND_ROOM_CHAT_MESSAGE_MUTATION,
   UPDATE_SOLVE_MUTATION,
   CHANGE_ROOM_STATUS_MUTATION,
 } from '~/gql/mutation/room.js'
@@ -384,6 +351,8 @@ import Scramble from '~/components/shared/scramble'
 import { mapGetters } from 'vuex'
 
 export default {
+  layout: 'lite',
+
   components: {
     CubeTimerOverlay,
     PreviewCuberPopover,
@@ -403,53 +372,7 @@ export default {
       rounds: [],
       activeRound: null,
 
-      steps: [
-        {
-          target: '#v-step-startroom',
-          header: {
-            title: 'Get Started',
-          },
-          content: `If you are the room creator or manager, click <strong>Start Room</strong> to get started!<br/ />
-          Otherwise, you will need to wait until the current round is finished before participating.`,
-        },
-        {
-          target: '#v-step-scramble',
-          content: `Scramble the cube according the scramble, which will be shown when the next round has started.<br />
-          When the cube has been scrambled, <strong>press and hold space</strong> (or long tap on your mobile device) until the timer interface is <span class="green--text">green</span>.<br />
-          Then release and begin solving!<br />
-          Hit the space button (or tap the screen) when you are finished, then follow the instructions to finalize and record your time.`,
-          params: {
-            placement: 'top',
-          },
-        },
-        {
-          target: '#v-step-settings',
-          header: {
-            title: 'Room Settings',
-          },
-          content: `Click this button to view/edit your settings for this room, including the font size of the scramble and various timer settings.`,
-        },
-        {
-          target: '#v-step-cuberstatus',
-          header: {
-            title: 'Your Status',
-          },
-          content: `Click this button to toggle your status within the room as needed.`,
-        },
-        {
-          target: '#v-step-share',
-          header: {
-            title: 'Share Room',
-          },
-          content: `Click this button to copy the link to the room to your clipboard. You can then paste it and share with others who would like to join.`,
-        },
-      ],
-
       currentUserSolve: null,
-      generation: {
-        room: 0,
-        rounds: 0,
-      },
 
       settingsObject: {
         inputMethod: 'keyboard',
@@ -503,7 +426,6 @@ export default {
 
       chatMessages: [],
       chatMessage: null,
-      chatBoxFocused: false,
       expansionOpenedIndex: undefined,
       chatUnreadMessages: 0,
 
@@ -534,10 +456,21 @@ export default {
     cubeTimerDisabled() {
       return (
         !(this.currentUserSolve && this.currentUserSolve.state != 'FINISHED') ||
-        this.chatBoxFocused ||
         this.loading.updatingSolve ||
         this.dialogs.editRoomSettings
       )
+    },
+
+    // eslint-disable-next-line vue/return-in-computed-property
+    loadingText() {
+      if (this.errorMessage) return this.errorMessage
+      else if (
+        this.$apollo.queries.room.loading ||
+        this.$apollo.queries.rounds.loading
+      )
+        return 'Loading Room...'
+      else if (!this.room) return 'Initializing Room'
+      else return null
     },
 
     isChatboxOpened() {
@@ -583,8 +516,6 @@ export default {
     if (process.client) {
       window.addEventListener('blur', this.onPageBlur)
       window.addEventListener('focus', this.onPageFocus)
-      window.addEventListener('keyup', this.handleKeyUp)
-      window.addEventListener('beforeunload', this.handlePageClose)
     }
   },
 
@@ -592,8 +523,6 @@ export default {
     if (process.client) {
       window.removeEventListener('blur', this.onPageBlur)
       window.removeEventListener('focus', this.onPageFocus)
-      window.removeEventListener('keyup', this.handleKeyUp)
-      window.removeEventListener('beforeunload', this.handlePageClose)
     }
   },
 
@@ -666,38 +595,6 @@ export default {
           accumulator.contextualAccumulator.pivot_n === accItemObject.pivot_n &&
           accumulator.cuber.id == cuberId,
       )
-    },
-
-    handleKeyUp(e) {
-      if (this.stopPropagation) {
-        this.stopPropagation = false
-        return
-      }
-      if (this.timerStatus) return
-      if (e.code == 'Enter') {
-        if (!this.chatBoxFocused) {
-          this.expansionOpenedIndex = 0
-          setTimeout(() => {
-            this.$refs.chatbox.focus()
-          }, 250)
-        }
-      }
-    },
-
-    handlePageClose(e) {
-      e.preventDefault()
-      if (e) {
-        e.returnValue = ''
-      }
-
-      this.$apollo.mutate({
-        mutation: LEAVE_ROOM_MUTATION,
-        variables: {
-          room_id: this.$route.query.id,
-        },
-      })
-
-      return ''
     },
 
     onPageBlur() {
@@ -962,27 +859,14 @@ export default {
       }
     },
 
-    async joinAndLoadRoom() {
-      this.loading.joiningRoom = true
+    async loadRoom() {
       try {
         //must be logged in
         if (!this.$store.getters['auth/user']) {
-          this.$root.$emit('login-dialog', this.$route.fullPath)
-          throw sharedService.generateError('Login required to join room.')
+          throw sharedService.generateError('Login required to stream room.')
         }
 
-        const participationType = this.$route.query.status || 'PARTICIPATING'
-
-        await this.$apollo.mutate({
-          mutation: JOIN_ROOM_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-            secret: this.$route.query.secret,
-            participationType: participationType,
-          },
-        })
-
-        this.currentUserStatus = participationType
+        //will NOT be joining the room (should already be joined)
 
         this.$apollo.queries.room.skip = false
 
@@ -995,60 +879,6 @@ export default {
       } catch (err) {
         sharedService.handleError(err, this.$root)
         this.errorMessage = sharedService.sanitizeErrorMessage(err.message)
-      }
-      this.loading.joiningRoom = false
-    },
-
-    async startNextRound() {
-      //confirm
-      if (this.activeRound) {
-        const answer = window.confirm(
-          'Do you really want to force start the next round? Anyone who has not submitted their solve for this round yet will not be able to do so.',
-        )
-        if (!answer) {
-          return
-        }
-      }
-
-      this.loading.startingNextRound = true
-      try {
-        await this.$apollo.mutate({
-          mutation: NEXT_ROUND_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-          },
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-        this.loading.startingNextRound = false
-      }
-      //we will turn loading off when the subscription returns the next round
-      //this.loading.startingNextRound = false;
-    },
-
-    async sendChatMessage() {
-      try {
-        if (this.$refs.chatbox) {
-          this.$refs.chatbox.blur()
-        }
-
-        if (!this.chatMessage) {
-          return
-        }
-
-        const message = this.chatMessage
-        this.chatMessage = null
-
-        await this.$apollo.mutate({
-          mutation: SEND_ROOM_CHAT_MESSAGE_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-            message: message,
-          },
-          fetchPolicy: 'no-cache',
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
       }
     },
 
@@ -1134,10 +964,6 @@ export default {
       //this.loading.updatingSolve = false;
     },
 
-    startTutorial() {
-      this.$tours['myTour'].start()
-    },
-
     async updateRoomStatus(status) {
       this.loading.updateRoomStatus = true
       try {
@@ -1183,14 +1009,6 @@ export default {
       this.loading.assigningManager = false
     },
 
-    openStreamerWindow() {
-      let routeData = this.$router.resolve({
-        name: 'room-stream',
-        query: { id: this.$route.query.id },
-      })
-      window.open(routeData.href, '_blank')
-    },
-
     reset() {
       this.errorMessage = null
 
@@ -1208,7 +1026,7 @@ export default {
         }
       }
 
-      this.joinAndLoadRoom()
+      this.loadRoom()
     },
   },
 
@@ -1236,8 +1054,22 @@ export default {
       manual: true,
       skip: true,
       result({ data }) {
-        if (++this.generation.room % 2 == 0) {
+        //load the first response only. the subsequent responses are corrupted
+        if (data.room && !this.room) {
           this.room = data.room
+
+          //if room.pivot is null, user is not joined. give error
+          /*
+          This check is currently not working
+          if (!data.room.pivot) {
+            this.errorMessage = 'Must be joined to room to use streamer mode'
+            return
+          }
+          
+          //load the currentUserStatus
+          this.currentUserStatus = data.room.pivot.type
+          */
+
           //allow rounds query to start after this is done.
           this.$apollo.queries.rounds.skip = false
         }
@@ -1257,7 +1089,7 @@ export default {
       manual: true,
       skip: true,
       result({ data }) {
-        if (++this.generation.rounds % 2 == 0) {
+        if (data) {
           if (this.cuberResults.length) {
             //subsequent load (due to subscription)
           } else {
@@ -1405,21 +1237,6 @@ export default {
       },
     },
   },
-
-  beforeRouteLeave(to, from, next) {
-    const answer = window.confirm('Do you really want to leave this room?')
-    if (answer) {
-      this.$apollo.mutate({
-        mutation: LEAVE_ROOM_MUTATION,
-        variables: {
-          room_id: this.$route.query.id,
-        },
-      })
-      next()
-    } else {
-      next(false)
-    }
-  },
 }
 </script>
 
@@ -1455,6 +1272,12 @@ export default {
 
 .container-full {
   max-height: 100%;
+}
+
+.resizeable-card {
+  resize: vertical;
+  overflow: auto;
+  display: inline-block;
 }
 </style>
 
