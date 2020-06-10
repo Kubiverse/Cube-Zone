@@ -43,14 +43,17 @@
                       :scramble="activeRound.scramble.scramble"
                       :solved="
                         !currentUserSolve ||
-                        (currentUserSolve && currentUserSolve.state == 'FINISHED')
+                        (currentUserSolve &&
+                          currentUserSolve.state == 'FINISHED')
                       "
-                      :visualization="settingsObject.scramblePreviewVisualization"
+                      :visualization="
+                        settingsObject.scramblePreviewVisualization
+                      "
                     ></ScrambleDisplay>
                   </div>
                   <v-card height="300px" width="40vw" class="resizeable-card">
-                      <v-layout align-center justify-center fill-height>
-                        Stream Graphics Here
+                    <v-layout align-center justify-center fill-height>
+                      Stream Graphics Here
                       </v-layout>
                   </v-card>
                 </div>
@@ -320,7 +323,6 @@ import { inputMethodMap } from '~/services/constants.js'
 import { ROOM_QUERY } from '~/gql/query/room.js'
 import { ROUNDS_QUERY } from '~/gql/query/round.js'
 import {
-  GRANT_ROOM_MANAGEMENT_TO_CUBER_MUTATION,
   UPDATE_SOLVE_MUTATION,
   CHANGE_ROOM_STATUS_MUTATION,
 } from '~/gql/mutation/room.js'
