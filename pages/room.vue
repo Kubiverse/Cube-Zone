@@ -245,7 +245,10 @@
             <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
             <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
             <v-btn @click="startTutorial()">Tutorial</v-btn>
-            <v-btn @click="openStreamerWindow()">Streamer Window</v-btn>
+            <v-btn @click="openStreamerWindow()">
+              <v-icon left>mdi-open-in-new</v-icon>
+              Streamer Window
+            </v-btn>
             <v-btn
               id="v-step-settings"
               icon

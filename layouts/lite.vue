@@ -13,22 +13,14 @@
       <a href="mailto:feedback@cube.zone" class="pl-2">
         feedback@cube.zone
       </a>
-      <v-icon
-        small
-        class="pl-2"
-        @click="goToLink('https://github.com/Kubiverse/Cube-Zone')"
-        >mdi-github</v-icon
-      >
-      <v-icon
-        small
-        class="pl-2"
-        @click="goToLink('https://www.facebook.com/CubeZone-115206463518382')"
-        >mdi-facebook</v-icon
-      >
-      <a class="pl-2" @click="goToLink('https://discord.gg/J2v2eQN')">
-        <v-icon small>mdi-discord</v-icon>
-        Chat with us!
-      </a>
+      <span>
+        <v-img
+          :src="require('../static/cubezone2-rect-lite.png')"
+          height="30"
+          width="195"
+          class="ml-2"
+        />
+      </span>
     </v-footer>
     <Snackbar />
   </v-app>
