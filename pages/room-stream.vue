@@ -23,42 +23,37 @@
                 <div style="display: flex;">
                   <v-card height="300px" width="40vw" class="resizeable-card">
                     <v-layout align-center justify-center fill-height>
-                      Hello
+                      Stream Graphics Here
                     </v-layout>
                   </v-card>
-                  <ScrambleDisplay
-                    style="width: 20vw;"
-                    :puzzle="
-                      activeRound.scramble.event &&
-                      activeRound.scramble.event.puzzle
-                    "
-                    :scramble="activeRound.scramble.scramble"
-                    :solved="
-                      !currentUserSolve ||
-                      (currentUserSolve && currentUserSolve.state == 'FINISHED')
-                    "
-                    :visualization="settingsObject.scramblePreviewVisualization"
-                  ></ScrambleDisplay>
-                  <v-card height="300px" width="40vw" class="resizeable-card"></v-card>
+                  <div>
+                    <v-card height="100px" width="20vw" class="resizeable-card">
+                      <v-layout align-center justify-center fill-height>
+                        Stream Graphics Here
+                      </v-layout>
+                    </v-card>
+                    <ScrambleDisplay
+                      v-if="settingsObject.showScramblePreview"
+                      class="resizeable-scramble"
+                      style="width: 20vw;"
+                      :puzzle="
+                        activeRound.scramble.event &&
+                        activeRound.scramble.event.puzzle
+                      "
+                      :scramble="activeRound.scramble.scramble"
+                      :solved="
+                        !currentUserSolve ||
+                        (currentUserSolve && currentUserSolve.state == 'FINISHED')
+                      "
+                      :visualization="settingsObject.scramblePreviewVisualization"
+                    ></ScrambleDisplay>
+                  </div>
+                  <v-card height="300px" width="40vw" class="resizeable-card">
+                      <v-layout align-center justify-center fill-height>
+                        Stream Graphics Here
+                      </v-layout>
+                  </v-card>
                 </div>
-                <v-layout
-                  v-if="settingsObject.showScramblePreview"
-                  align-center
-                  justify-center
-                >
-                  <ScrambleDisplay
-                    :puzzle="
-                      activeRound.scramble.event &&
-                      activeRound.scramble.event.puzzle
-                    "
-                    :scramble="activeRound.scramble.scramble"
-                    :solved="
-                      !currentUserSolve ||
-                      (currentUserSolve && currentUserSolve.state == 'FINISHED')
-                    "
-                    :visualization="settingsObject.scramblePreviewVisualization"
-                  ></ScrambleDisplay>
-                </v-layout>
                 <div>
                   <div v-if="loading.updatingSolve">
                     <span class="display-1 pl-2"
@@ -135,27 +130,6 @@
                         <td>
                           <PreviewCuberPopover :selected-item="item.cuber">
                           </PreviewCuberPopover>
-                          <v-icon
-                            v-if="item.id == room.creator.id"
-                            small
-                            color="yellow"
-                            title="Room Creator"
-                            >mdi-crown</v-icon
-                          >
-                          <v-icon
-                            v-if="room.manager && room.manager.id == item.id"
-                            color="green"
-                            small
-                            title="Room Manager"
-                            >mdi-gavel</v-icon
-                          >
-                          <v-icon
-                            v-else-if="isRoomManager"
-                            small
-                            title="Assign as manager"
-                            @click="assignNewManager(item.id)"
-                            >mdi-gavel</v-icon
-                          >
                           <v-icon
                             v-if="item.cuber.pivot.type === 'IDLING'"
                             small
@@ -262,6 +236,25 @@
               </PreviewCuberPopover>
             </div>
           </v-row>
+        </div>
+        <div style="display: flex;">
+          <v-card height="300px" width="40vw" class="resizeable-card">
+            <v-layout align-center justify-center fill-height>
+              Stream Graphics Here
+            </v-layout>
+          </v-card>
+          <div>
+            <v-card height="100px" width="20vw" class="resizeable-card">
+              <v-layout align-center justify-center fill-height>
+                Stream Graphics Here
+              </v-layout>
+            </v-card>
+          </div>
+          <v-card height="300px" width="40vw" class="resizeable-card">
+            <v-layout align-center justify-center fill-height>
+              Stream Graphics Here
+            </v-layout>
+          </v-card>
         </div>
       </div>
     </v-layout>
@@ -533,7 +526,7 @@ export default {
       //save settings to localStorage
       if (process.client) {
         localStorage.setItem(
-          'roomSettings',
+          'roomStreamSettings',
           JSON.stringify(this.settingsObject),
         )
       }
@@ -985,36 +978,14 @@ export default {
       this.loading.updateRoomStatus = false
     },
 
-    async assignNewManager(cuberId) {
-      this.loading.assigningManager = true
-      try {
-        let { data } = await this.$apollo.mutate({
-          mutation: GRANT_ROOM_MANAGEMENT_TO_CUBER_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-            cuber_id: cuberId,
-          },
-        })
-
-        //optimistically update the manager
-        this.room.manager = data.grantRoomManagementToCuber.manager
-
-        this.$notifier.showSnackbar({
-          message: 'Assigned New Manager',
-          variant: 'success',
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-      }
-      this.loading.assigningManager = false
-    },
-
     reset() {
       this.errorMessage = null
 
       //load room settings
       if (process.client) {
-        const savedSettings = localStorage.getItem('roomSettings')
+        const savedSettings =
+          localStorage.getItem('roomStreamSettings') ||
+          localStorage.getItem('roomSettings')
         if (savedSettings) {
           const parsedSettings = JSON.parse(savedSettings)
 
@@ -1278,6 +1249,11 @@ export default {
   resize: vertical;
   overflow: auto;
   display: inline-block;
+}
+
+.resizeable-scramble {
+  resize: vertical;
+  overflow: hidden;
 }
 </style>
 

@@ -42,6 +42,7 @@
                   justify-center
                 >
                   <ScrambleDisplay
+                    class="resizeable-scramble"
                     :puzzle="
                       activeRound.scramble.event &&
                       activeRound.scramble.event.puzzle
@@ -1455,6 +1456,11 @@ export default {
 
 .container-full {
   max-height: 100%;
+}
+
+.resizeable-scramble {
+  resize: both;
+  overflow: hidden;
 }
 </style>
 
