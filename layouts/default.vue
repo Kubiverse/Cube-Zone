@@ -73,6 +73,24 @@
                   {{ messagesCount }} Notifications
                 </v-list-item-content>
               </v-list-item>
+              <v-list-item key="-5" to="/organisations" router exact>
+                <v-list-item-action>
+                  <v-img
+                    v-if="organisation && organisation.logo"
+                    :src="organisation.logo"
+                    height="24"
+                    width="24"
+                    contain
+                  />
+                  <v-icon v-else>mdi-domain</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <span v-if="organisation">{{ organisation.name }}</span>
+                    <i v-else>No Organisation</i>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
               <v-menu
                 :close-on-content-click="true"
                 :max-width="300"
@@ -85,8 +103,8 @@
                       <v-img
                         v-if="user.avatar"
                         :src="user.avatar"
-                        height="32"
-                        width="32"
+                        height="24"
+                        width="24"
                         contain
                       />
                       <v-icon v-else>mdi-account</v-icon>
@@ -297,6 +315,7 @@ export default {
     ...mapGetters({
       user: 'auth/user',
       messagesCount: 'cuberNotification/messagesCount',
+      organisation: 'organisation/current',
     }),
 
     currentUserProfileRoute() {

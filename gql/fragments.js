@@ -96,3 +96,26 @@ export const solveFragment = gql`
     is_tracked
   }
 `
+
+export const competitionFragment = gql`
+  fragment Competition on Competition {
+    id
+    name
+    start_date
+    end_date
+    is_featured
+    requires_signup
+    is_invitational
+    created_at
+  }
+`
+
+export const organisationFragment = gql`
+  fragment Organisation on Organisation {
+    id
+    name
+    website
+    logo
+    email
+  }
+`
