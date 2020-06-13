@@ -211,53 +211,6 @@
             {{ room.max_capacity || 'None' }}
           </span>
         </v-row>
-        <v-row justify="center">
-          <v-col cols="12" class="text-center">
-            <v-btn
-              v-if="isRoomManager"
-              id="v-step-startroom"
-              :loading="loading.startingNextRound"
-              color="primary"
-              @click="startNextRound()"
-              >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
-            >
-            <span v-else id="v-step-startroom">&nbsp;</span>
-            <v-menu offset-y>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  id="v-step-cuberstatus"
-                  :loading="loading.updateRoomStatus"
-                  v-on="on"
-                >
-                  Your Status: {{ cuberStatusMap[currentUserStatus] }}
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item
-                  v-for="(item, index) in cuberStatusOptions"
-                  :key="index"
-                  @click="updateRoomStatus(item.value)"
-                >
-                  <v-list-item-title>{{ item.text }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-            <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
-            <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
-            <v-btn @click="startTutorial()">Tutorial</v-btn>
-            <v-btn @click="openStreamerWindow()">
-              <v-icon left>mdi-open-in-new</v-icon>
-              Streamer Window
-            </v-btn>
-            <v-btn
-              id="v-step-settings"
-              icon
-              @click="openEditRoomSettingsDialog()"
-            >
-              <v-icon>mdi-cog</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
         <div v-if="room.spectating_cubers.paginatorInfo.total > 0">
           <v-row justify="center">
             <span class="caption grey--text">
@@ -278,10 +231,11 @@
         </div>
       </div>
     </v-layout>
-    <v-bottom-navigation :value="true" height="auto" absolute>
-      <v-expansion-panels v-model="expansionOpenedIndex">
+    <v-footer absolute fixed height="auto">
+      <v-expansion-panels v-model="expansionOpenedIndex" color="transparent">
         <v-expansion-panel>
           <v-expansion-panel-header
+            v-if="expansionOpenedIndex !== undefined"
             expand-icon="mdi-chevron-up"
             class="title py-0"
           >
@@ -317,7 +271,55 @@
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
-    </v-bottom-navigation>
+      <div class="text-center pt-1" style="width: 100%;">
+        <v-btn
+          v-if="isRoomManager"
+          id="v-step-startroom"
+          :loading="loading.startingNextRound"
+          color="primary"
+          @click="startNextRound()"
+          >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
+        >
+        <span v-else id="v-step-startroom">&nbsp;</span>
+        <v-menu offset-y top>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              id="v-step-cuberstatus"
+              :loading="loading.updateRoomStatus"
+              v-on="on"
+            >
+              Your Status: {{ cuberStatusMap[currentUserStatus] }}
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="(item, index) in cuberStatusOptions"
+              :key="index"
+              @click="updateRoomStatus(item.value)"
+            >
+              <v-list-item-title>{{ item.text }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
+        <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
+        <v-btn @click="startTutorial()">Tutorial</v-btn>
+        <v-btn @click="openStreamerWindow()">
+          <v-icon left>mdi-open-in-new</v-icon>
+          Streamer Window
+        </v-btn>
+        <v-btn @click="toggleChat()">
+          <v-icon left>mdi-chat</v-icon>
+          Chat Room
+          <span v-if="chatUnreadMessages">
+            ({{ chatUnreadMessages }} New Messages)
+          </span>
+        </v-btn>
+        <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
+          <v-icon>mdi-cog</v-icon>
+        </v-btn>
+      </div>
+    </v-footer>
     <CubeTimerOverlay
       :disabled="cubeTimerDisabled"
       :input-method="settingsObject.inputMethod"
@@ -1193,6 +1195,11 @@ export default {
         query: { id: this.$route.query.id },
       })
       window.open(routeData.href, '_blank')
+    },
+
+    toggleChat() {
+      this.expansionOpenedIndex =
+        this.expansionOpenedIndex === undefined ? 0 : undefined
     },
 
     reset() {

@@ -312,8 +312,8 @@ export default {
 
       accountItems: [
         { title: 'My Recent Rooms', to: '/my-rooms', exact: false },
-        { title: 'Settings', to: '/settings', exact: false },
         { title: 'My Organisations', to: '/organisations', exact: false },
+        { title: 'Settings', to: '/settings', exact: false },
       ],
       miniVariant: false,
       right: true,
