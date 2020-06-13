@@ -12,8 +12,9 @@ type Query {
   competitions(
     sorting: [CompetitionSortingEnum!]
     is_featured: Boolean
-    is_invitational: SolveState
-    requires_signup: ID
+    is_invitational: Boolean
+    requires_signup: Boolean
+    organisation_id: ID
     first: Int = 10
     page: Int
   ): CompetitionPaginator
@@ -700,12 +701,14 @@ type Sponsor {
 type Organisation {
   id: ID!
   name: String!
-  website: String
-  logo: String
-  email: String
+  website: String!
+  logo: String!
+  email: Email!
   members: [Cuber!]
   competitions: [Competition!]
 }
+
+scalar Email
 
 enum CompetitionRoundSortingEnum {
   ROUND_NUMBER_ASC
@@ -727,7 +730,7 @@ type OrganisationPaginator {
 type Mutation {
   sendRoomChatMessage(room_id: ID!, message: String!): RoomChatMessage!
   createCompetition(input: CreateCompetitionInput!): Competition!
-  updateeCompetition(input: UpdateCompetitionInput!): Competition!
+  updateCompetition(input: UpdateCompetitionInput!): Competition!
   addCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
   removeCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
   updateCompetitionRound(input: UpdateCompetitionRoundInput!): Competition!
@@ -786,6 +789,8 @@ input CreateCompetitionInput {
   is_featured: Boolean
   requires_signup: Boolean
   is_invitational: Boolean
+  organisation_id: ID
+  room_configuration_id: ID
 }
 
 input UpdateCompetitionInput {
@@ -797,6 +802,8 @@ input UpdateCompetitionInput {
   is_featured: Boolean
   requires_signup: Boolean
   is_invitational: Boolean
+  organisation_id: ID
+  room_configuration_id: ID
 }
 
 input UpdateCompetitionRoundInput {
@@ -818,9 +825,9 @@ type CuberRoom {
 
 input CreateOrganisationInput {
   name: String!
-  website: String
-  logo: String
-  email: String
+  website: String!
+  logo: String!
+  email: Email!
 }
 
 input UpdateOrganisationInput {
@@ -828,7 +835,7 @@ input UpdateOrganisationInput {
   name: String
   website: String
   logo: String
-  email: String
+  email: Email
 }
 
 input CreateRoomInput {
@@ -906,8 +913,6 @@ input LoginInput {
   username: Email!
   password: String!
 }
-
-scalar Email
 
 type AuthPayload {
   access_token: String!
@@ -1013,12 +1018,6 @@ type PageInfo {
   lastPage: Int
 }
 
-enum Trashed {
-  ONLY
-  WITH
-  WITHOUT
-}
-
 enum SortOrder {
   ASC
   DESC
@@ -1027,5 +1026,11 @@ enum SortOrder {
 input OrderByClause {
   field: String!
   order: SortOrder!
+}
+
+enum Trashed {
+  ONLY
+  WITH
+  WITHOUT
 }
 

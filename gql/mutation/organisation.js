@@ -4,9 +4,9 @@ import { organisationFragment } from '~/gql/fragments.js'
 export const CREATE_ORGANISATION_MUTATION = gql`
   mutation createOrganisation(
     $name: String!
-    $website: String
-    $logo: String
-    $email: String
+    $website: String!
+    $logo: String!
+    $email: Email!
   ) {
     createOrganisation(
       input: { name: $name, website: $website, logo: $logo, email: $email }

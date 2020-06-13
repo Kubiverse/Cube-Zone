@@ -73,7 +73,13 @@
                   {{ messagesCount }} Notifications
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item key="-5" to="/organisations" router exact>
+              <v-list-item
+                v-if="organisation"
+                key="-5"
+                to="/organisations"
+                router
+                exact
+              >
                 <v-list-item-action>
                   <v-img
                     v-if="organisation && organisation.logo"
@@ -293,9 +299,9 @@ export default {
           to: '/rooms',
         },
         {
-          icon: 'mdi-card-account-details',
-          title: 'My Recent Rooms',
-          to: '/my-rooms',
+          icon: 'mdi-account-group',
+          title: 'Competitions',
+          to: '/competitions',
         },
         {
           icon: 'mdi-format-list-numbered',
@@ -304,7 +310,11 @@ export default {
         },
       ],
 
-      accountItems: [{ title: 'Settings', to: '/settings', exact: false }],
+      accountItems: [
+        { title: 'My Recent Rooms', to: '/my-rooms', exact: false },
+        { title: 'Settings', to: '/settings', exact: false },
+        { title: 'My Organisations', to: '/organisations', exact: false },
+      ],
       miniVariant: false,
       right: true,
       rightDrawer: false,

@@ -17,7 +17,7 @@
           >
             <template v-slot:top>
               <v-toolbar flat color="accent">
-                <v-icon left>mdi-google-classroom</v-icon>
+                <v-icon left>mdi-account-group</v-icon>
                 <v-toolbar-title>Competitions</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-btn
@@ -127,10 +127,20 @@
                   >
                 </td>
                 <td class="text-xs-left">
-                  {{ generateMomentString(props.item.start_date) }}
+                  {{ props.item.start_date }}
                 </td>
                 <td class="text-xs-left">
-                  {{ generateMomentString(props.item.end_date) }}
+                  {{ props.item.end_date || 'None' }}
+                </td>
+                <td class="text-xs-left">
+                  <v-avatar size="24" class="mr-2">
+                    <v-img
+                      v-if="props.item.organiser.logo"
+                      :src="props.item.organiser.logo"
+                    />
+                    <v-icon v-else>mdi-domain</v-icon>
+                  </v-avatar>
+                  {{ props.item.organiser.name }}
                 </td>
                 <td class="text-xs-left">
                   {{ generateMomentString(props.item.created_at) }}
@@ -245,8 +255,8 @@ export default {
       options: {
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['created_at'],
-        sortDesc: [true],
+        sortBy: [],
+        sortDesc: [],
         groupBy: [],
         groupDesc: [],
         multiSort: true,
@@ -292,6 +302,13 @@ export default {
           width: '150px',
         },
         {
+          text: 'Organiser',
+          align: 'left',
+          sortable: false,
+          value: 'organiser.id',
+          width: '200px',
+        },
+        {
           text: 'Created',
           align: 'left',
           sortable: false,
@@ -328,9 +345,9 @@ export default {
     generateMomentString: sharedService.generateMomentString,
 
     isItemCreator(item) {
-      if (!this.$store.getters['auth/user']) return false
+      if (!this.$store.getters['organisation/current']) return false
 
-      return this.$store.getters['auth/user'].id == item.creator.id
+      return this.$store.getters['organisation/current'].id == item.organiser.id
     },
     openDialog(dialogName) {
       if (dialogName in this.dialogs) {
@@ -362,6 +379,11 @@ export default {
         this.$root.$emit('login-dialog', this.$route.fullPath)
         this.$notifier.showSnackbar({
           message: 'Login required',
+          variant: 'error',
+        })
+      } else if (!this.$store.getters['organisation/current']) {
+        this.$notifier.showSnackbar({
+          message: 'Organisation required',
           variant: 'error',
         })
       } else {

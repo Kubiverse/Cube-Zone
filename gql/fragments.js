@@ -101,6 +101,7 @@ export const competitionFragment = gql`
   fragment Competition on Competition {
     id
     name
+    description
     start_date
     end_date
     is_featured

@@ -10,6 +10,8 @@ export const CREATE_COMPETITION_MUTATION = gql`
     $is_featured: Boolean
     $requires_signup: Boolean
     $is_invitational: Boolean
+    $organisation_id: ID
+    $room_configuration_id: ID
   ) {
     createCompetition(
       input: {
@@ -20,6 +22,8 @@ export const CREATE_COMPETITION_MUTATION = gql`
         is_featured: $is_featured
         requires_signup: $requires_signup
         is_invitational: $is_invitational
+        organisation_id: $organisation_id
+        room_configuration_id: $room_configuration_id
       }
     ) {
       ...Competition

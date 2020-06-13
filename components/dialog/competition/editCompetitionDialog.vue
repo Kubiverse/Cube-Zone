@@ -12,11 +12,7 @@
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
-        <div
-          v-if="$apollo.queries.competition.loading"
-          class="text-center"
-          style="width: 100%;"
-        >
+        <div v-if="loading.loadData" class="text-center" style="width: 100%;">
           <v-progress-circular indeterminate></v-progress-circular>
         </div>
         <v-container v-else>
@@ -52,14 +48,14 @@
                   <v-text-field
                     v-model="inputs.start_date"
                     label="Start Date"
-                    prepend-icon="event"
+                    prepend-icon="mdi-calendar"
                     readonly
                     v-bind="attrs"
                     v-on="on"
                   ></v-text-field>
                 </template>
                 <v-date-picker
-                  v-model="date"
+                  v-model="inputs.start_date"
                   @input="menu.start_date = false"
                 ></v-date-picker>
               </v-menu>
@@ -77,7 +73,7 @@
                   <v-text-field
                     v-model="inputs.end_date"
                     label="End Date (optional)"
-                    prepend-icon="event"
+                    prepend-icon="mdi-calendar"
                     readonly
                     v-bind="attrs"
                     v-on="on"
@@ -158,51 +154,16 @@ export default {
 
       loading: {
         editCompetition: false,
+        loadData: false,
       },
-      competition: null,
     }
   },
 
-  apollo: {
-    competition: {
-      query: COMPETITION_BASIC_QUERY,
-      variables() {
-        return {
-          id: this.selectedItem.id,
-        }
-      },
-
-      result({ data }) {
-        //load data into inputs
-        if (data) {
-          this.inputs = {
-            name: data.competition.name,
-            description: data.competition.description,
-            time_limit: data.competition.time_limit / 1000,
-            time_target: data.competition.time_target / 1000,
-            max_capacity: data.competition.max_capacity,
-          }
-        }
-      },
-
-      fetchPolicy: 'no-cache',
-
-      manual: true,
-      skip: true,
-    },
-  },
-
-  computed: {
-    id() {
-      return this.selectedItem ? this.selectedItem.id : null
-    },
-  },
+  computed: {},
 
   watch: {
     status(_val) {
-      if (this.status) {
-        this.reset()
-      }
+      this.reset()
     },
   },
 
@@ -242,8 +203,33 @@ export default {
       this.loading.editCompetition = false
     },
 
+    async loadData() {
+      this.loading.loadData = true
+      try {
+        let { data } = await this.$apollo.query({
+          query: COMPETITION_BASIC_QUERY,
+          variables: {
+            id: this.selectedItem.id,
+          },
+          fetchPolicy: 'no-cache',
+        })
+
+        this.inputs = {
+          name: data.competition.name,
+          description: data.competition.description,
+          time_limit: data.competition.time_limit / 1000,
+          time_target: data.competition.time_target / 1000,
+          max_capacity: data.competition.max_capacity,
+        }
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
+      }
+      this.loading.loadData = false
+    },
+
     reset() {
-      this.$apollo.queries.competition.skip = false
+      if (!this.status) return
+      this.loadData()
     },
   },
 }

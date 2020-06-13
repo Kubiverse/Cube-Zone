@@ -45,14 +45,14 @@
                   <v-text-field
                     v-model="inputs.start_date"
                     label="Start Date"
-                    prepend-icon="event"
+                    prepend-icon="mdi-calendar"
                     readonly
                     v-bind="attrs"
                     v-on="on"
                   ></v-text-field>
                 </template>
                 <v-date-picker
-                  v-model="date"
+                  v-model="inputs.start_date"
                   @input="menu.start_date = false"
                 ></v-date-picker>
               </v-menu>
@@ -70,7 +70,7 @@
                   <v-text-field
                     v-model="inputs.end_date"
                     label="End Date (optional)"
-                    prepend-icon="event"
+                    prepend-icon="mdi-calendar"
                     readonly
                     v-bind="attrs"
                     v-on="on"
@@ -179,16 +179,23 @@ export default {
           throw sharedService.generateError('Non-empty name required')
         }
 
+        if (!this.$store.getters['organisation/current']) {
+          throw sharedService.generateError(
+            'Organisation required to create a competition',
+          )
+        }
+
         let { data } = await this.$apollo.mutate({
           mutation: CREATE_COMPETITION_MUTATION,
           variables: {
             name: this.inputs.name,
-            description: this.inputs.description,
+            description: this.inputs.description || '',
             start_date: this.inputs.start_date,
             end_date: this.inputs.end_date || undefined,
             is_featured: this.inputs.is_featured,
             requires_signup: this.inputs.requires_signup,
             is_invitational: this.inputs.is_invitational,
+            organisation_id: this.$store.getters['organisation/current'].id,
           },
         })
 
