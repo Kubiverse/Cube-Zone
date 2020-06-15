@@ -213,14 +213,6 @@
             </v-col>
           </v-row>
         </template>
-        <v-row justify="center">
-          <span class="caption grey--text">
-            Room Name: {{ room.name }} | Event: {{ room.event.name }} | Time
-            Limit: {{ room.time_limit / 1000 || 'None' }} | Time Target:
-            {{ room.time_target / 1000 || 'None' }} | Max Capacity:
-            {{ room.max_capacity || 'None' }}
-          </span>
-        </v-row>
         <div v-if="room.spectating_cubers.paginatorInfo.total > 0">
           <v-row justify="center">
             <span class="caption grey--text">
@@ -329,6 +321,14 @@
           <v-icon>mdi-cog</v-icon>
         </v-btn>
       </div>
+      <v-row justify="center" class="pt-1">
+        <span class="caption grey--text">
+          Room Name: {{ room.name }} | Event: {{ room.event.name }} | Time
+          Limit: {{ room.time_limit / 1000 || 'None' }} | Time Target:
+          {{ room.time_target / 1000 || 'None' }} | Max Capacity:
+          {{ room.max_capacity || 'None' }}
+        </span>
+      </v-row>
     </v-footer>
     <CubeTimerOverlay
       :disabled="cubeTimerDisabled"
