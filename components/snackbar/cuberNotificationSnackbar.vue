@@ -9,7 +9,7 @@
     :multi-line="true"
   >
     <template
-      v-if="currentNotification.__classname === 'RoomInvitationNotification'"
+      v-if="currentNotification.__typename === 'RoomInvitationNotification'"
     >
       <v-list-item two-line>
         <v-list-item-avatar>
@@ -36,7 +36,7 @@
     </template>
     <template
       v-else-if="
-        currentNotification.__classname === 'FollowerReceivedNotification'
+        currentNotification.__typename === 'FollowerReceivedNotification'
       "
     >
       <v-list-item two-line>
@@ -66,7 +66,7 @@
     </template>
     <template
       v-else-if="
-        currentNotification.__classname === 'FollowsJoinedRoomNotification'
+        currentNotification.__typename === 'FollowsJoinedRoomNotification'
       "
     >
       <v-list-item two-line>

@@ -90,115 +90,125 @@
             </v-col>
             <v-col xl="9" lg="12">
               <v-card outlined tile>
-                <v-simple-table id="roomResults" fixed-header>
-                  <template v-slot:default>
-                    <thead>
-                      <tr>
-                        <th>Cuber</th>
-                        <th class="text-right" width="150">
-                          {{
-                            activeRoundNumber
-                              ? '#' + activeRoundNumber
-                              : '&nbsp;'
-                          }}
-                        </th>
-
-                        <th
-                          v-for="i in tableRounds - 1"
-                          :key="i"
-                          class="text-right"
-                          width="100"
-                        >
-                          <a @click="openViewRoundDialog(rounds[i])">{{
-                            rounds[i] ? '#' + rounds[i].round_number : ''
-                          }}</a>
-                        </th>
-
-                        <th
-                          v-for="(accItem, i) in accumulatedResults"
-                          :key="accItem.name"
-                          width="100"
-                          class="text-right"
-                          :class="{ 'td-border-left': i == 0 }"
-                        >
-                          {{ accItem.name }}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr
-                        v-for="item in cuberResults"
-                        :key="item.id"
-                        :class="{ 'item-highlight': item.updating }"
-                      >
-                        <td>
-                          <PreviewCuberPopover :selected-item="item.cuber">
-                          </PreviewCuberPopover>
-                          <v-icon
-                            v-if="item.id == room.creator.id"
-                            small
-                            color="yellow"
-                            title="Room Creator"
-                            >mdi-crown</v-icon
-                          >
-                          <v-icon
-                            v-if="room.manager && room.manager.id == item.id"
-                            color="green"
-                            small
-                            title="Room Manager"
-                            >mdi-gavel</v-icon
-                          >
-                          <v-icon
-                            v-else-if="isRoomManager"
-                            small
-                            title="Assign as manager"
-                            @click="assignNewManager(item.id)"
-                            >mdi-gavel</v-icon
-                          >
-                          <v-icon
-                            v-if="item.cuber.pivot.type === 'IDLING'"
-                            small
-                            title="Away"
-                            >mdi-sleep</v-icon
-                          >
-                          <v-icon
-                            v-else-if="item.cuber.pivot.type === 'SPECTATING'"
-                            small
-                            title="Spectating"
-                            >mdi-eye</v-icon
-                          >
-                          <v-icon
-                            v-else-if="item.cuber.pivot.type === 'VISITED'"
-                            small
-                            title="Not in room"
-                            >mdi-exit-run</v-icon
-                          >
-                        </td>
-                        <td
-                          v-for="i in tableRounds"
-                          :key="i"
-                          class="text-right title"
-                          v-html="renderSolveResults(rounds[i - 1], item.id)"
-                        ></td>
-
-                        <td
-                          v-for="(accItem, i) in accumulatedResults"
-                          :key="accItem.name"
-                          class="text-right title"
-                          :class="{ 'td-border-left': i == 0 }"
-                        >
-                          <span
-                            class="pointer-cursor"
-                            @click="
-                              openViewAccumulatedResultDialog(item.id, accItem)
-                            "
-                            v-html="renderAccumulatedResults(item.id, accItem)"
-                          ></span>
-                        </td>
-                      </tr>
-                    </tbody>
+                <v-data-table
+                  id="roomResults"
+                  :headers="headersComputed"
+                  :items="cuberResults"
+                  :options.sync="options"
+                  :footer-props="footerOptions"
+                >
+                  <template v-slot:header.round0="{ header }">
+                    {{ '#' + rounds[header.offset].round_number }}
                   </template>
-                </v-simple-table>
+                  <template v-slot:header.round1="{ header }">
+                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
+                      rounds[header.offset]
+                        ? '#' + rounds[header.offset].round_number
+                        : ''
+                    }}</a>
+                  </template>
+                  <template v-slot:header.round2="{ header }">
+                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
+                      rounds[header.offset]
+                        ? '#' + rounds[header.offset].round_number
+                        : ''
+                    }}</a>
+                  </template>
+                  <template v-slot:header.round3="{ header }">
+                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
+                      rounds[header.offset]
+                        ? '#' + rounds[header.offset].round_number
+                        : ''
+                    }}</a>
+                  </template>
+                  <template v-slot:header.round4="{ header }">
+                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
+                      rounds[header.offset]
+                        ? '#' + rounds[header.offset].round_number
+                        : ''
+                    }}</a>
+                  </template>
+                  <template v-slot:header.round5="{ header }">
+                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
+                      rounds[header.offset]
+                        ? '#' + rounds[header.offset].round_number
+                        : ''
+                    }}</a>
+                  </template>
+                  <template v-slot:item="props">
+                    <tr
+                      :key="props.item.id"
+                      :class="{ 'item-highlight': props.item.updating }"
+                    >
+                      <td>
+                        <PreviewCuberPopover :selected-item="props.item.cuber">
+                        </PreviewCuberPopover>
+                        <v-icon
+                          v-if="props.item.id == room.creator.id"
+                          small
+                          color="yellow"
+                          title="Room Creator"
+                          >mdi-crown</v-icon
+                        >
+                        <v-icon
+                          v-if="room.manager && room.manager.id == props.item.id"
+                          color="green"
+                          small
+                          title="Room Manager"
+                          >mdi-gavel</v-icon
+                        >
+                        <v-icon
+                          v-else-if="isRoomManager"
+                          small
+                          title="Assign as manager"
+                          @click="assignNewManager(props.item.id)"
+                          >mdi-gavel</v-icon
+                        >
+                        <v-icon
+                          v-if="props.item.cuber.pivot.type === 'IDLING'"
+                          small
+                          title="Away"
+                          >mdi-sleep</v-icon
+                        >
+                        <v-icon
+                          v-else-if="props.item.cuber.pivot.type === 'SPECTATING'"
+                          small
+                          title="Spectating"
+                          >mdi-eye</v-icon
+                        >
+                        <v-icon
+                          v-else-if="props.item.cuber.pivot.type === 'VISITED'"
+                          small
+                          title="Not in room"
+                          >mdi-exit-run</v-icon
+                        >
+                      </td>
+                      <td
+                        v-for="i in tableRounds"
+                        :key="i"
+                        class="text-right title"
+                        :class="{ 'td-border-right': i == tableRounds }"
+                        v-html="
+                          renderSolveResults(rounds[i - 1], props.item.id)
+                        "
+                      ></td>
+
+                      <td
+                        v-for="(accItem, i) in accumulatedResults"
+                        :key="accItem.name"
+                        class="text-right title"
+                      >
+                        <span
+                          class="pointer-cursor"
+                          @click="
+                            openViewAccumulatedResultDialog(props.item.id, accItem)
+                          "
+                          v-html="renderAccumulatedResults(props.item.id, accItem)"
+                        ></span>
+                      </td>
+                    </tr>
+                  </template>
+                </v-data-table>
               </v-card>
             </v-col>
           </v-row>
@@ -409,6 +419,77 @@ export default {
       rounds: [],
       activeRound: null,
 
+      options: {
+        page: 1,
+        itemsPerPage: 5,
+        sortBy: [],
+        sortDesc: [],
+        groupBy: [],
+        groupDesc: [],
+        initialLoad: true,
+      },
+
+      footerOptions: {
+        'items-per-page-options': [5, 10, 25, 50],
+      },
+
+      headers: [
+        {
+          text: 'Cuber',
+          sortable: true,
+          value: 'cuber.name',
+          align: 'left',
+        },
+        {
+          text: '#6',
+          offset: 0,
+          value: 'round0',
+          sortable: false,
+          width: '150px',
+          align: 'right',
+        },
+        {
+          text: '#5',
+          offset: 1,
+          value: 'round1',
+          sortable: false,
+          width: '100px',
+          align: 'right',
+        },
+        {
+          text: '#4',
+          offset: 2,
+          value: 'round2',
+          sortable: false,
+          width: '100px',
+          align: 'right',
+        },
+        {
+          text: '#3',
+          offset: 3,
+          value: 'round3',
+          sortable: false,
+          width: '100px',
+          align: 'right',
+        },
+        {
+          text: '#2',
+          offset: 4,
+          value: 'round4',
+          sortable: false,
+          width: '100px',
+          align: 'right',
+        },
+        {
+          text: '#1',
+          offset: 5,
+          value: 'round5',
+          sortable: false,
+          width: '100px',
+          align: 'right',
+        },
+      ],
+
       steps: [
         {
           target: '#v-step-startroom',
@@ -537,6 +618,19 @@ export default {
   },
 
   computed: {
+    headersComputed() {
+      return [
+        ...this.headers,
+        ...this.accumulatedResults.map((val) => ({
+          text: val.name,
+          value: 'accumulatedResults.' + val.name,
+          sortable: true,
+          width: '100px',
+          align: 'right',
+        })),
+      ]
+    },
+
     cubeTimerDisabled() {
       return (
         !(this.currentUserSolve && this.currentUserSolve.state != 'FINISHED') ||
@@ -650,8 +744,6 @@ export default {
     },
 
     renderAccumulatedResults(cuberId, accItemObject) {
-      if (!this.rounds[1] || !this.rounds[1].accumulated_results) return 'N/A'
-
       let foundResult = this.findAccumulatedResult(cuberId, accItemObject)
 
       if (!foundResult) return 'N/A'
@@ -666,12 +758,16 @@ export default {
     },
 
     findAccumulatedResult(cuberId, accItemObject) {
-      return this.rounds[1].accumulated_results.find(
-        (accumulator) =>
-          accumulator.contextualAccumulator.type_id === accItemObject.type_id &&
-          accumulator.contextualAccumulator.pivot_n === accItemObject.pivot_n &&
-          accumulator.cuber.id == cuberId,
-      )
+      if (this.rounds[1] || this.rounds[1].accumulated_results) {
+        return this.rounds[1].accumulated_results.find(
+          (accumulator) =>
+            accumulator.contextualAccumulator.type_id ===
+              accItemObject.type_id &&
+            accumulator.contextualAccumulator.pivot_n ===
+              accItemObject.pivot_n &&
+            accumulator.cuber.id == cuberId,
+        )
+      }
     },
 
     handleKeyUp(e) {
@@ -800,6 +896,7 @@ export default {
             this.cuberResults.push({
               id: active_cuber.id,
               cuber: active_cuber,
+              accumulatedResults: {},
               updating: false,
               recentActiveRound: null,
             })
@@ -895,10 +992,29 @@ export default {
               },
               updating: false,
               recentActiveRound: round,
+              accumulatedResults: {},
             })
           } else {
             foundResult.recentActiveRound = round
           }
+        })
+      })
+    },
+
+    //loads in the accumulatedResults into the cuberResults table from the 2nd to last round, if exists
+    loadAccumulatedResults() {
+      this.cuberResults.forEach((cuber) => {
+        this.accumulatedResults.forEach((accumulated) => {
+          //find the accumulatedResult object for the cuber
+          let foundResult = this.findAccumulatedResult(cuber.id, accumulated)
+
+          this.$set(
+            cuber.accumulatedResults,
+            accumulated.name,
+            foundResult
+              ? sharedService.generateAccumulatedResultString(foundResult)
+              : 'N/A',
+          )
         })
       })
     },
@@ -931,6 +1047,7 @@ export default {
             },
             updating: false,
             recentActiveRound: round,
+            accumulatedResults: {},
           })
         } else {
           foundResult.recentActiveRound = round
@@ -1279,6 +1396,7 @@ export default {
             this.updateSolvesMap(this.rounds)
             this.updateActiveCubers(this.room.active_cubers.data, true)
             this.buildCuberResults()
+            this.loadAccumulatedResults()
           }
         }
       },
@@ -1317,6 +1435,8 @@ export default {
 
           if (foundRound) {
             this.updateObject(foundRound, data.roundFinished)
+            //also update the cuberResults->accumulatedResults
+            this.loadAccumulatedResults()
           }
         },
         fetchPolicy: 'no-cache',
@@ -1452,8 +1572,8 @@ export default {
   width: 100%;
 }
 
-.td-border-left {
-  border-left: thin solid rgba(255, 255, 255, 0.12);
+.td-border-right {
+  border-right: thin solid rgba(255, 255, 255, 0.12);
 }
 
 .pointer-cursor {
@@ -1482,5 +1602,9 @@ export default {
 .winner-text {
   color: green;
   font-weight: bold;
+}
+
+th[aria-label='#1'] {
+  border-right: thin solid rgba(255, 255, 255, 0.12);
 }
 </style>
