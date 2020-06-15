@@ -233,7 +233,7 @@
         </div>
       </div>
     </v-layout>
-    <v-footer absolute fixed height="auto">
+    <v-footer v-if="room" absolute fixed height="auto">
       <v-expansion-panels v-model="expansionOpenedIndex" color="transparent">
         <v-expansion-panel>
           <v-expansion-panel-header

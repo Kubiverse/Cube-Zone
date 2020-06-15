@@ -1,7 +1,7 @@
 <template>
   <v-card
     ref="chathistory"
-    class="pa-2"
+    class="pa-2 resizeable-card"
     outlined
     tile
     height="200"
@@ -57,3 +57,11 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.resizeable-card {
+  resize: vertical;
+  overflow: auto;
+  max-height: 200px;
+}
+</style>
