@@ -5,7 +5,7 @@
     outlined
     tile
     height="200"
-    style="overflow: auto;"
+    width="100%"
   >
     <div v-for="(item, i) in chatMessages" :key="i">
       <span v-if="item.system">

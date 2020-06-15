@@ -1,11 +1,10 @@
-/* eslint-disable prettier/prettier */
 <template>
   <v-container
     fluid
     fill-height
     :class="isChatboxOpened ? 'container-collapsed' : 'container-full'"
   >
-    <v-layout>
+    <v-layout style="padding-bottom: 100px;">
       <v-layout v-if="loadingText" justify-center align-center>
         <span class="display-1 pl-2"
           >Loading Room...
@@ -16,77 +15,93 @@
         </span>
       </v-layout>
       <div v-else style="width: 100%;">
-        <template>
+        <template v-if="activeRound">
           <v-row justify="center">
-            <v-col cols="12" class="text-center">
-              <div v-if="activeRound" class="text-center justify-center">
-                <div style="display: flex;">
-                  <v-card height="300px" width="40vw" class="resizeable-card">
-                    <v-layout align-center justify-center fill-height>
-                      Stream Graphics Here
-                    </v-layout>
-                  </v-card>
-                  <div>
-                    <v-card height="100px" width="20vw" class="resizeable-card">
-                      <v-layout align-center justify-center fill-height>
-                        Stream Graphics Here
-                      </v-layout>
-                    </v-card>
-                    <ScrambleDisplay
-                      v-if="settingsObject.showScramblePreview"
-                      class="resizeable-scramble"
-                      style="width: 20vw;"
-                      :puzzle="
-                        activeRound.scramble.event &&
-                        activeRound.scramble.event.puzzle
-                      "
-                      :scramble="activeRound.scramble.scramble"
-                      :solved="
-                        !currentUserSolve ||
-                        (currentUserSolve &&
-                          currentUserSolve.state == 'FINISHED')
-                      "
-                      :visualization="
-                        settingsObject.scramblePreviewVisualization
-                      "
-                    ></ScrambleDisplay>
-                  </div>
-                  <v-card height="300px" width="40vw" class="resizeable-card">
-                    <v-layout align-center justify-center fill-height>
-                      Stream Graphics Here
-                      </v-layout>
-                  </v-card>
-                </div>
-                <div>
-                  <div v-if="loading.updatingSolve">
-                    <span class="display-1 pl-2"
-                      >Submitting Results...
-                      <v-progress-circular indeterminate></v-progress-circular>
-                    </span>
-                  </div>
-                  <span
-                    v-else-if="
-                      !currentUserSolve ||
-                      (currentUserSolve && currentUserSolve.state == 'FINISHED')
-                    "
-                    id="v-step-scramble"
-                    class="display-1"
-                    >Waiting for next round...</span
-                  >
-                  <div v-else>
-                    <Scramble
-                      id="v-step-scramble"
-                      :scramble="activeRound.scramble"
-                      :size="settingsObject.scrambleFontSize"
-                    />
-                    <div class="overline">
-                      Timer input method:
-                      {{ inputMethodMap[settingsObject.inputMethod] }}
-                    </div>
-                  </div>
-                </div>
+            <v-col cols="5" class="text-center">
+              <v-card height="300px" class="resizeable-card" width="100%">
+                <v-layout align-center justify-center fill-height>
+                  Stream Graphics Here
+                </v-layout>
+              </v-card>
+              <div v-if="cuberResults[0]">
+                <PreviewCuberPopover :selected-item="cuberResults[0].cuber">
+                </PreviewCuberPopover>
+                <v-icon
+                  v-if="cuberResults[0].cuber.pivot.type === 'IDLING'"
+                  small
+                  title="Away"
+                  >mdi-sleep</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[0].cuber.pivot.type === 'SPECTATING'"
+                  small
+                  title="Spectating"
+                  >mdi-eye</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[0].cuber.pivot.type === 'VISITED'"
+                  small
+                  title="Not in room"
+                  >mdi-exit-run</v-icon
+                >
               </div>
             </v-col>
+            <v-col cols="2">
+              <v-card class="resizeable-card text-center" width="100%">
+                <v-simple-table fixed-header>
+                  <template v-slot:default>
+                    <tbody>
+                      <tr v-for="item in desserts" :key="item.name">
+                        <td>{{ item.calories }}</td>
+                        <td style="width: 50px;">#123</td>
+                        <td>{{ item.calories }}</td>
+                      </tr>
+                      <tr key="-2">
+                        <td>--</td>
+                        <td style="width: 50px;">#124</td>
+                        <td>--</td>
+                      </tr>
+                      <tr key="-1" class="num-wins-bg">
+                        <td>1</td>
+                        <td style="width: 50px;">Wins</td>
+                        <td>5</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col>
+            <v-col cols="5" class="text-center">
+              <v-card height="300px" class="resizeable-card" width="100%">
+                <v-layout align-center justify-center fill-height>
+                  Stream Graphics Here
+                </v-layout>
+              </v-card>
+              <div v-if="cuberResults[1]">
+                <PreviewCuberPopover :selected-item="cuberResults[1].cuber">
+                </PreviewCuberPopover>
+                <v-icon
+                  v-if="cuberResults[1].cuber.pivot.type === 'IDLING'"
+                  small
+                  title="Away"
+                  >mdi-sleep</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[1].cuber.pivot.type === 'SPECTATING'"
+                  small
+                  title="Spectating"
+                  >mdi-eye</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[1].cuber.pivot.type === 'VISITED'"
+                  small
+                  title="Not in room"
+                  >mdi-exit-run</v-icon
+                >
+              </div>
+            </v-col>
+          </v-row>
+            <!--
             <v-col xl="9" lg="12">
               <v-card outlined tile>
                 <v-simple-table id="roomResults" fixed-header>
@@ -179,49 +194,47 @@
                 </v-simple-table>
               </v-card>
             </v-col>
+          -->
+          <v-row>
+            <v-col cols="4" class="text-center">
+              Hello
+            </v-col>
+            <v-col cols="4" class="text-center">
+              <v-card height="200px" class="resizeable-card" width="100%">
+                <v-layout align-center justify-center fill-height>
+                  Stream Graphics Here
+                </v-layout>
+              </v-card>
+            </v-col>
+            <v-col cols="4" class="text-center">
+              Hello
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" class="text-center">
+              <span
+                v-if="
+                  !currentUserSolve ||
+                  (currentUserSolve && currentUserSolve.state == 'FINISHED')
+                "
+                id="v-step-scramble"
+                class="display-1"
+                >Waiting for next round...</span
+              >
+              <div v-else>
+                <Scramble
+                  id="v-step-scramble"
+                  :scramble="activeRound.scramble"
+                  :size="settingsObject.scrambleFontSize"
+                />
+                <div class="overline">
+                  Timer input method:
+                  {{ inputMethodMap[settingsObject.inputMethod] }}
+                </div>
+              </div>
+            </v-col>
           </v-row>
         </template>
-        <v-row justify="center">
-          <span class="caption grey--text">
-            Room Name: {{ room.name }} | Event: {{ room.event.name }} | Time
-            Limit: {{ room.time_limit / 1000 || 'None' }} | Time Target:
-            {{ room.time_target / 1000 || 'None' }} | Max Capacity:
-            {{ room.max_capacity || 'None' }}
-          </span>
-        </v-row>
-        <v-row justify="center">
-          <v-col cols="12" class="text-center">
-            <v-menu offset-y>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  id="v-step-cuberstatus"
-                  :loading="loading.updateRoomStatus"
-                  v-on="on"
-                >
-                  Your Status: {{ cuberStatusMap[currentUserStatus] }}
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item
-                  v-for="(item, index) in cuberStatusOptions"
-                  :key="index"
-                  @click="updateRoomStatus(item.value)"
-                >
-                  <v-list-item-title>{{ item.text }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-            <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
-            <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
-            <v-btn
-              id="v-step-settings"
-              icon
-              @click="openEditRoomSettingsDialog()"
-            >
-              <v-icon>mdi-cog</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
         <div v-if="room.spectating_cubers.paginatorInfo.total > 0">
           <v-row justify="center">
             <span class="caption grey--text">
@@ -240,31 +253,13 @@
             </div>
           </v-row>
         </div>
-        <div style="display: flex;">
-          <v-card height="300px" width="40vw" class="resizeable-card">
-            <v-layout align-center justify-center fill-height>
-              Stream Graphics Here
-            </v-layout>
-          </v-card>
-          <div>
-            <v-card height="100px" width="20vw" class="resizeable-card">
-              <v-layout align-center justify-center fill-height>
-                Stream Graphics Here
-              </v-layout>
-            </v-card>
-          </div>
-          <v-card height="300px" width="40vw" class="resizeable-card">
-            <v-layout align-center justify-center fill-height>
-              Stream Graphics Here
-            </v-layout>
-          </v-card>
-        </div>
       </div>
     </v-layout>
-    <v-bottom-navigation :value="true" height="auto" absolute>
-      <v-expansion-panels v-model="expansionOpenedIndex">
+    <v-footer v-if="room" absolute fixed height="auto">
+      <v-expansion-panels v-model="expansionOpenedIndex" color="transparent">
         <v-expansion-panel>
           <v-expansion-panel-header
+            v-if="expansionOpenedIndex !== undefined"
             expand-icon="mdi-chevron-up"
             class="title py-0"
           >
@@ -281,7 +276,49 @@
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
-    </v-bottom-navigation>
+      <div class="text-center pt-1" style="width: 100%;">
+        <v-menu offset-y top>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              id="v-step-cuberstatus"
+              :loading="loading.updateRoomStatus"
+              v-on="on"
+            >
+              Your Status: {{ cuberStatusMap[currentUserStatus] }}
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="(item, index) in cuberStatusOptions"
+              :key="index"
+              @click="updateRoomStatus(item.value)"
+            >
+              <v-list-item-title>{{ item.text }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
+        <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
+        <v-btn @click="toggleChat()">
+          <v-icon left>mdi-chat</v-icon>
+          Chat Room
+          <span v-if="chatUnreadMessages">
+            ({{ chatUnreadMessages }} New Messages)
+          </span>
+        </v-btn>
+        <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
+          <v-icon>mdi-cog</v-icon>
+        </v-btn>
+      </div>
+      <v-row justify="center" class="pt-1">
+        <span class="caption grey--text">
+          Room Name: {{ room.name }} | Event: {{ room.event.name }} | Time
+          Limit: {{ room.time_limit / 1000 || 'None' }} | Time Target:
+          {{ room.time_target / 1000 || 'None' }} | Max Capacity:
+          {{ room.max_capacity || 'None' }}
+        </span>
+      </v-row>
+    </v-footer>
     <CubeTimerOverlay
       :disabled="cubeTimerDisabled"
       :input-method="settingsObject.inputMethod"
@@ -366,6 +403,29 @@ export default {
       room: null,
       rounds: [],
       activeRound: null,
+
+      desserts: [
+        {
+          name: 'Frozen Yogurt',
+          calories: 159,
+        },
+        {
+          name: 'Ice cream sandwich',
+          calories: 237,
+        },
+        {
+          name: 'Eclair',
+          calories: 262,
+        },
+        {
+          name: 'Cupcake',
+          calories: 305,
+        },
+        {
+          name: 'Gingerbread',
+          calories: 356,
+        },
+      ],
 
       currentUserSolve: null,
 
@@ -980,6 +1040,11 @@ export default {
       this.loading.updateRoomStatus = false
     },
 
+    toggleChat() {
+      this.expansionOpenedIndex =
+        this.expansionOpenedIndex === undefined ? 0 : undefined
+    },
+
     reset() {
       this.errorMessage = null
 
@@ -1225,6 +1290,10 @@ export default {
 
 .item-highlight {
   animation: yellowfade 1s;
+}
+
+.num-wins-bg {
+  background: orange;
 }
 
 .chat-box {
