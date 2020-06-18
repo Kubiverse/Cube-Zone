@@ -1,5 +1,9 @@
 import gql from 'graphql-tag'
-import { competitionFragment, organisationFragment } from '~/gql/fragments.js'
+import {
+  competitionFragment,
+  organisationFragment,
+  competitionRoundFragment,
+} from '~/gql/fragments.js'
 
 export const ROOM_QUERY = gql`
   query room($id: ID!) {
@@ -77,4 +81,37 @@ export const COMPETITIONS_QUERY = gql`
   }
   ${competitionFragment}
   ${organisationFragment}
+`
+
+export const COMPETITION_ROUNDS_QUERY = gql`
+  query competitionRounds(
+    $first: Int
+    $page: Int
+    $sorting: [CompetitionRoundSortingEnum!]
+    $is_final: Boolean
+    $event_id: ID
+    $competition_id: ID
+  ) {
+    competitionRounds(
+      first: $first
+      page: $page
+      sorting: $sorting
+      is_final: $is_final
+      event_id: $event_id
+      competition_id: $competition_id
+    ) {
+      paginatorInfo {
+        count
+        total
+      }
+      data {
+        ...CompetitionRound
+        event {
+          id
+          name
+        }
+      }
+    }
+  }
+  ${competitionRoundFragment}
 `

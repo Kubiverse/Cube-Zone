@@ -1,5 +1,8 @@
 import gql from 'graphql-tag'
-import { competitionFragment } from '~/gql/fragments.js'
+import {
+  competitionFragment,
+  competitionRoundFragment,
+} from '~/gql/fragments.js'
 
 export const CREATE_COMPETITION_MUTATION = gql`
   mutation createCompetition(
@@ -60,3 +63,33 @@ export const UPDATE_COMPETITION_MUTATION = gql`
   }
   ${competitionFragment}
 `
+
+export const ADD_COMPETITION_ROUND = gql`
+  mutation addCompetitionRound($competition_id: ID!, $event_id: ID!) {
+    addCompetitionRound(competition_id: $competition_id, event_id: $event_id) {
+      ...CompetitionRound
+      event {
+        id
+        name
+      }
+    }
+  }
+  ${competitionRoundFragment}
+`
+
+export const REMOVE_COMPETITION_ROUND = gql`
+  mutation removeCompetitionRound($competition_id: ID!, $event_id: ID!) {
+    removeCompetitionRound(
+      competition_id: $competition_id
+      event_id: $event_id
+    ) {
+      ...CompetitionRound
+      event {
+        id
+        name
+      }
+    }
+  }
+  ${competitionRoundFragment}
+`
+

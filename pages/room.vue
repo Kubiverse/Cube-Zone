@@ -98,7 +98,11 @@
                   :footer-props="footerOptions"
                 >
                   <template v-slot:header.round0="{ header }">
-                    {{ '#' + rounds[header.offset].round_number }}
+                    {{
+                      rounds[header.offset]
+                        ? '#' + rounds[header.offset].round_number
+                        : ''
+                    }}
                   </template>
                   <template v-slot:header.round1="{ header }">
                     <a @click="openViewRoundDialog(rounds[header.offset])">{{
@@ -758,7 +762,7 @@ export default {
     },
 
     findAccumulatedResult(cuberId, accItemObject) {
-      if (this.rounds[1] || this.rounds[1].accumulated_results) {
+      if (this.rounds[1] && this.rounds[1].accumulated_results) {
         return this.rounds[1].accumulated_results.find(
           (accumulator) =>
             accumulator.contextualAccumulator.type_id ===
@@ -1452,7 +1456,6 @@ export default {
         },
         result({ data }) {
           this.rounds.unshift(data.roundStarted)
-
           this.updateActiveRound(data.roundStarted)
 
           this.findCurrentUserSolve()

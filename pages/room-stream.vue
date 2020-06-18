@@ -1,9 +1,5 @@
 <template>
-  <v-container
-    fluid
-    fill-height
-    :class="isChatboxOpened ? 'container-collapsed' : 'container-full'"
-  >
+  <v-container fluid fill-height class="container-full">
     <v-layout style="padding-bottom: 100px;">
       <v-layout v-if="loadingText" justify-center align-center>
         <span class="display-1 pl-2"
@@ -24,8 +20,11 @@
                 </v-layout>
               </v-card>
               <div v-if="cuberResults[0]">
-                <PreviewCuberPopover :selected-item="cuberResults[0].cuber">
-                </PreviewCuberPopover>
+                <span class="title">
+                  {{ cuberResults[0].cuber.name }} ({{
+                    countriesMap[cuberResults[0].cuber.nationality]
+                  }})
+                </span>
                 <v-icon
                   v-if="cuberResults[0].cuber.pivot.type === 'IDLING'"
                   small
@@ -48,23 +47,36 @@
             </v-col>
             <v-col cols="2">
               <v-card class="resizeable-card text-center" width="100%">
-                <v-simple-table fixed-header>
+                <v-simple-table>
                   <template v-slot:default>
                     <tbody>
-                      <tr v-for="item in desserts" :key="item.name">
-                        <td>{{ item.calories }}</td>
-                        <td style="width: 50px;">#123</td>
-                        <td>{{ item.calories }}</td>
-                      </tr>
-                      <tr key="-2">
-                        <td>--</td>
-                        <td style="width: 50px;">#124</td>
-                        <td>--</td>
+                      <tr v-for="round in roundsReversed" :key="round.id">
+                        <td
+                          style="width: 34%;"
+                          class="title"
+                          :class="{
+                            'item-highlight':
+                              cuberResults[0] && cuberResults[0].updating,
+                          }"
+                          v-html="renderSolveResults(round, cuberResults[0])"
+                        ></td>
+                        <td class="title" style="width: 33%;">
+                          #{{ round.round_number }}
+                        </td>
+                        <td
+                          class="title"
+                          style="width: 34%;"
+                          :class="{
+                            'item-highlight':
+                              cuberResults[1] && cuberResults[1].updating,
+                          }"
+                          v-html="renderSolveResults(round, cuberResults[1])"
+                        ></td>
                       </tr>
                       <tr key="-1" class="num-wins-bg">
-                        <td>1</td>
-                        <td style="width: 50px;">Wins</td>
-                        <td>5</td>
+                        <td class="title">1</td>
+                        <td class="title" style="width: 50px;">Wins</td>
+                        <td class="title">5</td>
                       </tr>
                     </tbody>
                   </template>
@@ -78,8 +90,11 @@
                 </v-layout>
               </v-card>
               <div v-if="cuberResults[1]">
-                <PreviewCuberPopover :selected-item="cuberResults[1].cuber">
-                </PreviewCuberPopover>
+                <span class="title">
+                  {{ cuberResults[1].cuber.name }} ({{
+                    countriesMap[cuberResults[1].cuber.nationality]
+                  }})
+                </span>
                 <v-icon
                   v-if="cuberResults[1].cuber.pivot.type === 'IDLING'"
                   small
@@ -196,8 +211,33 @@
             </v-col>
           -->
           <v-row>
-            <v-col cols="4" class="text-center">
-              Hello
+            <v-col cols="4">
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th>&nbsp;</th>
+                      <th>time</th>
+                      <th>avg5</th>
+                      <th>avg12</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr key="-1">
+                      <td>current</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                    <tr key="-2">
+                      <td>best</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
             </v-col>
             <v-col cols="4" class="text-center">
               <v-card height="200px" class="resizeable-card" width="100%">
@@ -206,8 +246,33 @@
                 </v-layout>
               </v-card>
             </v-col>
-            <v-col cols="4" class="text-center">
-              Hello
+            <v-col cols="4">
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th>&nbsp;</th>
+                      <th>time</th>
+                      <th>avg5</th>
+                      <th>avg12</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr key="-1">
+                      <td>current</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                    <tr key="-2">
+                      <td>best</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
             </v-col>
           </v-row>
           <v-row>
@@ -256,56 +321,9 @@
       </div>
     </v-layout>
     <v-footer v-if="room" absolute fixed height="auto">
-      <v-expansion-panels v-model="expansionOpenedIndex" color="transparent">
-        <v-expansion-panel>
-          <v-expansion-panel-header
-            v-if="expansionOpenedIndex !== undefined"
-            expand-icon="mdi-chevron-up"
-            class="title py-0"
-          >
-            <span>
-              <v-icon left>mdi-chat</v-icon>
-              Chat Room
-              <span v-if="chatUnreadMessages">
-                ({{ chatUnreadMessages }} New Messages)
-              </span>
-            </span>
-          </v-expansion-panel-header>
-          <v-expansion-panel-content>
-            <ChatHistoryCard :chat-messages="chatMessages"></ChatHistoryCard>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-      </v-expansion-panels>
       <div class="text-center pt-1" style="width: 100%;">
-        <v-menu offset-y top>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="v-step-cuberstatus"
-              :loading="loading.updateRoomStatus"
-              v-on="on"
-            >
-              Your Status: {{ cuberStatusMap[currentUserStatus] }}
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item
-              v-for="(item, index) in cuberStatusOptions"
-              :key="index"
-              @click="updateRoomStatus(item.value)"
-            >
-              <v-list-item-title>{{ item.text }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
         <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
         <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
-        <v-btn @click="toggleChat()">
-          <v-icon left>mdi-chat</v-icon>
-          Chat Room
-          <span v-if="chatUnreadMessages">
-            ({{ chatUnreadMessages }} New Messages)
-          </span>
-        </v-btn>
         <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
           <v-icon>mdi-cog</v-icon>
         </v-btn>
@@ -356,7 +374,7 @@
 
 <script>
 import sharedService from '~/services/shared.js'
-import { inputMethodMap } from '~/services/constants.js'
+import { inputMethodMap, countriesMap } from '~/services/constants.js'
 import { ROOM_QUERY } from '~/gql/query/room.js'
 import { ROUNDS_QUERY } from '~/gql/query/round.js'
 import {
@@ -365,7 +383,6 @@ import {
 } from '~/gql/mutation/room.js'
 import {
   ROOM_UPDATED_SUBSCRIPTION,
-  ROOM_CHAT_MESSAGE_RECEIVED_SUBSCRIPTION,
   ROUND_STARTED_SUBSCRIPTION,
   ROUND_FINISHED_SUBSCRIPTION,
   SOLVE_UPDATED_SUBSCRIPTION,
@@ -373,7 +390,6 @@ import {
 } from '~/gql/subscription/room.js'
 import CubeTimerOverlay from '~/components/overlay/cubeTimerOverlay'
 import PreviewCuberPopover from '~/components/popover/previewCuberPopover'
-import ChatHistoryCard from '~/components/card/chatHistoryCard'
 import ViewRoundDialog from '~/components/dialog/round/viewRoundDialog'
 import ViewRoundsDialog from '~/components/dialog/round/viewRoundsDialog'
 import EditRoomSettingsDialog from '~/components/dialog/misc/editRoomSettingsDialog'
@@ -388,7 +404,6 @@ export default {
   components: {
     CubeTimerOverlay,
     PreviewCuberPopover,
-    ChatHistoryCard,
     ViewRoundDialog,
     ViewRoundsDialog,
     EditRoomSettingsDialog,
@@ -400,6 +415,7 @@ export default {
   data() {
     return {
       inputMethodMap,
+      countriesMap,
       room: null,
       rounds: [],
       activeRound: null,
@@ -479,11 +495,6 @@ export default {
 
       errorMessage: null,
 
-      chatMessages: [],
-      chatMessage: null,
-      expansionOpenedIndex: undefined,
-      chatUnreadMessages: 0,
-
       pageFocused: true,
 
       timerState: 0,
@@ -508,6 +519,10 @@ export default {
   },
 
   computed: {
+    roundsReversed() {
+      return Array.isArray(this.rounds) ? this.rounds.slice().reverse() : []
+    },
+
     cubeTimerDisabled() {
       return (
         !(this.currentUserSolve && this.currentUserSolve.state != 'FINISHED') ||
@@ -526,10 +541,6 @@ export default {
         return 'Loading Room...'
       else if (!this.room) return 'Initializing Room'
       else return null
-    },
-
-    isChatboxOpened() {
-      return this.expansionOpenedIndex === 0
     },
     activeRoundNumber() {
       return this.activeRound ? this.activeRound.round_number : 0
@@ -552,11 +563,6 @@ export default {
   },
 
   watch: {
-    isChatboxOpened(val) {
-      if (val) {
-        this.chatUnreadMessages = 0
-      }
-    },
     user(val) {
       if (val) {
         this.reset()
@@ -609,9 +615,11 @@ export default {
       }
     },
 
-    renderSolveResults(round, cuberId) {
-      if (!round) return ''
-      let foundSolve = round.solves.find((solve) => solve.cuber.id === cuberId)
+    renderSolveResults(round, cuberResult) {
+      if (!round || !cuberResult) return ''
+      let foundSolve = round.solves.find(
+        (solve) => solve.cuber.id === cuberResult.id,
+      )
 
       if (!foundSolve) return ''
 
@@ -719,25 +727,6 @@ export default {
         )
 
         if (!foundResult) {
-          if (!initialLoad) {
-            if (active_cuber.pivot.type === 'VISITED') {
-              this.handleChatMessageReceived({
-                user: active_cuber,
-                message: 'has just left the room!',
-                system: true,
-              })
-            } else {
-              this.handleChatMessageReceived({
-                user: active_cuber,
-                message:
-                  'has just joined the room! (' +
-                  this.cuberStatusMap[active_cuber.pivot.type] +
-                  ')',
-                system: true,
-              })
-            }
-          }
-
           //if joining as spectator or visited, do not add to cuberResults
           if (
             active_cuber.pivot.type !== 'SPECTATING' &&
@@ -751,19 +740,6 @@ export default {
             })
           }
         } else if (foundResult) {
-          if (!initialLoad) {
-            const message =
-              active_cuber.pivot.type === 'VISITED'
-                ? 'has just left the room'
-                : 'has just set status to: ' +
-                  this.cuberStatusMap[active_cuber.pivot.type]
-            this.handleChatMessageReceived({
-              user: active_cuber,
-              message: message,
-              system: true,
-            })
-          }
-
           //update the cuber status
           foundResult.cuber.pivot = active_cuber.pivot
 
@@ -809,16 +785,6 @@ export default {
           }
         }
       })
-    },
-
-    handleChatMessageReceived(chatMessage) {
-      this.chatMessages.push(chatMessage)
-      if (!this.isChatboxOpened) {
-        this.chatUnreadMessages++
-        if (this.timerState == 0 && this.settingsObject.enableSounds) {
-          sharedService.playSound('/alert2.mp3')
-        }
-      }
     },
 
     //builds the cuberResults array from all rounds provided.
@@ -925,7 +891,6 @@ export default {
 
         this.$apollo.queries.room.skip = false
 
-        this.$apollo.subscriptions.roomChatMessageReceived.skip = false
         this.$apollo.subscriptions.roundFinished.skip = false
         this.$apollo.subscriptions.roundStarted.skip = false
         this.$apollo.subscriptions.solveUpdated.skip = false
@@ -1040,11 +1005,6 @@ export default {
       this.loading.updateRoomStatus = false
     },
 
-    toggleChat() {
-      this.expansionOpenedIndex =
-        this.expansionOpenedIndex === undefined ? 0 : undefined
-    },
-
     reset() {
       this.errorMessage = null
 
@@ -1144,20 +1104,6 @@ export default {
     },
 
     $subscribe: {
-      roomChatMessageReceived: {
-        query: ROOM_CHAT_MESSAGE_RECEIVED_SUBSCRIPTION,
-        variables() {
-          return {
-            room_id: this.$route.query.id,
-          }
-        },
-        result({ data }) {
-          this.handleChatMessageReceived(data.roomChatMessageReceived)
-        },
-        fetchPolicy: 'no-cache',
-        skip: true,
-      },
-
       roundFinished: {
         query: ROUND_FINISHED_SUBSCRIPTION,
         variables() {
@@ -1294,10 +1240,6 @@ export default {
 
 .num-wins-bg {
   background: orange;
-}
-
-.chat-box {
-  width: 100%;
 }
 
 .td-border-left {
