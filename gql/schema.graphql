@@ -1,3 +1,105 @@
+type Query {
+  accumulatedResults(
+    first: Int = 10
+    page: Int
+  ): AccumulatedResultPaginator
+  accumulatedResult(id: ID): AccumulatedResult
+  accumulators(
+    first: Int = 10
+    page: Int
+  ): AccumulatorPaginator
+  accumulator(id: ID): Accumulator
+  competitions(
+    sorting: [CompetitionSortingEnum!]
+    is_featured: Boolean
+    is_invitational: Boolean
+    requires_signup: Boolean
+    organisation_id: ID
+    first: Int = 10
+    page: Int
+  ): CompetitionPaginator
+  competition(id: ID): Competition
+  competitionRounds(
+    sorting: [CompetitionRoundSortingEnum!]
+    is_final: Boolean
+    event_id: ID
+    competition_id: ID
+    first: Int = 10
+    page: Int
+  ): CompetitionRoundPaginator
+  competitionRound(id: ID): CompetitionRound
+  cubers(
+    first: Int = 10
+    page: Int
+  ): CuberPaginator
+  cuber(id: ID): Cuber
+  me: Cuber
+  events(
+    sorting: [EventSortingEnum!]
+    first: Int = 10
+    page: Int
+  ): EventPaginator
+  event(id: ID): Event
+  organisations(
+    first: Int = 10
+    page: Int
+  ): OrganisationPaginator
+  organisation(id: ID): Organisation
+  rooms(
+    sorting: [RoomsSortingEnum]
+    events: [ID]
+    is_active: Boolean
+    has_secret: Boolean
+    is_full: Boolean
+    first: Int = 10
+    page: Int
+  ): RoomPaginator
+  room(id: ID): Room
+  rounds(
+    sorting: [RoundSortingEnum!]
+    room_id: ID
+    first: Int = 10
+    page: Int
+  ): RoundPaginator
+  round(id: ID): Round
+  solves(
+    sorting: [SolveSortingEnum!]
+    is_dnf: Boolean
+    state: SolveState
+    event_id: ID
+    cuber_id: ID
+    round_id: ID
+    room_id: ID
+    scramble_id: ID
+    is_winner: Boolean
+    is_tracked: Boolean
+    first: Int = 10
+    page: Int
+  ): SolvePaginator
+  solve(id: ID): Solve
+  sponsors(
+    first: Int = 10
+    page: Int
+  ): SponsorPaginator
+  sponsor(id: ID): Sponsor
+}
+
+type AccumulatedResultPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [AccumulatedResult!]!
+}
+
+type PaginatorInfo {
+  count: Int!
+  currentPage: Int!
+  firstItem: Int
+  hasMorePages: Boolean!
+  lastItem: Int
+  lastPage: Int!
+  perPage: Int!
+  total: Int!
+}
+
 type AccumulatedResult {
   id: ID!
   rankable_score: Float!
@@ -16,30 +118,99 @@ type AccumulatedResult {
   contextualAccumulator: Accumulator
 }
 
-type AccumulatedResultPaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [AccumulatedResult!]!
+type Room {
+  id: ID!
+  name: String!
+  description: String
+  has_secret: Boolean
+  cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  participating_cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  idling_cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  spectating_cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  active_cubers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  active_round: Round
+  rounds(
+    sorting: [RoundSortingEnum]
+    first: Int!
+    page: Int
+  ): RoundPaginator
+  event: Event!
+  time_limit: Milliseconds
+  time_target: Milliseconds
+  max_capacity: Int
+  is_public: Boolean!
+  is_active: Boolean!
+  is_full: Boolean!
+  creator: Cuber!
+  accumulators: [Accumulator!]
+  configuration: RoomConfiguration!
+  pivot: CuberRoomPivot
+  manager: Cuber
+  created_at: DateTime!
+  updated_at: DateTime
 }
 
-type Accumulator {
-  id: ID
+type CuberPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Cuber!]!
+}
+
+type Cuber {
+  id: ID!
   name: String
-  pivot_label: String
-  pivot_id: ID
-  pivot_n: ID
-}
-
-type AccumulatorPaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [Accumulator!]!
-}
-
-type AuthPayload {
-  access_token: String!
-  refresh_token: String!
-  expires_in: Int!
-  token_type: String!
-  user: Cuber!
+  first_name: String
+  last_name: String
+  display_name: String
+  nationality: CountryEnum
+  avatar: String
+  wca_id: WcaId
+  active_room: Room
+  last_activity_at: DateTime
+  is_followed_by_you: Boolean
+  rooms(
+    sorting: [RoomsSortingEnum]
+    first: Int!
+    page: Int
+  ): RoomPaginator
+  rooms_created(
+    sorting: [RoomsSortingEnum]
+    first: Int!
+    page: Int
+  ): RoomPaginator
+  rooms_managing(sorting: [RoomsSortingEnum]): [Room!]
+  solves(
+    is_tracked: Boolean
+    is_winner: Boolean
+    sorting: [SolveSortingEnum]
+    first: Int!
+    page: Int
+  ): SolvePaginator
+  followers(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  follows(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  pivot: CuberRoomPivot
+  created_at: DateTime!
+  updated_at: DateTime
 }
 
 enum CountryEnum {
@@ -288,372 +459,9 @@ enum CountryEnum {
   ZW
 }
 
-input CreateRoomInput {
-  name: String!
-  description: String
-  time_limit: Milliseconds
-  time_target: Milliseconds
-  max_capacity: Int
-  is_public: Boolean
-  event_id: ID!
-  secret: String
-}
-
-type Cuber {
-  id: ID!
-  name: String
-  first_name: String
-  last_name: String
-  display_name: String
-  nationality: CountryEnum
-  avatar: String
-  wca_id: WcaId
-  active_room: Room
-  last_activity_at: DateTime
-  is_followed_by_you: Boolean
-  rooms(
-    sorting: [RoomsSortingEnum]
-    first: Int!
-    page: Int
-  ): RoomPaginator
-  rooms_created(
-    sorting: [RoomsSortingEnum]
-    first: Int!
-    page: Int
-  ): RoomPaginator
-  rooms_managing(sorting: [RoomsSortingEnum]): [Room!]
-  solves(
-    is_tracked: Boolean
-    is_winner: Boolean
-    sorting: [SolveSortingEnum]
-    first: Int!
-    page: Int
-  ): SolvePaginator
-  followers(
-    first: Int!
-    page: Int
-  ): CuberPaginator
-  follows(
-    first: Int!
-    page: Int
-  ): CuberPaginator
-  pivot: CuberRoomPivot
-  created_at: DateTime!
-  updated_at: DateTime
-}
-
-union CuberNotification =
-    RoomInvitationNotification
-  | FollowerReceivedNotification
-  | FollowsJoinedRoomNotification
-type CuberPaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [Cuber!]!
-}
-
-type CuberRoom {
-  cuber: Cuber!
-  room: Room!
-}
-
-type CuberRoomPivot {
-  type: CuberRoomRelationTypeEnum!
-  last_activity_at: DateTime!
-  cuber: Cuber!
-  room: Room!
-}
-
-enum CuberRoomRelationTypeEnum {
-  VISITED
-  PARTICIPATING
-  IDLING
-  SPECTATING
-}
-
-scalar Date
+scalar WcaId
 
 scalar DateTime
-
-scalar Email
-
-type Event {
-  id: ID!
-  name: String!
-  puzzle: String!
-  scrambler: String!
-  icon: String!
-  created_at: DateTime!
-  updated_at: DateTime
-}
-
-type EventPaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [Event!]!
-}
-
-enum EventSortingEnum {
-  NAME_ASC
-  NAME_DESC
-}
-
-type FollowerReceivedNotification implements Notification {
-  initiator: Cuber
-  target: Cuber!
-  created_at: DateTime!
-}
-
-type FollowsJoinedRoomNotification implements Notification {
-  initiator: Cuber
-  target: Cuber!
-  room: Room!
-  created_at: DateTime!
-}
-
-input ForgotPasswordInput {
-  email: Email!
-}
-
-type ForgotPasswordResponse {
-  status: String!
-  message: String
-}
-
-input LoginInput {
-  username: Email!
-  password: String!
-}
-
-type LogoutResponse {
-  status: String!
-  message: String
-}
-
-scalar Milliseconds
-
-type Mutation {
-  sendRoomChatMessage(room_id: ID!, message: String!): RoomChatMessage!
-  updateCuber(input: UpdateCuberInput): Cuber!
-  followCuber(id: ID): Cuber
-  unfollowCuber(id: ID): Cuber
-  inviteCuber(room_id: ID!, cuber_id: ID!): CuberRoom!
-  createRoom(input: CreateRoomInput!): Room!
-  updateRoom(input: UpdateRoomInput!): Room!
-  joinRoom(
-    id: ID!
-    secret: String
-    participationType: CuberRoomRelationTypeEnum
-  ): Room!
-  changeRoomStatus(
-    room_id: ID!
-    participationType: CuberRoomRelationTypeEnum
-  ): Room!
-  leaveRoom(id: ID!): Room!
-  deleteRoom(id: ID!): Room!
-  untrackSolvesFromRoom(room_id: ID!): [Solve!]
-  grantRoomManagementToCuber(room_id: ID!, cuber_id: ID!): Room!
-  nextRound(room_id: ID!): Round!
-  testAccumulator(round_id: ID!): Round!
-  TestNoodle(input: [NoodleInput!]): [Noodles!]
-  updateSolve(input: UpdateSolveInput!): Solve!
-  login(input: LoginInput): AuthPayload!
-  refreshToken(input: RefreshTokenInput): AuthPayload!
-  logout: LogoutResponse!
-  forgotPassword(input: ForgotPasswordInput!): ForgotPasswordResponse!
-  updateForgottenPassword(
-    input: NewPasswordWithCodeInput!
-  ): ForgotPasswordResponse!
-  register(input: RegisterInput): AuthPayload!
-  socialLogin(input: SocialLoginInput!): AuthPayload!
-}
-
-input NewPasswordWithCodeInput {
-  email: Email!
-  token: String!
-  password: String!
-  password_confirmation: String!
-}
-
-input NoodleInput {
-  puzzle: String!
-  amount: Int!
-}
-
-type Noodles {
-  puzzle: String!
-  scrambles: [String!]
-}
-
-interface Notification {
-  target: Cuber!
-  initiator: Cuber
-  created_at: DateTime!
-}
-
-input OrderByClause {
-  field: String!
-  order: SortOrder!
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-  total: Int
-  count: Int
-  currentPage: Int
-  lastPage: Int
-}
-
-type PaginatorInfo {
-  count: Int!
-  currentPage: Int!
-  firstItem: Int
-  hasMorePages: Boolean!
-  lastItem: Int
-  lastPage: Int!
-  perPage: Int!
-  total: Int!
-}
-
-type Query {
-  accumulatedResults(
-    first: Int = 10
-    page: Int
-  ): AccumulatedResultPaginator
-  accumulatedResult(id: ID): AccumulatedResult
-  accumulators(
-    first: Int = 10
-    page: Int
-  ): AccumulatorPaginator
-  accumulator(id: ID): Accumulator
-  cubers(
-    first: Int = 10
-    page: Int
-  ): CuberPaginator
-  cuber(id: ID): Cuber
-  me: Cuber
-  events(
-    sorting: [EventSortingEnum!]
-    first: Int = 10
-    page: Int
-  ): EventPaginator
-  event(id: ID): Event
-  rooms(
-    sorting: [RoomsSortingEnum]
-    events: [ID]
-    is_active: Boolean
-    has_secret: Boolean
-    is_full: Boolean
-    first: Int = 10
-    page: Int
-  ): RoomPaginator
-  room(id: ID): Room
-  rounds(
-    sorting: [RoundSortingEnum!]
-    room_id: ID
-    first: Int = 10
-    page: Int
-  ): RoundPaginator
-  round(id: ID): Round
-  solves(
-    sorting: [SolveSortingEnum!]
-    is_dnf: Boolean
-    state: SolveState
-    event_id: ID
-    cuber_id: ID
-    round_id: ID
-    room_id: ID
-    scramble_id: ID
-    is_winner: Boolean
-    is_tracked: Boolean
-    first: Int = 10
-    page: Int
-  ): SolvePaginator
-  solve(id: ID): Solve
-}
-
-input RefreshTokenInput {
-  refresh_token: String
-}
-
-input RegisterInput {
-  first_name: String
-  last_name: String
-  nationality: CountryEnum
-  email: Email!
-  password: String!
-  password_confirmation: String!
-}
-
-type Room {
-  id: ID!
-  name: String!
-  description: String
-  has_secret: Boolean
-  cubers(
-    first: Int!
-    page: Int
-  ): CuberPaginator
-  participating_cubers(
-    first: Int!
-    page: Int
-  ): CuberPaginator
-  idling_cubers(
-    first: Int!
-    page: Int
-  ): CuberPaginator
-  spectating_cubers(
-    first: Int!
-    page: Int
-  ): CuberPaginator
-  active_cubers(
-    first: Int!
-    page: Int
-  ): CuberPaginator
-  active_round: Round
-  rounds(
-    sorting: [RoundSortingEnum]
-    first: Int!
-    page: Int
-  ): RoundPaginator
-  event: Event!
-  time_limit: Milliseconds
-  time_target: Milliseconds
-  max_capacity: Int
-  is_public: Boolean!
-  is_active: Boolean!
-  is_full: Boolean!
-  creator: Cuber!
-  accumulators: [Accumulator!]
-  pivot: CuberRoomPivot
-  manager: Cuber
-  created_at: DateTime!
-  updated_at: DateTime
-}
-
-type RoomChatMessage {
-  user: Cuber!
-  room: Room!
-  message: String!
-}
-
-input RoomChatMessageInput {
-  room_id: ID!
-  message: String!
-}
-
-type RoomInvitationNotification implements Notification {
-  initiator: Cuber
-  target: Cuber!
-  room: Room!
-  created_at: DateTime!
-}
-
-type RoomPaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [Room!]!
-}
 
 enum RoomsSortingEnum {
   NAME_ASC
@@ -664,44 +472,23 @@ enum RoomsSortingEnum {
   CREATION_DESC
 }
 
-type Round {
-  id: ID!
-  round_number: Int!
-  room: Room
-  scramble: Scramble!
-  solves: [Solve!]
-  previous: Round
-  winning_solve: Solve
-  accumulated_results: [AccumulatedResult!]
-  created_at: DateTime!
-  updated_at: DateTime
-}
-
-type RoundPaginator {
+type RoomPaginator {
   paginatorInfo: PaginatorInfo!
-  data: [Round!]!
+  data: [Room!]!
 }
 
-enum RoundSortingEnum {
+enum SolveSortingEnum {
   CREATION_ASC
   CREATION_DESC
-  ROUND_NUMBER_ASC
-  ROUND_NUMBER_DESC
+  RESULT_ASC
+  RESULT_DESC
+  ROUND_ASC
+  ROUND_DESC
 }
 
-type Scramble {
-  id: ID!
-  event: Event!
-  scramble: String!
-  room: Room
-  solves: [Solve!]
-  created_at: DateTime!
-  updated_at: DateTime
-}
-
-input SocialLoginInput {
-  provider: String!
-  token: String!
+type SolvePaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Solve!]!
 }
 
 type Solve {
@@ -723,20 +510,6 @@ type Solve {
   updated_at: DateTime
 }
 
-type SolvePaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [Solve!]!
-}
-
-enum SolveSortingEnum {
-  CREATION_ASC
-  CREATION_DESC
-  RESULT_ASC
-  RESULT_DESC
-  ROUND_ASC
-  ROUND_DESC
-}
-
 enum SolveState {
   NOT_STARTED
   SCRAMBLED
@@ -746,9 +519,446 @@ enum SolveState {
   FINISHED
 }
 
-enum SortOrder {
-  ASC
-  DESC
+scalar Milliseconds
+
+type Event {
+  id: ID!
+  name: String!
+  puzzle: String!
+  scrambler: String!
+  icon: String!
+  created_at: DateTime!
+  updated_at: DateTime
+}
+
+type Round {
+  id: ID!
+  round_number: Int!
+  room: Room
+  scramble: Scramble!
+  solves: [Solve!]
+  previous: Round
+  winning_solve: Solve
+  accumulated_results: [AccumulatedResult!]
+  created_at: DateTime!
+  updated_at: DateTime
+}
+
+type Scramble {
+  id: ID!
+  event: Event!
+  scramble: String!
+  room: Room
+  solves: [Solve!]
+  created_at: DateTime!
+  updated_at: DateTime
+}
+
+type CuberRoomPivot {
+  type: CuberRoomRelationTypeEnum!
+  last_activity_at: DateTime!
+  cuber: Cuber!
+  room: Room!
+}
+
+enum CuberRoomRelationTypeEnum {
+  VISITED
+  PARTICIPATING
+  IDLING
+  SPECTATING
+}
+
+enum RoundSortingEnum {
+  CREATION_ASC
+  CREATION_DESC
+  ROUND_NUMBER_ASC
+  ROUND_NUMBER_DESC
+}
+
+type RoundPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Round!]!
+}
+
+type Accumulator {
+  id: ID
+  name: String
+  pivot_label: String
+  pivot_id: ID
+  pivot_n: ID
+}
+
+type RoomConfiguration {
+  id: ID!
+  allow_scramble_image: Boolean!
+  allow_spectator_chat: Boolean!
+  allow_spectators: Boolean!
+  allow_bots: Boolean!
+  allow_late_entry: Boolean!
+  enforce_stackmat_timer: Boolean!
+  enforce_inspection: Boolean!
+  is_invite_only: Boolean!
+  show_results: Boolean!
+  max_solves: Int
+  starts_at: DateTime
+  rooms(
+    first: Int!
+    page: Int
+  ): RoomPaginator
+}
+
+type AccumulatorPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Accumulator!]!
+}
+
+enum CompetitionSortingEnum {
+  NAME_ASC
+  NAME_DESC
+  START_DATE_ASC
+  START_DATE_DESC
+}
+
+type CompetitionPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Competition!]!
+}
+
+type Competition {
+  id: ID!
+  name: String!
+  description: Markdown!
+  start_date: Date!
+  end_date: Date
+  is_featured: Boolean!
+  requires_signup: Boolean!
+  is_invitational: Boolean!
+  rounds(
+    first: Int!
+    page: Int
+  ): CompetitionRoundPaginator
+  events(
+    first: Int!
+    page: Int
+  ): EventPaginator
+  participants(
+    first: Int!
+    page: Int
+  ): CuberPaginator
+  sponsors(
+    first: Int!
+    page: Int
+  ): SponsorPaginator
+  organiser: Organisation
+  room_configuration: RoomConfiguration
+  created_at: DateTime!
+  updated_at: DateTime
+}
+
+scalar Markdown
+
+scalar Date
+
+type CompetitionRoundPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [CompetitionRound!]!
+}
+
+type CompetitionRound {
+  id: ID!
+  round_number: Int!
+  is_final: Boolean!
+  room_configuration: RoomConfiguration
+  results: [AccumulatedResult!]
+  event: Event!
+  rooms: [Room!]
+  participants: [Cuber!]
+  competition: Competition!
+  previous: CompetitionRound
+  next: CompetitionRound
+  start_at: DateTime
+}
+
+type EventPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Event!]!
+}
+
+type SponsorPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Sponsor!]!
+}
+
+type Sponsor {
+  id: ID!
+  name: String!
+  website: String
+  logo: String
+  banner: String
+  competitions: [Competition!]
+}
+
+type Organisation {
+  id: ID!
+  name: String!
+  website: String!
+  logo: String!
+  email: Email!
+  members: [Cuber!]
+  competitions: [Competition!]
+}
+
+scalar Email
+
+enum CompetitionRoundSortingEnum {
+  ROUND_NUMBER_ASC
+  ROUND_NUMBER_DESC
+  START_AT_ASC
+  START_AT_DESC
+}
+
+enum EventSortingEnum {
+  NAME_ASC
+  NAME_DESC
+}
+
+type OrganisationPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Organisation!]!
+}
+
+type Mutation {
+  sendRoomChatMessage(room_id: ID!, message: String!): RoomChatMessage!
+  createCompetition(input: CreateCompetitionInput!): Competition!
+  updateCompetition(input: UpdateCompetitionInput!): Competition!
+  addCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
+  removeCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
+  updateCompetitionRound(input: UpdateCompetitionRoundInput!): Competition!
+  updateCuber(input: UpdateCuberInput): Cuber!
+  followCuber(id: ID): Cuber
+  unfollowCuber(id: ID): Cuber
+  inviteCuber(room_id: ID!, cuber_id: ID!): CuberRoom!
+  createOrganisation(input: CreateOrganisationInput!): Organisation!
+  updateOrganisation(input: UpdateOrganisationInput!): Organisation!
+  createRoom(input: CreateRoomInput!): Room!
+  updateRoom(input: UpdateRoomInput!): Room!
+  joinRoom(
+    id: ID!
+    secret: String
+    participationType: CuberRoomRelationTypeEnum
+  ): Room!
+  changeRoomStatus(
+    room_id: ID!
+    participationType: CuberRoomRelationTypeEnum
+  ): Room!
+  leaveRoom(id: ID!): Room!
+  deleteRoom(id: ID!): Room!
+  untrackSolvesFromRoom(room_id: ID!): [Solve!]
+  grantRoomManagementToCuber(room_id: ID!, cuber_id: ID!): Room!
+  updateRoomConfiguration(
+    input: UpdateRoomConfigurationInput!
+  ): RoomConfiguration!
+  nextRound(room_id: ID!): Round!
+  testAccumulator(round_id: ID!): Round!
+  TestNoodle(input: [NoodleInput!]): [Noodles!]
+  updateSolve(input: UpdateSolveInput!): Solve!
+  createSponsor(input: CreateSponsorInput!): Sponsor!
+  updateSponsor(input: UpdateSponsorInput!): Sponsor!
+  login(input: LoginInput): AuthPayload!
+  refreshToken(input: RefreshTokenInput): AuthPayload!
+  logout: LogoutResponse!
+  forgotPassword(input: ForgotPasswordInput!): ForgotPasswordResponse!
+  updateForgottenPassword(
+    input: NewPasswordWithCodeInput!
+  ): ForgotPasswordResponse!
+  register(input: RegisterInput): AuthPayload!
+  socialLogin(input: SocialLoginInput!): AuthPayload!
+}
+
+type RoomChatMessage {
+  user: Cuber!
+  room: Room!
+  message: String!
+}
+
+input CreateCompetitionInput {
+  name: String!
+  description: String!
+  start_date: Date!
+  end_date: Date
+  is_featured: Boolean
+  requires_signup: Boolean
+  is_invitational: Boolean
+  organisation_id: ID
+  room_configuration_id: ID
+}
+
+input UpdateCompetitionInput {
+  id: ID!
+  name: String
+  description: String
+  start_date: Date
+  end_date: Date
+  is_featured: Boolean
+  requires_signup: Boolean
+  is_invitational: Boolean
+  organisation_id: ID
+  room_configuration_id: ID
+}
+
+input UpdateCompetitionRoundInput {
+  id: ID!
+  room_configuration_id: ID
+}
+
+input UpdateCuberInput {
+  id: ID!
+  nationality: CountryEnum
+  first_name: String
+  last_name: String
+}
+
+type CuberRoom {
+  cuber: Cuber!
+  room: Room!
+}
+
+input CreateOrganisationInput {
+  name: String!
+  website: String!
+  logo: String!
+  email: Email!
+}
+
+input UpdateOrganisationInput {
+  id: ID!
+  name: String
+  website: String
+  logo: String
+  email: Email
+}
+
+input CreateRoomInput {
+  name: String!
+  description: String
+  time_limit: Milliseconds
+  time_target: Milliseconds
+  max_capacity: Int
+  is_public: Boolean
+  event_id: ID!
+  room_configuration_id: ID
+  secret: String
+}
+
+input UpdateRoomInput {
+  id: ID!
+  name: String
+  description: String
+  room_configuration_id: ID
+  time_limit: Milliseconds
+  time_target: Milliseconds
+  max_capacity: Int
+}
+
+input UpdateRoomConfigurationInput {
+  id: ID!
+  allow_scramble_image: Boolean
+  allow_spectator_chat: Boolean
+  allow_spectators: Boolean
+  allow_bots: Boolean
+  allow_late_entry: Boolean
+  enforce_stackmat_timer: Boolean
+  enforce_inspection: Boolean
+  is_invite_only: Boolean
+  show_results: Boolean
+  max_solves: Int
+  starts_at: DateTime
+}
+
+input NoodleInput {
+  puzzle: String!
+  amount: Int!
+}
+
+type Noodles {
+  puzzle: String!
+  scrambles: [String!]
+}
+
+input UpdateSolveInput {
+  id: ID!
+  state: SolveState
+  time: Milliseconds
+  penalties: Milliseconds
+  is_dnf: Boolean
+  is_tracked: Boolean
+}
+
+input CreateSponsorInput {
+  name: String!
+  website: String
+  logo: String
+  banner: String
+}
+
+input UpdateSponsorInput {
+  id: ID!
+  name: String
+  website: String
+  logo: String
+  banner: String
+}
+
+input LoginInput {
+  username: Email!
+  password: String!
+}
+
+type AuthPayload {
+  access_token: String!
+  refresh_token: String!
+  expires_in: Int!
+  token_type: String!
+  user: Cuber!
+}
+
+input RefreshTokenInput {
+  refresh_token: String
+}
+
+type LogoutResponse {
+  status: String!
+  message: String
+}
+
+input ForgotPasswordInput {
+  email: Email!
+}
+
+type ForgotPasswordResponse {
+  status: String!
+  message: String
+}
+
+input NewPasswordWithCodeInput {
+  email: Email!
+  token: String!
+  password: String!
+  password_confirmation: String!
+}
+
+input RegisterInput {
+  first_name: String
+  last_name: String
+  nationality: CountryEnum
+  email: Email!
+  password: String!
+  password_confirmation: String!
+}
+
+input SocialLoginInput {
+  provider: String!
+  token: String!
 }
 
 type Subscription {
@@ -762,36 +972,65 @@ type Subscription {
   solveUpdated(room_id: ID!): Solve
 }
 
+union CuberNotification =
+    RoomInvitationNotification
+  | FollowerReceivedNotification
+  | FollowsJoinedRoomNotification
+type RoomInvitationNotification implements Notification {
+  initiator: Cuber
+  target: Cuber!
+  room: Room!
+  created_at: DateTime!
+}
+
+interface Notification {
+  target: Cuber!
+  initiator: Cuber
+  created_at: DateTime!
+}
+
+type FollowerReceivedNotification implements Notification {
+  initiator: Cuber
+  target: Cuber!
+  created_at: DateTime!
+}
+
+type FollowsJoinedRoomNotification implements Notification {
+  initiator: Cuber
+  target: Cuber!
+  room: Room!
+  created_at: DateTime!
+}
+
+input RoomChatMessageInput {
+  room_id: ID!
+  message: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  total: Int
+  count: Int
+  currentPage: Int
+  lastPage: Int
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+input OrderByClause {
+  field: String!
+  order: SortOrder!
+}
+
 enum Trashed {
   ONLY
   WITH
   WITHOUT
 }
-
-input UpdateCuberInput {
-  id: ID!
-  nationality: CountryEnum
-  first_name: String
-  last_name: String
-}
-
-input UpdateRoomInput {
-  id: ID!
-  name: String
-  description: String
-  time_limit: Milliseconds
-  time_target: Milliseconds
-  max_capacity: Int
-}
-
-input UpdateSolveInput {
-  id: ID!
-  state: SolveState
-  time: Milliseconds
-  penalties: Milliseconds
-  is_dnf: Boolean
-  is_tracked: Boolean
-}
-
-scalar WcaId
 

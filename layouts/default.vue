@@ -50,90 +50,138 @@
             </v-list-item-action>
           </v-list-item>
           <client-only>
-            <v-menu
-              v-if="user"
-              :close-on-content-click="true"
-              :max-width="300"
-              offset-x
-              top
-            >
-              <template v-slot:activator="{ on }">
-                <v-list-item key="-2" v-on="on">
-                  <v-list-item-action>
-                    <v-img
-                      v-if="user.avatar"
-                      :src="user.avatar"
-                      height="32"
-                      width="32"
-                      contain
-                    />
-                    <v-icon v-else>mdi-account</v-icon>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ user.name }}</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      user.wca_id
-                    }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-
-              <v-card>
-                <v-list>
-                  <v-list-item>
-                    <v-list-item-avatar>
-                      <v-img v-if="user.avatar" :src="user.avatar" />
+            <template v-if="user">
+              <v-list-item
+                key="-3"
+                @click="cuberNotificationStatus = !cuberNotificationStatus"
+              >
+                <v-list-item-action>
+                  <v-badge
+                    :content="messagesCount"
+                    :value="messagesCount"
+                    color="red"
+                    overlap
+                  >
+                    <v-icon>{{
+                      cuberNotificationStatus
+                        ? 'mdi-bell-check'
+                        : 'mdi-bell-cancel'
+                    }}</v-icon>
+                  </v-badge>
+                </v-list-item-action>
+                <v-list-item-content>
+                  {{ messagesCount }} Notifications
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item
+                v-if="organisation"
+                key="-5"
+                to="/organisations"
+                router
+                exact
+              >
+                <v-list-item-action>
+                  <v-img
+                    v-if="organisation && organisation.logo"
+                    :src="organisation.logo"
+                    height="24"
+                    width="24"
+                    contain
+                  />
+                  <v-icon v-else>mdi-domain</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <span v-if="organisation">{{ organisation.name }}</span>
+                    <i v-else>No Organisation</i>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-menu
+                :close-on-content-click="true"
+                :max-width="300"
+                offset-x
+                top
+              >
+                <template v-slot:activator="{ on }">
+                  <v-list-item key="-2" v-on="on">
+                    <v-list-item-action>
+                      <v-img
+                        v-if="user.avatar"
+                        :src="user.avatar"
+                        height="24"
+                        width="24"
+                        contain
+                      />
                       <v-icon v-else>mdi-account</v-icon>
-                    </v-list-item-avatar>
+                    </v-list-item-action>
                     <v-list-item-content>
                       <v-list-item-title>{{ user.name }}</v-list-item-title>
-                      <v-list-item-subtitle
-                        >WCA ID: {{ user.wca_id }}</v-list-item-subtitle
-                      >
-                      <v-list-item-subtitle
-                        >Nationality:
-                        {{
-                          countriesMap[user.nationality]
-                        }}</v-list-item-subtitle
-                      >
+                      <v-list-item-subtitle>{{
+                        user.wca_id
+                      }}</v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
-                </v-list>
+                </template>
 
-                <v-divider></v-divider>
+                <v-card>
+                  <v-list>
+                    <v-list-item>
+                      <v-list-item-avatar>
+                        <v-img v-if="user.avatar" :src="user.avatar" />
+                        <v-icon v-else>mdi-account</v-icon>
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title>{{ user.name }}</v-list-item-title>
+                        <v-list-item-subtitle
+                          >WCA ID: {{ user.wca_id }}</v-list-item-subtitle
+                        >
+                        <v-list-item-subtitle
+                          >Nationality:
+                          {{
+                            countriesMap[user.nationality]
+                          }}</v-list-item-subtitle
+                        >
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
 
-                <v-list dense>
-                  <v-list-item
-                    :key="-1"
-                    :to="currentUserProfileRoute"
-                    exact
-                    nuxt
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>My Profile Page</v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-
-                  <v-list-item
-                    v-for="(item, i) in accountItems"
-                    :key="i"
-                    :to="item.to"
-                    :exact="item.exact"
-                    nuxt
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>{{ item.title }}</v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
                   <v-divider></v-divider>
-                  <v-list-item @click="logout()">
-                    <v-list-item-content>
-                      <v-list-item-title>Logout</v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
-              </v-card>
-            </v-menu>
+
+                  <v-list dense>
+                    <v-list-item
+                      :key="-1"
+                      :to="currentUserProfileRoute"
+                      exact
+                      nuxt
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>My Profile Page</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+
+                    <v-list-item
+                      v-for="(item, i) in accountItems"
+                      :key="i"
+                      :to="item.to"
+                      :exact="item.exact"
+                      nuxt
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ item.title }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-divider></v-divider>
+                    <v-list-item @click="logout()">
+                      <v-list-item-content>
+                        <v-list-item-title>Logout</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-card>
+              </v-menu>
+            </template>
+
             <div v-else>
               <v-list-item to="/login" router exact>
                 <v-list-item-action>
@@ -193,6 +241,7 @@
       </a>
     </v-footer>
     <Snackbar />
+    <CuberNotificationSnackbar :status="cuberNotificationStatus" />
     <ViewCuberSolvesDialog
       :cuber="lookupCuber"
       :status="dialogs.viewCuberSolves"
@@ -215,12 +264,14 @@ import { LOGOUT_MUTATION } from '~/gql/mutation/auth.js'
 import { CUBER_NOTIFICATION_RECEIVED_SUBSCRIPTION } from '~/gql/subscription/cuber.js'
 import ViewCuberSolvesDialog from '~/components/dialog/solve/viewCuberSolvesDialog'
 import LoginDialog from '~/components/dialog/auth/loginDialog'
-import Snackbar from '~/components/snackbar'
+import Snackbar from '~/components/snackbar/snackbar'
+import CuberNotificationSnackbar from '~/components/snackbar/cuberNotificationSnackbar'
 
 export default {
   components: {
     ViewCuberSolvesDialog,
     Snackbar,
+    CuberNotificationSnackbar,
     LoginDialog,
   },
   data() {
@@ -232,7 +283,7 @@ export default {
       },
       lookupCuber: null,
       loginRedirectRoute: null,
-
+      cuberNotificationStatus: true,
       clipped: false,
       drawer: true,
       fixed: false,
@@ -248,13 +299,22 @@ export default {
           to: '/rooms',
         },
         {
-          icon: 'mdi-card-account-details',
-          title: 'My Recent Rooms',
-          to: '/my-rooms',
+          icon: 'mdi-account-group',
+          title: 'Competitions',
+          to: '/competitions',
+        },
+        {
+          icon: 'mdi-format-list-numbered',
+          title: 'Global Stats',
+          to: '/stats',
         },
       ],
 
-      accountItems: [{ title: 'Settings', to: '/settings', exact: false }],
+      accountItems: [
+        { title: 'My Recent Rooms', to: '/my-rooms', exact: false },
+        { title: 'My Organisations', to: '/organisations', exact: false },
+        { title: 'Settings', to: '/settings', exact: false },
+      ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
@@ -264,6 +324,8 @@ export default {
   computed: {
     ...mapGetters({
       user: 'auth/user',
+      messagesCount: 'cuberNotification/messagesCount',
+      organisation: 'organisation/current',
     }),
 
     currentUserProfileRoute() {
@@ -352,8 +414,12 @@ export default {
       //do the subscription
       this.$apollo.addSmartSubscription('cuberNotificationReceived', {
         query: CUBER_NOTIFICATION_RECEIVED_SUBSCRIPTION,
-        result({ _data }) {
-          //console.log(data);
+        result({ data }) {
+          console.log(data)
+          this.$store.commit(
+            'cuberNotification/addMessage',
+            data.cuberNotificationReceived,
+          )
         },
       })
     },

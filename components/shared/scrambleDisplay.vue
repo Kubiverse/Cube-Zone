@@ -77,8 +77,6 @@ export default {
 
 <style scoped>
 scramble-display {
-  resize: both;
-  overflow: hidden;
   text-align: initial;
 }
 </style>

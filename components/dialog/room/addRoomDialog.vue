@@ -160,9 +160,7 @@ export default {
 
   watch: {
     status(_val) {
-      if (this.status) {
-        this.reset()
-      }
+      this.reset()
     },
   },
 
@@ -250,6 +248,7 @@ export default {
     },
 
     reset() {
+      if (!this.status) return
       this.inputs = {
         name: '',
         description: '',

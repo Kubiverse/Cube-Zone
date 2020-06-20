@@ -34,6 +34,9 @@ export const ROOM_QUERY = gql`
           ...CuberBasic
         }
       }
+      pivot {
+        type
+      }
     }
   }
   ${roomFragment}

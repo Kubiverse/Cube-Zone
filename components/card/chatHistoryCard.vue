@@ -1,11 +1,11 @@
 <template>
   <v-card
     ref="chathistory"
-    class="pa-2"
+    class="pa-2 resizeable-card"
     outlined
     tile
     height="200"
-    style="overflow: auto;"
+    width="100%"
   >
     <div v-for="(item, i) in chatMessages" :key="i">
       <span v-if="item.system">
@@ -57,3 +57,11 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.resizeable-card {
+  resize: vertical;
+  overflow: auto;
+  max-height: 200px;
+}
+</style>

@@ -8,7 +8,7 @@
     <v-card>
       <v-card-title>
         <v-icon left>mdi-pencil</v-icon>
-        <span class="headline">Edit Room</span>
+        <span class="headline">Edit Organisation</span>
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
@@ -26,45 +26,31 @@
                 class="py-0"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="12" class="py-0">
-              <v-textarea
-                v-model="inputs.description"
-                label="Description"
-                filled
-                dense
-                class="py-0"
-              ></v-textarea>
-            </v-col>
-            <v-col cols="4" class="py-0">
+            <v-col cols="12" xs="12" class="py-0">
               <v-text-field
-                v-model="inputs.time_limit"
-                label="Time Limit (sec) (optional)"
+                v-model="inputs.website"
+                label="Website"
                 filled
                 dense
                 class="py-0"
-                type="number"
-                step="0.001"
               ></v-text-field>
             </v-col>
-            <v-col cols="4" class="py-0">
+            <v-col cols="12" xs="12" class="py-0">
               <v-text-field
-                v-model="inputs.time_target"
-                label="Time Target (sec) (optional)"
+                v-model="inputs.logo"
+                label="Logo URL"
                 filled
                 dense
                 class="py-0"
-                type="number"
-                step="0.001"
               ></v-text-field>
             </v-col>
-            <v-col cols="4" class="py-0">
+            <v-col cols="12" xs="12" class="py-0">
               <v-text-field
-                v-model="inputs.max_capacity"
-                label="Max Capacity (optional)"
+                v-model="inputs.email"
+                label="Primary Contact Email"
                 filled
                 dense
                 class="py-0"
-                type="number"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -74,7 +60,10 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn color="primary" :loading="loading.editRoom" @click="submit()"
+        <v-btn
+          color="primary"
+          :loading="loading.editOrganisation"
+          @click="submit()"
           >Submit</v-btn
         >
       </v-card-actions>
@@ -84,8 +73,8 @@
 
 <script>
 import sharedService from '~/services/shared.js'
-import { UPDATE_ROOM_MUTATION } from '~/gql/mutation/room.js'
-import { ROOM_BASIC_QUERY } from '~/gql/query/room.js'
+import { UPDATE_ORGANISATION_MUTATION } from '~/gql/mutation/organisation.js'
+import { ORGANISATION_BASIC_QUERY } from '~/gql/query/organisation.js'
 
 export default {
   props: {
@@ -99,25 +88,19 @@ export default {
     return {
       inputs: {
         name: '',
-        description: '',
-        time_limit: 10,
-        time_target: 20,
-        max_capacity: 8,
+        website: null,
+        logo: null,
+        email: null,
       },
 
       loading: {
-        editRoom: false,
+        editOrganisation: false,
         loadData: false,
       },
-      events: null,
     }
   },
 
-  computed: {
-    id() {
-      return this.selectedItem ? this.selectedItem.id : null
-    },
-  },
+  computed: {},
 
   watch: {
     status(_val) {
@@ -131,39 +114,38 @@ export default {
     },
 
     async submit() {
-      this.loading.editRoom = true
+      this.loading.editOrganisation = true
       try {
         let { data } = await this.$apollo.mutate({
-          mutation: UPDATE_ROOM_MUTATION,
+          mutation: UPDATE_ORGANISATION_MUTATION,
           variables: {
             id: this.selectedItem.id,
             name: this.inputs.name,
-            description: this.inputs.description,
-            time_limit: parseInt(this.inputs.time_limit * 1000) || undefined,
-            time_target: parseInt(this.inputs.time_target * 1000) || undefined,
-            max_capacity: parseInt(this.inputs.max_capacity) || undefined,
+            website: this.inputs.website,
+            logo: this.inputs.logo,
+            email: this.inputs.email,
           },
         })
 
         this.$notifier.showSnackbar({
-          message: 'Room Updated',
+          message: 'Organisation Updated',
           variant: 'success',
         })
 
-        this.$emit('submit', data)
+        this.$emit('submit', data.updateOrganisation)
 
         this.close()
       } catch (err) {
         sharedService.handleError(err, this.$root)
       }
-      this.loading.editRoom = false
+      this.loading.editOrganisation = false
     },
 
     async loadData() {
       this.loading.loadData = true
       try {
         let { data } = await this.$apollo.query({
-          query: ROOM_BASIC_QUERY,
+          query: ORGANISATION_BASIC_QUERY,
           variables: {
             id: this.selectedItem.id,
           },
@@ -171,11 +153,10 @@ export default {
         })
 
         this.inputs = {
-          name: data.room.name,
-          description: data.room.description,
-          time_limit: data.room.time_limit / 1000,
-          time_target: data.room.time_target / 1000,
-          max_capacity: data.room.max_capacity,
+          name: data.organisation.name,
+          website: data.organisation.website,
+          logo: data.organisation.logo,
+          email: data.organisation.email,
         }
       } catch (err) {
         sharedService.handleError(err, this.$root)

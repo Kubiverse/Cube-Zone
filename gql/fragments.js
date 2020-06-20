@@ -21,6 +21,7 @@ export const cuberBasicFragment = gql`
     id
     name
     avatar
+    nationality
   }
 `
 
@@ -94,5 +95,38 @@ export const solveFragment = gql`
     time
     is_winner
     is_tracked
+  }
+`
+
+export const competitionFragment = gql`
+  fragment Competition on Competition {
+    id
+    name
+    description
+    start_date
+    end_date
+    is_featured
+    requires_signup
+    is_invitational
+    created_at
+  }
+`
+
+export const competitionRoundFragment = gql`
+  fragment CompetitionRound on CompetitionRound {
+    id
+    round_number
+    is_final
+    start_at
+  }
+`
+
+export const organisationFragment = gql`
+  fragment Organisation on Organisation {
+    id
+    name
+    website
+    logo
+    email
   }
 `
