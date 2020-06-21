@@ -785,7 +785,7 @@ export default {
           this.expansionOpenedIndex = 0
           setTimeout(() => {
             this.$refs.chatbox.focus()
-          }, 250)
+          }, 0)
         }
       }
     },
