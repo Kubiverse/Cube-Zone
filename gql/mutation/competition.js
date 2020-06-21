@@ -92,4 +92,3 @@ export const REMOVE_COMPETITION_ROUND = gql`
   }
   ${competitionRoundFragment}
 `
-

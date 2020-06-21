@@ -157,6 +157,7 @@ type Room {
   is_active: Boolean!
   is_full: Boolean!
   creator: Cuber!
+  competition_round: CompetitionRound
   accumulators: [Accumulator!]
   configuration: RoomConfiguration!
   pivot: CuberRoomPivot
@@ -580,12 +581,19 @@ type RoundPaginator {
   data: [Round!]!
 }
 
-type Accumulator {
-  id: ID
-  name: String
-  pivot_label: String
-  pivot_id: ID
-  pivot_n: ID
+type CompetitionRound {
+  id: ID!
+  round_number: Int!
+  is_final: Boolean!
+  room_configuration: RoomConfiguration
+  results: [AccumulatedResult!]
+  event: Event!
+  rooms: [Room!]
+  participants: [Cuber!]
+  competition: Competition!
+  previous: CompetitionRound
+  next: CompetitionRound
+  start_at: DateTime
 }
 
 type RoomConfiguration {
@@ -605,23 +613,6 @@ type RoomConfiguration {
     first: Int!
     page: Int
   ): RoomPaginator
-}
-
-type AccumulatorPaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [Accumulator!]!
-}
-
-enum CompetitionSortingEnum {
-  NAME_ASC
-  NAME_DESC
-  START_DATE_ASC
-  START_DATE_DESC
-}
-
-type CompetitionPaginator {
-  paginatorInfo: PaginatorInfo!
-  data: [Competition!]!
 }
 
 type Competition {
@@ -664,21 +655,6 @@ type CompetitionRoundPaginator {
   data: [CompetitionRound!]!
 }
 
-type CompetitionRound {
-  id: ID!
-  round_number: Int!
-  is_final: Boolean!
-  room_configuration: RoomConfiguration
-  results: [AccumulatedResult!]
-  event: Event!
-  rooms: [Room!]
-  participants: [Cuber!]
-  competition: Competition!
-  previous: CompetitionRound
-  next: CompetitionRound
-  start_at: DateTime
-}
-
 type EventPaginator {
   paginatorInfo: PaginatorInfo!
   data: [Event!]!
@@ -710,6 +686,31 @@ type Organisation {
 
 scalar Email
 
+type Accumulator {
+  id: ID
+  name: String
+  pivot_label: String
+  pivot_id: ID
+  pivot_n: ID
+}
+
+type AccumulatorPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Accumulator!]!
+}
+
+enum CompetitionSortingEnum {
+  NAME_ASC
+  NAME_DESC
+  START_DATE_ASC
+  START_DATE_DESC
+}
+
+type CompetitionPaginator {
+  paginatorInfo: PaginatorInfo!
+  data: [Competition!]!
+}
+
 enum CompetitionRoundSortingEnum {
   ROUND_NUMBER_ASC
   ROUND_NUMBER_DESC
@@ -734,6 +735,10 @@ type Mutation {
   addCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
   removeCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
   updateCompetitionRound(input: UpdateCompetitionRoundInput!): Competition!
+  createRoomsForCompetitionRound(
+    competition_round_id: ID!
+    quantity: Int!
+  ): [Room!]
   updateCuber(input: UpdateCuberInput): Cuber!
   followCuber(id: ID): Cuber
   unfollowCuber(id: ID): Cuber
@@ -753,6 +758,7 @@ type Mutation {
   ): Room!
   leaveRoom(id: ID!): Room!
   deleteRoom(id: ID!): Room!
+  unhideRoom(id: ID!): Room!
   untrackSolvesFromRoom(room_id: ID!): [Solve!]
   grantRoomManagementToCuber(room_id: ID!, cuber_id: ID!): Room!
   updateRoomConfiguration(
@@ -809,6 +815,7 @@ input UpdateCompetitionInput {
 input UpdateCompetitionRoundInput {
   id: ID!
   room_configuration_id: ID
+  start_at: DateTime
 }
 
 input UpdateCuberInput {
@@ -841,6 +848,7 @@ input UpdateOrganisationInput {
 input CreateRoomInput {
   name: String!
   description: String
+  attachAccumulators: [AccumulatorPair]
   time_limit: Milliseconds
   time_target: Milliseconds
   max_capacity: Int
@@ -848,6 +856,11 @@ input CreateRoomInput {
   event_id: ID!
   room_configuration_id: ID
   secret: String
+}
+
+input AccumulatorPair {
+  id: ID!
+  n: Int
 }
 
 input UpdateRoomInput {
@@ -1018,6 +1031,12 @@ type PageInfo {
   lastPage: Int
 }
 
+enum Trashed {
+  ONLY
+  WITH
+  WITHOUT
+}
+
 enum SortOrder {
   ASC
   DESC
@@ -1026,11 +1045,5 @@ enum SortOrder {
 input OrderByClause {
   field: String!
   order: SortOrder!
-}
-
-enum Trashed {
-  ONLY
-  WITH
-  WITHOUT
 }
 
