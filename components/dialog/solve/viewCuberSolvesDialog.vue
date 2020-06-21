@@ -10,10 +10,10 @@
         <v-icon left>mdi-badge-account-horizontal</v-icon>
         <span class="headline">View Solves by {{ cuber.name }}</span>
         <v-spacer></v-spacer>
-        <v-btn text @click="openCuberProfile()">
+        <Button variant="text" @click="openCuberProfile()">
           <v-icon left>mdi-open-in-new</v-icon>
           Go To Cuber Profile
-        </v-btn>
+        </Button>
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
@@ -26,7 +26,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Close</v-btn>
+        <Button variant="text" @click="close()">Close</Button>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -34,10 +34,12 @@
 
 <script>
 import ViewCuberSolvesInterface from '~/components/interface/viewCuberSolvesInterface.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     ViewCuberSolvesInterface,
+    Button,
   },
 
   props: {

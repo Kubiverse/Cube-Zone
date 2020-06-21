@@ -20,19 +20,14 @@
                 <v-icon left>mdi-google-classroom</v-icon>
                 <v-toolbar-title>Rooms</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
-                <v-btn
-                  color="primary"
-                  dark
-                  class="mb-2"
-                  @click="openAddRoomDialog()"
-                >
+                <Button class="mb-2" @click="openAddRoomDialog()">
                   <v-icon left>mdi-plus</v-icon>
                   New Room
-                </v-btn>
+                </Button>
                 <v-spacer></v-spacer>
-                <v-btn icon @click="reset()">
+                <Button icon @click="reset()">
                   <v-icon>mdi-refresh</v-icon>
-                </v-btn>
+                </Button>
               </v-toolbar>
               <v-expansion-panels>
                 <v-expansion-panel>
@@ -187,15 +182,10 @@
               <div>
                 No rooms matched your filters
                 <br />
-                <v-btn
-                  color="primary"
-                  class="my-2"
-                  dark
-                  @click="openAddRoomDialog()"
-                >
+                <Button class="my-2" @click="openAddRoomDialog()">
                   <v-icon left>mdi-plus</v-icon>
                   Create a Room
-                </v-btn>
+                </Button>
               </div>
             </template>
           </v-data-table>
@@ -240,6 +230,7 @@ import DeleteRoomDialog from '~/components/dialog/room/deleteRoomDialog.vue'
 import InputRoomSecretDialog from '~/components/dialog/room/inputRoomSecretDialog.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
 import CuberAvatar from '~/components/shared/cuberAvatar.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
@@ -249,6 +240,7 @@ export default {
     InputRoomSecretDialog,
     EventLabel,
     CuberAvatar,
+    Button,
   },
 
   data() {

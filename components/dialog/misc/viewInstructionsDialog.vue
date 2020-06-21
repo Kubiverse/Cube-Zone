@@ -17,14 +17,19 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Close</v-btn>
+        <Button variant="text" @click="close()">Close</Button>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
+import Button from '~/components/shared/button.vue'
+
 export default {
+  components: {
+    Button,
+  },
   props: {
     status: {
       type: Boolean,

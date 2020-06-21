@@ -39,12 +39,12 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button
           color="primary"
           :loading="loading.addCompetitionRound"
           @click="submit()"
-          >Add</v-btn
+          >Add</Button
         >
       </v-card-actions>
     </v-card>
@@ -56,10 +56,12 @@ import sharedService from '~/services/shared.js'
 import { ADD_COMPETITION_ROUND } from '~/gql/mutation/competition.js'
 import { EVENTS_QUERY } from '~/gql/query/event.js'
 import EventLabel from '~/components/shared/eventLabel.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     EventLabel,
+    Button,
   },
 
   props: {
@@ -68,7 +70,7 @@ export default {
     },
     competition: {
       required: true,
-    }
+    },
   },
 
   data() {

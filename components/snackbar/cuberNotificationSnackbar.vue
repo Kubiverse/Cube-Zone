@@ -30,9 +30,7 @@
           >
         </v-list-item-content>
       </v-list-item>
-      <v-btn color="primary" @click="joinRoom(currentNotification.room)"
-        >Join Room</v-btn
-      >
+      <Button @click="joinRoom(currentNotification.room)">Join Room</Button>
     </template>
     <template
       v-else-if="
@@ -58,10 +56,8 @@
           >
         </v-list-item-content>
       </v-list-item>
-      <v-btn
-        color="primary"
-        @click="openCuberProfile(currentNotification.initiator)"
-        >View Profile</v-btn
+      <Button @click="openCuberProfile(currentNotification.initiator)"
+        >View Profile</Button
       >
     </template>
     <template
@@ -88,24 +84,24 @@
           >
         </v-list-item-content>
       </v-list-item>
-      <v-btn color="primary" @click="joinRoom(currentNotification.room)"
-        >Join Room</v-btn
-      >
+      <Button @click="joinRoom(currentNotification.room)">Join Room</Button>
     </template>
-    <v-btn :style="{ color: textColor }" text @click="handleClose()">
+    <Button variant="text" @click="handleClose()">
       {{
         messagesCount > 1 ? 'Next (' + (messagesCount - 1) + ')' : 'Close'
-      }}</v-btn
+      }}</Button
     >
   </v-snackbar>
 </template>
 
-<script lang="ts">
+<script>
 import { mapGetters } from 'vuex'
+import Button from '../shared/button.vue'
 
 export default {
+  components: { Button },
   props: {
-    status: {}
+    status: {},
   },
   data() {
     return {

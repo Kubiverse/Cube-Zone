@@ -59,12 +59,9 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn
-          color="primary"
-          :loading="loading.editOrganisation"
-          @click="submit()"
-          >Submit</v-btn
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button :loading="loading.editOrganisation" @click="submit()"
+          >Submit</Button
         >
       </v-card-actions>
     </v-card>
@@ -75,8 +72,10 @@
 import sharedService from '~/services/shared.js'
 import { UPDATE_ORGANISATION_MUTATION } from '~/gql/mutation/organisation.js'
 import { ORGANISATION_BASIC_QUERY } from '~/gql/query/organisation.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  components: { Button },
   props: {
     status: {
       type: Boolean,

@@ -107,10 +107,8 @@
         ></v-switch>
         -->
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn color="primary" :loading="loading.addRoom" @click="submit()"
-          >Submit</v-btn
-        >
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button :loading="loading.addRoom" @click="submit()">Submit</Button>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -121,10 +119,12 @@ import sharedService from '~/services/shared.js'
 import { CREATE_ROOM_MUTATION } from '~/gql/mutation/room.js'
 import { EVENTS_QUERY } from '~/gql/query/event.js'
 import EventLabel from '~/components/shared/eventLabel.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     EventLabel,
+    Button,
   },
 
   props: {

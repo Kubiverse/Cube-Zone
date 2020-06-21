@@ -24,7 +24,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Close</v-btn>
+        <Button variant="text" @click="close()">Close</Button>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -32,10 +32,12 @@
 
 <script>
 import ViewAccumulatedResultInterface from '~/components/interface/viewAccumulatedResultInterface.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     ViewAccumulatedResultInterface,
+    Button,
   },
 
   props: {

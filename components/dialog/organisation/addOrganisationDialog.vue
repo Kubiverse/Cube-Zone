@@ -56,12 +56,9 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn
-          color="primary"
-          :loading="loading.addOrganisation"
-          @click="submit()"
-          >Submit</v-btn
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button :loading="loading.addOrganisation" @click="submit()"
+          >Submit</Button
         >
       </v-card-actions>
     </v-card>
@@ -71,9 +68,10 @@
 <script>
 import sharedService from '~/services/shared.js'
 import { CREATE_ORGANISATION_MUTATION } from '~/gql/mutation/organisation.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
-  components: {},
+  components: { Button },
 
   props: {
     status: {

@@ -9,9 +9,9 @@
               Global Stats
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click="reset()">
+            <Button icon @click="reset()">
               <v-icon>mdi-refresh</v-icon>
-            </v-btn>
+            </Button>
           </v-toolbar>
           <v-tabs v-model="tab">
             <v-tab v-for="item in tabItems" :key="item.tab">
@@ -70,11 +70,13 @@ import { booleanOptionsArray } from '~/services/constants.js'
 import { EVENTS_QUERY } from '~/gql/query/event.js'
 import ViewCuberSolvesInterface from '~/components/interface/viewCuberSolvesInterface.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     ViewCuberSolvesInterface,
     EventLabel,
+    Button,
   },
 
   data() {

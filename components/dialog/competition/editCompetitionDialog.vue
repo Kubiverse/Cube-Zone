@@ -110,12 +110,13 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn
+        <Button variant="text" text @click="close()">Cancel</Button>
+        <Button
+          variant="text"
           color="primary"
           :loading="loading.editCompetition"
           @click="submit()"
-          >Submit</v-btn
+          >Submit</Button
         >
       </v-card-actions>
     </v-card>
@@ -126,8 +127,12 @@
 import sharedService from '~/services/shared.js'
 import { UPDATE_COMPETITION_MUTATION } from '~/gql/mutation/competition.js'
 import { COMPETITION_BASIC_QUERY } from '~/gql/query/competition.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  components: {
+    Button,
+  },
   props: {
     status: {
       type: Boolean,

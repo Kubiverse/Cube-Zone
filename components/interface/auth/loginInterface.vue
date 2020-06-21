@@ -20,13 +20,12 @@
       ></v-text-field>
     </v-card-text>
     <v-card-actions>
-      <v-btn text nuxt to="/password-reset">Password Forgotten</v-btn>
+      <Button variant="text" nuxt to="/password-reset"
+        >Password Forgotten</Button
+      >
       <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        :loading="loading.submitting"
-        @click="handleSubmit()"
-        >Login</v-btn
+      <Button :loading="loading.submitting" @click="handleSubmit()"
+        >Login</Button
       >
     </v-card-actions>
   </v-card>
@@ -36,9 +35,10 @@
 import { LOGIN_MUTATION } from '~/gql/mutation/auth.js'
 import sharedService from '~/services/shared.js'
 import authService from '~/services/auth.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
-  components: {},
+  components: { Button },
 
   data() {
     return {

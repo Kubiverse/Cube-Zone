@@ -6,7 +6,7 @@
           <v-toolbar color="primary" dark flat>
             <v-toolbar-title>User Settings</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn text @click="goToWcaAuth()">
+            <Button variant="text" @click="goToWcaAuth()">
               <img
                 src="../static/WCAlogo_notext.svg"
                 alt=""
@@ -14,7 +14,7 @@
                 class="pr-2"
               />
               Link WCA Account
-            </v-btn>
+            </Button>
           </v-toolbar>
           <v-card-text>
             <v-text-field
@@ -60,11 +60,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              :loading="loading.submitting"
-              @click="handleSubmit()"
-              >Save Changes</v-btn
+            <Button :loading="loading.submitting" @click="handleSubmit()"
+              >Save Changes</Button
             >
           </v-card-actions>
         </v-card>
@@ -79,9 +76,10 @@ import { UPDATE_CUBER_MUTATION } from '~/gql/mutation/cuber.js'
 import sharedService from '~/services/shared.js'
 import { countriesArray } from '~/services/constants.js'
 import authService from '~/services/auth.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
-  components: {},
+  components: { Button },
 
   data() {
     return {

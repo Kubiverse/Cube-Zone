@@ -116,7 +116,7 @@
               </div>
             </v-col>
           </v-row>
-            <!--
+          <!--
             <v-col xl="9" lg="12">
               <v-card outlined tile>
                 <v-simple-table id="roomResults" fixed-header>
@@ -322,11 +322,11 @@
     </v-layout>
     <v-footer v-if="room" absolute fixed height="auto">
       <div class="text-center pt-1" style="width: 100%;">
-        <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
-        <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
-        <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
+        <Button id="v-step-share" @click="copyShareLink()">Share Link</Button>
+        <Button @click="openViewRoundsDialog()">All Rounds</Button>
+        <Button id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
           <v-icon>mdi-cog</v-icon>
-        </v-btn>
+        </Button>
       </div>
       <v-row justify="center" class="pt-1">
         <span class="caption grey--text">
@@ -394,9 +394,9 @@ import ViewRoundDialog from '~/components/dialog/round/viewRoundDialog'
 import ViewRoundsDialog from '~/components/dialog/round/viewRoundsDialog'
 import EditRoomSettingsDialog from '~/components/dialog/misc/editRoomSettingsDialog'
 import ViewAccumulatedResultDialog from '~/components/dialog/accumulated/viewAccumulatedResultDialog'
-import ScrambleDisplay from '~/components/shared/scrambleDisplay.vue'
 import Scramble from '~/components/shared/scramble'
 import { mapGetters } from 'vuex'
+import Button from '~/components/shared/button.vue'
 
 export default {
   layout: 'lite',
@@ -408,8 +408,8 @@ export default {
     ViewRoundsDialog,
     EditRoomSettingsDialog,
     ViewAccumulatedResultDialog,
-    ScrambleDisplay,
     Scramble,
+    Button,
   },
 
   data() {

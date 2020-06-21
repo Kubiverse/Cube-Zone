@@ -14,13 +14,13 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button
+          variant="text"
           color="error"
-          text
           :loading="loading.deleteCompetitionRound"
           @click="deleteCompetitionRound()"
-          >Delete</v-btn
+          >Delete</Button
         >
       </v-card-actions>
     </v-card>
@@ -30,8 +30,12 @@
 <script>
 import sharedService from '~/services/shared.js'
 import { REMOVE_COMPETITION_ROUND } from '~/gql/mutation/competition.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  competition: {
+    Button,
+  },
   props: {
     status: {
       type: Boolean,

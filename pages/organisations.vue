@@ -20,19 +20,14 @@
                 <v-icon left>mdi-domain</v-icon>
                 <v-toolbar-title>My Organisations</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
-                <v-btn
-                  color="primary"
-                  dark
-                  class="mb-2"
-                  @click="openAddOrganisationDialog()"
-                >
+                <Button class="mb-2" @click="openAddOrganisationDialog()">
                   <v-icon left>mdi-plus</v-icon>
                   New Organisation
-                </v-btn>
+                </Button>
                 <v-spacer></v-spacer>
-                <v-btn icon @click="reset()">
+                <Button icon @click="reset()">
                   <v-icon>mdi-refresh</v-icon>
-                </v-btn>
+                </Button>
               </v-toolbar>
             </template>
             <template v-slot:item="props">
@@ -92,17 +87,18 @@
 </template>
 
 <script>
-import sharedService from '~/services/shared.js'
 import { booleanOptionsArray } from '~/services/constants.js'
 import { ORGANISATIONS_QUERY } from '~/gql/query/organisation.js'
 
 import AddOrganisationDialog from '~/components/dialog/organisation/addOrganisationDialog.vue'
 import EditOrganisationDialog from '~/components/dialog/organisation/editOrganisationDialog.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     AddOrganisationDialog,
     EditOrganisationDialog,
+    Button,
   },
 
   data() {

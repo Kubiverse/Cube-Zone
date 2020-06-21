@@ -14,15 +14,15 @@
               inset
               vertical
             ></v-divider>
-            <v-btn color="primary" dark class="mb-2" @click="openAddRoomDialog()">
+            <Button class="mb-2" @click="openAddRoomDialog()">
               <v-icon left>mdi-plus</v-icon>
               New Room
-            </v-btn>
+            </Button>
             -->
             <v-spacer></v-spacer>
-            <v-btn icon @click="reset()">
+            <Button icon @click="reset()">
               <v-icon>mdi-refresh</v-icon>
-            </v-btn>
+            </Button>
           </v-toolbar>
 
           <ViewCuberRoomsInterface
@@ -46,11 +46,13 @@
 import ViewCuberRoomsInterface from '~/components/interface/viewCuberRoomsInterface.vue'
 import AddRoomDialog from '~/components/dialog/room/addRoomDialog.vue'
 import { mapGetters } from 'vuex'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     ViewCuberRoomsInterface,
     AddRoomDialog,
+    Button,
   },
 
   data() {
