@@ -2,81 +2,97 @@
   <v-overlay
     absolute
     :value="status"
-    :opacity="opacity"
+    :opacity="streamerMode ? 0.7 : opacity"
     :color="backgroundColor"
   >
-    <v-row>
-      <v-col cols="12" class="text-center">
-        <span
-          v-if="timerState >= 5 && (solveResult.is_dnf || isInspectionDnf)"
-          class="red--text timer-text"
-          >DNF</span
-        >
-        <span
-          v-else
-          class="timer-text"
-          :class="{
-            'black--text': isInspecting,
-            'red--text text--lighten-4': timerState == 2,
-            'green--text text--darken-4': timerState == 3,
-          }"
-          >{{ generateTimeString(timeElapsed) }}</span
-        >
-        <span v-if="solveResult.penalties" class="red--text timer-text"
-          >(+{{ solveResult.penalties / 1000 }})</span
-        >
-        <div v-if="isInspectionDnf">
-          Your solve was DNFed due to inspection taking longer than 17 seconds.
-        </div>
-        <div v-else-if="isInspectionPenalty">
-          Your solve has incurred an extra +2 penalty because the inspection
-          took between 15 and 17 seconds.
-        </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" class="text-center" style="height: 16px;">
-        <div v-if="timerState == 1" class="overline">Inspecting</div>
-        <div v-else-if="timerState == 4" class="overline">Solving</div>
-        <div v-else-if="timerState == 5" class="overline">Verifying</div>
-      </v-col>
-      <v-col cols="12" class="text-center">
-        <div v-if="inputMethod == 'manual'" class="overline">
-          Manual Entry - Please Type in the Result using your Keyboard
-        </div>
-        <div
-          v-if="inputMethod == 'stackmat' && timerState == 5"
-          class="overline"
-        >
-          Don't forget to reset your Stackmat Timer!
-        </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" class="text-center" style="height: 36px;">
-        <template v-if="timerState == 5 || timerState == 6">
-          <v-btn color="error" @click="toggleDnf()">
-            DNF
-          </v-btn>
-          <v-btn color="warning" @click="togglePenalty()">
-            +2
-          </v-btn>
-          <v-btn
-            color="success"
-            :loading="timerState == 6"
-            @click="timerState = 7"
+    <v-container fluid :fill-height="!streamerMode">
+      <v-layout align-center justify-center>
+        <v-row>
+          <v-spacer></v-spacer>
+          <v-col
+            :cols="streamerMode ? 4 : 12"
+            align-self="end"
+            class="text-center"
           >
-            Finalize Results (or hold Space)
-          </v-btn>
-        </template>
-        <v-btn
-          v-else-if="timerState == 8"
-          color="warning"
-          @click="timerState = 9"
-          >Go Back</v-btn
-        >
-      </v-col>
-    </v-row>
+            <v-row>
+              <v-col cols="12" class="text-center">
+                <span
+                  v-if="
+                    timerState >= 5 && (solveResult.is_dnf || isInspectionDnf)
+                  "
+                  class="red--text timer-text"
+                  >DNF</span
+                >
+                <span
+                  v-else
+                  class="timer-text"
+                  :class="{
+                    'black--text': isInspecting,
+                    'red--text text--lighten-4': timerState == 2,
+                    'green--text text--darken-4': timerState == 3,
+                  }"
+                  >{{ generateTimeString(timeElapsed) }}</span
+                >
+                <span v-if="solveResult.penalties" class="red--text timer-text"
+                  >(+{{ solveResult.penalties / 1000 }})</span
+                >
+                <div v-if="isInspectionDnf">
+                  Your solve was DNFed due to inspection taking longer than 17 seconds.
+                </div>
+                <div v-else-if="isInspectionPenalty">
+                  Your solve has incurred an extra +2 penalty because the inspection
+                  took between 15 and 17 seconds.
+                </div>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" class="text-center" style="height: 16px;">
+                <div v-if="timerState == 1" class="overline">Inspecting</div>
+                <div v-else-if="timerState == 4" class="overline">Solving</div>
+                <div v-else-if="timerState == 5" class="overline">Verifying</div>
+              </v-col>
+              <v-col cols="12" class="text-center">
+                <div v-if="inputMethod == 'manual'" class="overline">
+                  Manual Entry - Please Type in the Result using your Keyboard
+                </div>
+                <div
+                  v-if="inputMethod == 'stackmat' && timerState == 5"
+                  class="overline"
+                >
+                  Don't forget to reset your Stackmat Timer!
+                </div>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" class="text-center" style="height: 36px;">
+                <template v-if="timerState == 5 || timerState == 6">
+                  <v-btn color="error" @click="toggleDnf()">
+                    DNF
+                  </v-btn>
+                  <v-btn color="warning" @click="togglePenalty()">
+                    +2
+                  </v-btn>
+                  <v-btn
+                    color="success"
+                    :loading="timerState == 6"
+                    @click="timerState = 7"
+                  >
+                    Finalize Results (or hold Space)
+                  </v-btn>
+                </template>
+                <v-btn
+                  v-else-if="timerState == 8"
+                  color="warning"
+                  @click="timerState = 9"
+                  >Go Back</v-btn
+                >
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-layout>
+    </v-container>
+
   </v-overlay>
 </template>
 
@@ -91,6 +107,7 @@ export default {
     inputMethod: {},
     timerTriggerDuration: {},
     inspectionTimer: {},
+    streamerMode: {},
   },
   data() {
     return {
@@ -290,7 +307,13 @@ export default {
       this.stackmat.on('stopped', (packet) => {
         if (this.timerState == 4) {
           this.timerState = 5
-          this.stop(packet.timeInMilliseconds)
+          this.stop(packet.time)
+        }
+      })
+
+      this.stackmat.on('reset', (_packet) => {
+        if (this.timerState == 5) {
+          this.timerState = 7
         }
       })
 
@@ -546,5 +569,12 @@ export default {
 .timer-text {
   font-family: 'Share Tech Mono', sans-serif;
   font-size: 6rem !important;
+}
+</style>
+
+<style>
+.v-overlay__content {
+  width: 100%;
+  height: 100%;
 }
 </style>

@@ -5,29 +5,29 @@
         <div class="pt-2">
           <v-data-table
             :headers="headers"
-            :items="rooms.data"
+            :items="competitions.data"
             class="elevation-1"
-            :loading="$apollo.queries.rooms.loading"
+            :loading="$apollo.queries.competitions.loading"
             :options.sync="options"
             loading-text="Loading... Please wait"
-            :server-items-length="rooms.paginatorInfo.total"
+            :server-items-length="competitions.paginatorInfo.total"
             multi-sort
             :footer-props="footerOptions"
             @update:options="handleUpdateOptions"
           >
             <template v-slot:top>
               <v-toolbar flat color="accent">
-                <v-icon left>mdi-google-classroom</v-icon>
-                <v-toolbar-title>Rooms</v-toolbar-title>
+                <v-icon left>mdi-account-group</v-icon>
+                <v-toolbar-title>Competitions</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-btn
                   color="primary"
                   dark
                   class="mb-2"
-                  @click="openAddRoomDialog()"
+                  @click="openAddCompetitionDialog()"
                 >
                   <v-icon left>mdi-plus</v-icon>
-                  New Room
+                  New Competition
                 </v-btn>
                 <v-spacer></v-spacer>
                 <v-btn icon @click="reset()">
@@ -46,11 +46,11 @@
                     <v-row>
                       <v-col cols="3">
                         <v-select
-                          v-model="filterObject.is_active"
+                          v-model="filterObject.is_featured"
                           filled
                           dense
                           :items="booleanOptionsArray"
-                          label="Is Active"
+                          label="Is Featured"
                           item-text="name"
                           item-value="id"
                           class="py-0"
@@ -58,11 +58,11 @@
                       </v-col>
                       <v-col cols="3">
                         <v-select
-                          v-model="filterObject.is_full"
+                          v-model="filterObject.requires_signup"
                           filled
                           dense
                           :items="booleanOptionsArray"
-                          label="Is Full"
+                          label="Signup Required"
                           item-text="name"
                           item-value="id"
                           class="py-0"
@@ -70,11 +70,11 @@
                       </v-col>
                       <v-col cols="3">
                         <v-select
-                          v-model="filterObject.has_secret"
+                          v-model="filterObject.is_invitational"
                           filled
                           dense
                           :items="booleanOptionsArray"
-                          label="Has Secret"
+                          label="Is Invitational"
                           item-text="name"
                           item-value="id"
                           class="py-0"
@@ -118,62 +118,44 @@
               <tr
                 :key="props.item.id"
                 class="pointer-cursor"
-                @click="enterRoom(props.item)"
+                @click="enterCompetition(props.item)"
               >
                 <td class="text-xs-left">
                   {{ props.item.name }}
-                  <v-icon v-if="props.item.has_secret" small
+                  <v-icon v-if="props.item.is_invitational" small
                     >mdi-lock-question</v-icon
                   >
-                  <span class="pl-2">
-                    <CuberAvatar
-                      v-for="item in props.item.active_cubers.data"
-                      :key="item.id"
-                      :cuber="item"
-                    ></CuberAvatar>
-                  </span>
-
-                  <span
-                    v-if="
-                      props.item.active_cubers.paginatorInfo.total -
-                        props.item.active_cubers.paginatorInfo.count >
-                      0
-                    "
-                    >+{{
-                      props.item.active_cubers.paginatorInfo.total -
-                      props.item.active_cubers.paginatorInfo.count
-                    }}</span
-                  >
                 </td>
                 <td class="text-xs-left">
-                  <EventLabel :event="props.item.event" />
+                  {{ props.item.start_date }}
                 </td>
                 <td class="text-xs-left">
-                  {{ props.item.time_limit / 1000 || 'None' }}
+                  {{ props.item.end_date || 'None' }}
                 </td>
                 <td class="text-xs-left">
-                  {{ props.item.time_target / 1000 || 'None' }}
-                </td>
-                <td class="text-xs-left">{{ props.item.creator.name }}</td>
-                <td class="text-xs-left">
-                  {{ props.item.active_cubers.paginatorInfo.total }} /
-                  {{ props.item.max_capacity || 'None' }}
+                  <v-avatar size="24" class="mr-2">
+                    <v-img
+                      v-if="props.item.organiser.logo"
+                      :src="props.item.organiser.logo"
+                    />
+                    <v-icon v-else>mdi-domain</v-icon>
+                  </v-avatar>
+                  {{ props.item.organiser.name }}
                 </td>
                 <td class="text-xs-left">
                   {{ generateMomentString(props.item.created_at) }}
                 </td>
                 <td class="text-xs-left">
-                  <v-icon small title="Join Room" @click.stop="enterRoom(item)"
-                    >mdi-location-enter</v-icon
-                  >
                   <v-icon
                     small
-                    title="Spectate room"
-                    @click.stop="enterRoom(props.item, 'SPECTATING')"
-                    >mdi-eye</v-icon
+                    title="Join Competition"
+                    @click.stop="enterCompetition(item)"
+                    >mdi-location-enter</v-icon
                   >
                   <template v-if="isItemCreator(props.item)">
-                    <v-icon small @click.stop="openEditRoomDialog(props.item)"
+                    <v-icon
+                      small
+                      @click.stop="openEditCompetitionDialog(props.item)"
                       >mdi-pencil</v-icon
                     >
                     <v-icon small @click.stop="openDeleteRoomDialog(props.item)"
@@ -185,16 +167,16 @@
             </template>
             <template v-slot:no-data>
               <div>
-                No rooms matched your filters
+                No competitions matched your filters
                 <br />
                 <v-btn
                   color="primary"
                   class="my-2"
                   dark
-                  @click="openAddRoomDialog()"
+                  @click="openAddCompetitionDialog()"
                 >
                   <v-icon left>mdi-plus</v-icon>
-                  Create a Room
+                  Create a Competition
                 </v-btn>
               </div>
             </template>
@@ -202,60 +184,51 @@
         </div>
       </v-flex>
     </v-layout>
-    <AddRoomDialog
-      :status="dialogs.addRoom"
-      @close="dialogs.addRoom = false"
+    <AddCompetitionDialog
+      :status="dialogs.addCompetition"
+      @close="dialogs.addCompetition = false"
       @submit="addItem"
-    ></AddRoomDialog>
-    <EditRoomDialog
-      :status="dialogs.editRoom"
+    ></AddCompetitionDialog>
+    <EditCompetitionDialog
+      :status="dialogs.editCompetition"
       :selected-item="selectedItem"
-      @close="dialogs.editRoom = false"
+      @close="dialogs.editCompetition = false"
       @submit="editItem"
-    ></EditRoomDialog>
+    ></EditCompetitionDialog>
     <DeleteRoomDialog
       :status="dialogs.deleteRoom"
       :selected-item="selectedItem"
       @close="dialogs.deleteRoom = false"
       @submit="deleteItem"
     ></DeleteRoomDialog>
-    <InputRoomSecretDialog
-      :status="dialogs.inputSecret"
-      @close="dialogs.inputSecret = false"
-      @submit="handleSecretInput"
-    ></InputRoomSecretDialog>
   </v-container>
 </template>
 
 <script>
 import sharedService from '~/services/shared.js'
 import { booleanOptionsArray } from '~/services/constants.js'
-import { ROOMS_QUERY } from '~/gql/query/room.js'
+import { COMPETITIONS_QUERY } from '~/gql/query/competition.js'
 import { EVENTS_QUERY } from '~/gql/query/event.js'
 import { mapGetters } from 'vuex'
 
-import AddRoomDialog from '~/components/dialog/room/addRoomDialog.vue'
-import EditRoomDialog from '~/components/dialog/room/editRoomDialog.vue'
+import AddCompetitionDialog from '~/components/dialog/competition/addCompetitionDialog.vue'
+import EditCompetitionDialog from '~/components/dialog/competition/editCompetitionDialog.vue'
 import DeleteRoomDialog from '~/components/dialog/room/deleteRoomDialog.vue'
-import InputRoomSecretDialog from '~/components/dialog/room/inputRoomSecretDialog.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
-import CuberAvatar from '~/components/shared/cuberAvatar.vue'
 
 export default {
   components: {
-    AddRoomDialog,
-    EditRoomDialog,
+    AddCompetitionDialog,
+    EditCompetitionDialog,
     DeleteRoomDialog,
-    InputRoomSecretDialog,
     EventLabel,
-    CuberAvatar,
   },
 
   data() {
     return {
       booleanOptionsArray,
 
-      rooms: {
+      competitions: {
         paginatorInfo: {
           total: 0,
           count: 0,
@@ -268,10 +241,9 @@ export default {
       },
 
       dialogs: {
-        addRoom: false,
-        editRoom: false,
+        addCompetition: false,
+        editCompetition: false,
         deleteRoom: false,
-        inputSecret: false,
       },
 
       loading: {
@@ -279,13 +251,12 @@ export default {
       },
 
       selectedItem: null,
-      enterRoomStatus: null,
 
       options: {
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['created_at'],
-        sortDesc: [true],
+        sortBy: [],
+        sortDesc: [],
         groupBy: [],
         groupDesc: [],
         multiSort: true,
@@ -295,14 +266,13 @@ export default {
 
       sortNameMap: {
         name: 'NAME',
-        'event.name': 'EVENT',
-        created_at: 'CREATION',
+        start_date: 'START_DATE',
       },
 
       filterObject: {
-        is_active: true,
-        has_secret: null,
-        is_full: null,
+        is_featured: null,
+        requires_signup: null,
+        is_invitational: null,
         events: [],
       },
 
@@ -318,38 +288,30 @@ export default {
           value: 'name',
         },
         {
-          text: 'Event',
+          text: 'Start Date',
           align: 'left',
           sortable: true,
-          value: 'event.name',
+          value: 'start_date',
           width: '150px',
         },
         {
-          text: 'Time Limit',
+          text: 'End Date',
           align: 'left',
           sortable: false,
-          value: 'time_limit',
-          width: '100px',
+          value: 'end_date',
+          width: '150px',
         },
         {
-          text: 'Time Target',
+          text: 'Organiser',
           align: 'left',
           sortable: false,
-          value: 'time_target',
-          width: '100px',
-        },
-        { text: 'Creator', value: 'creator.name', width: '200px' },
-        {
-          text: 'Capacity',
-          align: 'left',
-          sortable: false,
-          value: 'max_capacity',
-          width: '120px',
+          value: 'organiser.id',
+          width: '200px',
         },
         {
           text: 'Created',
           align: 'left',
-          sortable: true,
+          sortable: false,
           value: 'created_at',
           width: '200px',
         },
@@ -362,7 +324,7 @@ export default {
       ],
 
       generation: {
-        rooms: 0,
+        competitions: 0,
       },
     }
   },
@@ -374,7 +336,7 @@ export default {
   },
 
   mounted() {
-    this.$apollo.queries.rooms.skip = false
+    this.$apollo.queries.competitions.skip = false
     this.$apollo.queries.events.skip = false
     //this.reset();
   },
@@ -383,9 +345,9 @@ export default {
     generateMomentString: sharedService.generateMomentString,
 
     isItemCreator(item) {
-      if (!this.$store.getters['auth/user']) return false
+      if (!this.$store.getters['organisation/current']) return false
 
-      return this.$store.getters['auth/user'].id == item.creator.id
+      return this.$store.getters['organisation/current'].id == item.organiser.id
     },
     openDialog(dialogName) {
       if (dialogName in this.dialogs) {
@@ -406,12 +368,12 @@ export default {
       this.openDialog('deleteRoom')
     },
 
-    openEditRoomDialog(item) {
+    openEditCompetitionDialog(item) {
       this.selectedItem = item
-      this.openDialog('editRoom')
+      this.openDialog('editCompetition')
     },
 
-    openAddRoomDialog() {
+    openAddCompetitionDialog() {
       //must be logged in
       if (!this.$store.getters['auth/user']) {
         this.$root.$emit('login-dialog', this.$route.fullPath)
@@ -419,13 +381,18 @@ export default {
           message: 'Login required',
           variant: 'error',
         })
+      } else if (!this.$store.getters['organisation/current']) {
+        this.$notifier.showSnackbar({
+          message: 'Organisation required',
+          variant: 'error',
+        })
       } else {
-        this.openDialog('addRoom')
+        this.openDialog('addCompetition')
       }
     },
 
-    addItem(item, secret) {
-      this.enterRoom(item, null, secret)
+    addItem(item) {
+      this.enterCompetition(item)
     },
 
     deleteItem(_item) {
@@ -436,48 +403,29 @@ export default {
       //this.reset();
     },
 
-    enterRoom(room, status = null, secret = null) {
-      if (room.has_secret && !secret) {
-        this.selectedItem = room
-        this.enterRoomStatus = status
-        this.openDialog('inputSecret')
-      } else {
-        this.$router.push({
-          path: '/room',
-          query: {
-            id: room.id,
-            ...(secret && { secret }),
-            ...(status && { status }),
-          },
-        })
-      }
-    },
-
-    handleSecretInput(secret) {
+    enterCompetition(competition) {
       this.$router.push({
-        path: '/room',
+        path: '/competition',
         query: {
-          id: this.selectedItem.id,
-          secret: secret,
-          ...(this.enterRoomStatus && { status: this.enterRoomStatus }),
+          id: competition.id,
         },
       })
     },
 
     reset() {
-      this.$apollo.queries.rooms.refresh()
+      this.$apollo.queries.competitions.refresh()
     },
   },
 
   head() {
     return {
-      title: 'Rooms',
+      title: 'Competitions',
     }
   },
 
   apollo: {
-    rooms: {
-      query: ROOMS_QUERY,
+    competitions: {
+      query: COMPETITIONS_QUERY,
       variables() {
         return {
           first: this.options.itemsPerPage,
@@ -488,26 +436,23 @@ export default {
               '_' +
               (this.options.sortDesc[index] ? 'DESC' : 'ASC'),
           ),
-          ...(this.filterObject.is_active !== null && {
-            is_active: this.filterObject.is_active,
+          ...(this.filterObject.is_featured !== null && {
+            is_featured: this.filterObject.is_featured,
           }),
-          ...(this.filterObject.has_secret !== null && {
-            has_secret: this.filterObject.has_secret,
+          ...(this.filterObject.is_invitational !== null && {
+            is_invitational: this.filterObject.is_invitational,
           }),
-          ...(this.filterObject.is_full !== null && {
-            is_full: this.filterObject.is_full,
-          }),
-          ...(this.filterObject.events.length > 0 && {
-            events: this.filterObject.events.map((ele) => parseInt(ele)),
+          ...(this.filterObject.requires_signup !== null && {
+            requires_signup: this.filterObject.requires_signup,
           }),
         }
       },
-      pollInterval: 5 * 60 * 1000,
+      //pollInterval: 5 * 60 * 1000,
       manual: true,
       skip: true,
       result({ data }) {
         if (data) {
-          this.rooms = data.rooms
+          this.competitions = data.competitions
         }
       },
     },

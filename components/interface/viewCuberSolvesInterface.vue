@@ -182,7 +182,7 @@ export default {
         return {
           first: this.options.itemsPerPage,
           page: this.options.page,
-          cuber_id: this.cuber.id,
+          ...(this.cuber && { cuber_id: this.cuber.id }),
           state: 'FINISHED',
           sorting: this.options.sortBy.map(
             (ele, index) =>

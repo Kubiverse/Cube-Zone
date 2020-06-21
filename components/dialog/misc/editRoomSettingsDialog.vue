@@ -67,13 +67,19 @@
               hint="Default 32"
             ></v-text-field>
           </v-col>
+          <v-col cols="4" class="py-0">
+            <v-switch
+              v-model="inputs.enableSounds"
+              label="Enable Sound Effects"
+            ></v-switch>
+          </v-col>
+          <v-col cols="4" class="py-0">
+            <v-switch
+              v-model="inputs.streamerMode"
+              label="Streamer Mode"
+            ></v-switch>
+          </v-col>
         </v-row>
-        <v-col cols="4" class="py-0">
-          <v-switch
-            v-model="inputs.enableSounds"
-            label="Enable Sound Effects"
-          ></v-switch>
-        </v-col>
       </v-card-text>
 
       <v-card-actions>

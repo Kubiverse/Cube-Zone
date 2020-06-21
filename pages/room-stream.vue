@@ -1,219 +1,302 @@
 <template>
-  <v-container
-    fluid
-    fill-height
-    :class="isChatboxOpened ? 'container-collapsed' : 'container-full'"
-  >
-    <v-layout align-center justify-center>
-      <div v-if="errorMessage">
-        <span class="display-1 pl-2">{{ errorMessage }} </span>
-      </div>
-      <div v-else-if="loading.joiningRoom">
-        <span class="display-1 pl-2"
-          >Joining Room...
-          <v-progress-circular indeterminate></v-progress-circular>
-        </span>
-      </div>
-      <div
-        v-else-if="
-          generation.room < 3 &&
-          ($apollo.queries.room.loading || $apollo.queries.rounds.loading)
-        "
-      >
+  <v-container fluid fill-height class="container-full">
+    <v-layout style="padding-bottom: 100px;">
+      <v-layout v-if="loadingText" justify-center align-center>
         <span class="display-1 pl-2"
           >Loading Room...
-          <v-progress-circular indeterminate></v-progress-circular>
+          <v-progress-circular
+            v-if="!errorMessage"
+            indeterminate
+          ></v-progress-circular>
         </span>
-      </div>
-      <div v-else-if="!room">
-        <span class="display-1 pl-2"
-          >Initializing Room...
-          <v-progress-circular indeterminate></v-progress-circular>
-        </span>
-      </div>
+      </v-layout>
       <div v-else style="width: 100%;">
-        <template>
+        <template v-if="activeRound">
           <v-row justify="center">
-            <v-col cols="12" class="text-center">
-              <div v-if="activeRound" class="text-center justify-center">
-                <v-layout
-                  v-if="settingsObject.showScramblePreview"
-                  align-center
-                  justify-center
-                >
-                  <ScrambleDisplay
-                    class="resizeable-scramble"
-                    :puzzle="
-                      activeRound.scramble.event &&
-                      activeRound.scramble.event.puzzle
-                    "
-                    :scramble="activeRound.scramble.scramble"
-                    :solved="
-                      !currentUserSolve ||
-                      (currentUserSolve && currentUserSolve.state == 'FINISHED')
-                    "
-                    :visualization="settingsObject.scramblePreviewVisualization"
-                  ></ScrambleDisplay>
+            <v-col cols="5" class="text-center">
+              <v-card height="300px" class="resizeable-card" width="100%">
+                <v-layout align-center justify-center fill-height>
+                  Stream Graphics Here
                 </v-layout>
-                <div>
-                  <div v-if="loading.updatingSolve">
-                    <span class="display-1 pl-2"
-                      >Submitting Results...
-                      <v-progress-circular indeterminate></v-progress-circular>
-                    </span>
-                  </div>
-                  <span
-                    v-else-if="
-                      !currentUserSolve ||
-                      (currentUserSolve && currentUserSolve.state == 'FINISHED')
-                    "
-                    id="v-step-scramble"
-                    class="display-1"
-                    >Waiting for next round...</span
-                  >
-                  <div v-else :class="{ 'grey--text': chatBoxFocused }">
-                    <Scramble
-                      id="v-step-scramble"
-                      :scramble="activeRound.scramble"
-                      :size="settingsObject.scrambleFontSize"
-                    />
-                    <div v-if="settingsObject.inspectionTimer" class="overline">
-                      Inspection Mode On: Press spacebar to start inspection
-                    </div>
-                    <div class="overline">
-                      Timer input method:
-                      {{ inputMethodMap[settingsObject.inputMethod] }}
-                    </div>
-                  </div>
-                </div>
+              </v-card>
+              <div v-if="cuberResults[0]">
+                <span class="title">
+                  {{ cuberResults[0].cuber.name }} ({{
+                    countriesMap[cuberResults[0].cuber.nationality]
+                  }})
+                </span>
+                <v-icon
+                  v-if="cuberResults[0].cuber.pivot.type === 'IDLING'"
+                  small
+                  title="Away"
+                  >mdi-sleep</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[0].cuber.pivot.type === 'SPECTATING'"
+                  small
+                  title="Spectating"
+                  >mdi-eye</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[0].cuber.pivot.type === 'VISITED'"
+                  small
+                  title="Not in room"
+                  >mdi-exit-run</v-icon
+                >
               </div>
             </v-col>
+            <v-col cols="2">
+              <v-card class="resizeable-card text-center" width="100%">
+                <v-simple-table>
+                  <template v-slot:default>
+                    <tbody>
+                      <tr v-for="round in roundsReversed" :key="round.id">
+                        <td
+                          style="width: 34%;"
+                          class="title"
+                          :class="{
+                            'item-highlight':
+                              cuberResults[0] && cuberResults[0].updating,
+                          }"
+                          v-html="renderSolveResults(round, cuberResults[0])"
+                        ></td>
+                        <td class="title" style="width: 33%;">
+                          #{{ round.round_number }}
+                        </td>
+                        <td
+                          class="title"
+                          style="width: 34%;"
+                          :class="{
+                            'item-highlight':
+                              cuberResults[1] && cuberResults[1].updating,
+                          }"
+                          v-html="renderSolveResults(round, cuberResults[1])"
+                        ></td>
+                      </tr>
+                      <tr key="-1" class="num-wins-bg">
+                        <td class="title">1</td>
+                        <td class="title" style="width: 50px;">Wins</td>
+                        <td class="title">5</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col>
+            <v-col cols="5" class="text-center">
+              <v-card height="300px" class="resizeable-card" width="100%">
+                <v-layout align-center justify-center fill-height>
+                  Stream Graphics Here
+                </v-layout>
+              </v-card>
+              <div v-if="cuberResults[1]">
+                <span class="title">
+                  {{ cuberResults[1].cuber.name }} ({{
+                    countriesMap[cuberResults[1].cuber.nationality]
+                  }})
+                </span>
+                <v-icon
+                  v-if="cuberResults[1].cuber.pivot.type === 'IDLING'"
+                  small
+                  title="Away"
+                  >mdi-sleep</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[1].cuber.pivot.type === 'SPECTATING'"
+                  small
+                  title="Spectating"
+                  >mdi-eye</v-icon
+                >
+                <v-icon
+                  v-else-if="cuberResults[1].cuber.pivot.type === 'VISITED'"
+                  small
+                  title="Not in room"
+                  >mdi-exit-run</v-icon
+                >
+              </div>
+            </v-col>
+          </v-row>
+            <!--
             <v-col xl="9" lg="12">
               <v-card outlined tile>
-                <v-data-table
-                  id="roomResults"
-                  :headers="headersComputed"
-                  :items="cuberResults"
-                  :options.sync="options"
-                  :footer-props="footerOptions"
-                >
-                  <template v-slot:header.round0="{ header }">
-                    {{
-                      rounds[header.offset]
-                        ? '#' + rounds[header.offset].round_number
-                        : ''
-                    }}
-                  </template>
-                  <template v-slot:header.round1="{ header }">
-                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
-                      rounds[header.offset]
-                        ? '#' + rounds[header.offset].round_number
-                        : ''
-                    }}</a>
-                  </template>
-                  <template v-slot:header.round2="{ header }">
-                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
-                      rounds[header.offset]
-                        ? '#' + rounds[header.offset].round_number
-                        : ''
-                    }}</a>
-                  </template>
-                  <template v-slot:header.round3="{ header }">
-                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
-                      rounds[header.offset]
-                        ? '#' + rounds[header.offset].round_number
-                        : ''
-                    }}</a>
-                  </template>
-                  <template v-slot:header.round4="{ header }">
-                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
-                      rounds[header.offset]
-                        ? '#' + rounds[header.offset].round_number
-                        : ''
-                    }}</a>
-                  </template>
-                  <template v-slot:header.round5="{ header }">
-                    <a @click="openViewRoundDialog(rounds[header.offset])">{{
-                      rounds[header.offset]
-                        ? '#' + rounds[header.offset].round_number
-                        : ''
-                    }}</a>
-                  </template>
-                  <template v-slot:item="props">
-                    <tr
-                      :key="props.item.id"
-                      :class="{ 'item-highlight': props.item.updating }"
-                    >
-                      <td>
-                        <PreviewCuberPopover :selected-item="props.item.cuber">
-                        </PreviewCuberPopover>
-                        <v-icon
-                          v-if="props.item.id == room.creator.id"
-                          small
-                          color="yellow"
-                          title="Room Creator"
-                          >mdi-crown</v-icon
-                        >
-                        <v-icon
-                          v-if="room.manager && room.manager.id == props.item.id"
-                          color="green"
-                          small
-                          title="Room Manager"
-                          >mdi-gavel</v-icon
-                        >
-                        <v-icon
-                          v-else-if="isRoomManager"
-                          small
-                          title="Assign as manager"
-                          @click="assignNewManager(props.item.id)"
-                          >mdi-gavel</v-icon
-                        >
-                        <v-icon
-                          v-if="props.item.cuber.pivot.type === 'IDLING'"
-                          small
-                          title="Away"
-                          >mdi-sleep</v-icon
-                        >
-                        <v-icon
-                          v-else-if="props.item.cuber.pivot.type === 'SPECTATING'"
-                          small
-                          title="Spectating"
-                          >mdi-eye</v-icon
-                        >
-                        <v-icon
-                          v-else-if="props.item.cuber.pivot.type === 'VISITED'"
-                          small
-                          title="Not in room"
-                          >mdi-exit-run</v-icon
-                        >
-                      </td>
-                      <td
-                        v-for="i in tableRounds"
-                        :key="i"
-                        class="text-right title"
-                        :class="{ 'td-border-right': i == tableRounds }"
-                        v-html="
-                          renderSolveResults(rounds[i - 1], props.item.id)
-                        "
-                      ></td>
+                <v-simple-table id="roomResults" fixed-header>
+                  <template v-slot:default>
+                    <thead>
+                      <tr>
+                        <th>Cuber</th>
+                        <th class="text-right" width="150">
+                          {{
+                            activeRoundNumber
+                              ? '#' + activeRoundNumber
+                              : '&nbsp;'
+                          }}
+                        </th>
 
-                      <td
-                        v-for="(accItem, i) in accumulatedResults"
-                        :key="accItem.name"
-                        class="text-right title"
+                        <th
+                          v-for="i in tableRounds - 1"
+                          :key="i"
+                          class="text-right"
+                          width="100"
+                        >
+                          <a @click="openViewRoundDialog(rounds[i])">{{
+                            rounds[i] ? '#' + rounds[i].round_number : ''
+                          }}</a>
+                        </th>
+
+                        <th
+                          v-for="(accItem, i) in accumulatedResults"
+                          :key="accItem.name"
+                          width="100"
+                          class="text-right"
+                          :class="{ 'td-border-left': i == 0 }"
+                        >
+                          {{ accItem.name }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="item in cuberResults"
+                        :key="item.id"
+                        :class="{ 'item-highlight': item.updating }"
                       >
-                        <span
-                          class="pointer-cursor"
-                          @click="
-                            openViewAccumulatedResultDialog(props.item.id, accItem)
-                          "
-                          v-html="renderAccumulatedResults(props.item.id, accItem)"
-                        ></span>
-                      </td>
-                    </tr>
+                        <td>
+                          <PreviewCuberPopover :selected-item="item.cuber">
+                          </PreviewCuberPopover>
+                          <v-icon
+                            v-if="item.cuber.pivot.type === 'IDLING'"
+                            small
+                            title="Away"
+                            >mdi-sleep</v-icon
+                          >
+                          <v-icon
+                            v-else-if="item.cuber.pivot.type === 'SPECTATING'"
+                            small
+                            title="Spectating"
+                            >mdi-eye</v-icon
+                          >
+                          <v-icon
+                            v-else-if="item.cuber.pivot.type === 'VISITED'"
+                            small
+                            title="Not in room"
+                            >mdi-exit-run</v-icon
+                          >
+                        </td>
+                        <td
+                          v-for="i in tableRounds"
+                          :key="i"
+                          class="text-right title"
+                          v-html="renderSolveResults(rounds[i - 1], item.id)"
+                        ></td>
+
+                        <td
+                          v-for="(accItem, i) in accumulatedResults"
+                          :key="accItem.name"
+                          class="text-right title"
+                          :class="{ 'td-border-left': i == 0 }"
+                        >
+                          <span
+                            class="pointer-cursor"
+                            @click="
+                              openViewAccumulatedResultDialog(item.id, accItem)
+                            "
+                            v-html="renderAccumulatedResults(item.id, accItem)"
+                          ></span>
+                        </td>
+                      </tr>
+                    </tbody>
                   </template>
-                </v-data-table>
+                </v-simple-table>
               </v-card>
+            </v-col>
+          -->
+          <v-row>
+            <v-col cols="4">
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th>&nbsp;</th>
+                      <th>time</th>
+                      <th>avg5</th>
+                      <th>avg12</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr key="-1">
+                      <td>current</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                    <tr key="-2">
+                      <td>best</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+            <v-col cols="4" class="text-center">
+              <v-card height="200px" class="resizeable-card" width="100%">
+                <v-layout align-center justify-center fill-height>
+                  Stream Graphics Here
+                </v-layout>
+              </v-card>
+            </v-col>
+            <v-col cols="4">
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th>&nbsp;</th>
+                      <th>time</th>
+                      <th>avg5</th>
+                      <th>avg12</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr key="-1">
+                      <td>current</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                    <tr key="-2">
+                      <td>best</td>
+                      <td>7.97</td>
+                      <td>7.62</td>
+                      <td>7.62</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" class="text-center">
+              <span
+                v-if="
+                  !currentUserSolve ||
+                  (currentUserSolve && currentUserSolve.state == 'FINISHED')
+                "
+                id="v-step-scramble"
+                class="display-1"
+                >Waiting for next round...</span
+              >
+              <div v-else>
+                <Scramble
+                  id="v-step-scramble"
+                  :scramble="activeRound.scramble"
+                  :size="settingsObject.scrambleFontSize"
+                />
+                <div class="overline">
+                  Timer input method:
+                  {{ inputMethodMap[settingsObject.inputMethod] }}
+                </div>
+              </div>
             </v-col>
           </v-row>
         </template>
@@ -238,89 +321,9 @@
       </div>
     </v-layout>
     <v-footer v-if="room" absolute fixed height="auto">
-      <v-expansion-panels v-model="expansionOpenedIndex" color="transparent">
-        <v-expansion-panel>
-          <v-expansion-panel-header
-            v-if="expansionOpenedIndex !== undefined"
-            expand-icon="mdi-chevron-up"
-            class="title py-0"
-          >
-            <span>
-              <v-icon left>mdi-chat</v-icon>
-              Chat Room
-              <span v-if="chatUnreadMessages">
-                ({{ chatUnreadMessages }} New Messages)
-              </span>
-            </span>
-          </v-expansion-panel-header>
-          <v-expansion-panel-content>
-            <ChatHistoryCard :chat-messages="chatMessages"></ChatHistoryCard>
-            <div class="chat-box">
-              <v-text-field
-                ref="chatbox"
-                v-model="chatMessage"
-                name="chatbox"
-                placeholder="Type your message here"
-                dense
-                filled
-                hide-details
-                solo-inverted
-                append-icon="mdi-send"
-                class="py-0"
-                autocomplete="off"
-                @keyup.enter="sendChatMessage()"
-                @click:append="sendChatMessage()"
-                @focus="chatBoxFocused = true"
-                @blur="chatBoxFocused = false"
-              ></v-text-field>
-            </div>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-      </v-expansion-panels>
       <div class="text-center pt-1" style="width: 100%;">
-        <v-btn
-          v-if="isRoomManager"
-          id="v-step-startroom"
-          :loading="loading.startingNextRound"
-          color="primary"
-          @click="startNextRound()"
-          >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
-        >
-        <span v-else id="v-step-startroom">&nbsp;</span>
-        <v-menu offset-y top>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="v-step-cuberstatus"
-              :loading="loading.updateRoomStatus"
-              v-on="on"
-            >
-              Your Status: {{ cuberStatusMap[currentUserStatus] }}
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item
-              v-for="(item, index) in cuberStatusOptions"
-              :key="index"
-              @click="updateRoomStatus(item.value)"
-            >
-              <v-list-item-title>{{ item.text }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
         <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
         <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
-        <v-btn @click="startTutorial()">Tutorial</v-btn>
-        <v-btn @click="openStreamerWindow()">
-          <v-icon left>mdi-open-in-new</v-icon>
-          Streamer Window
-        </v-btn>
-        <v-btn @click="toggleChat()">
-          <v-icon left>mdi-chat</v-icon>
-          Chat Room
-          <span v-if="chatUnreadMessages">
-            ({{ chatUnreadMessages }} New Messages)
-          </span>
-        </v-btn>
         <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
           <v-icon>mdi-cog</v-icon>
         </v-btn>
@@ -366,27 +369,20 @@
       :status="dialogs.viewAccumulated"
       @close="dialogs.viewAccumulated = false"
     ></ViewAccumulatedResultDialog>
-    <v-tour name="myTour" :steps="steps"></v-tour>
   </v-container>
 </template>
 
 <script>
 import sharedService from '~/services/shared.js'
-import { inputMethodMap } from '~/services/constants.js'
+import { inputMethodMap, countriesMap } from '~/services/constants.js'
 import { ROOM_QUERY } from '~/gql/query/room.js'
 import { ROUNDS_QUERY } from '~/gql/query/round.js'
 import {
-  JOIN_ROOM_MUTATION,
-  LEAVE_ROOM_MUTATION,
-  GRANT_ROOM_MANAGEMENT_TO_CUBER_MUTATION,
-  NEXT_ROUND_MUTATION,
-  SEND_ROOM_CHAT_MESSAGE_MUTATION,
   UPDATE_SOLVE_MUTATION,
   CHANGE_ROOM_STATUS_MUTATION,
 } from '~/gql/mutation/room.js'
 import {
   ROOM_UPDATED_SUBSCRIPTION,
-  ROOM_CHAT_MESSAGE_RECEIVED_SUBSCRIPTION,
   ROUND_STARTED_SUBSCRIPTION,
   ROUND_FINISHED_SUBSCRIPTION,
   SOLVE_UPDATED_SUBSCRIPTION,
@@ -394,7 +390,6 @@ import {
 } from '~/gql/subscription/room.js'
 import CubeTimerOverlay from '~/components/overlay/cubeTimerOverlay'
 import PreviewCuberPopover from '~/components/popover/previewCuberPopover'
-import ChatHistoryCard from '~/components/card/chatHistoryCard'
 import ViewRoundDialog from '~/components/dialog/round/viewRoundDialog'
 import ViewRoundsDialog from '~/components/dialog/round/viewRoundsDialog'
 import EditRoomSettingsDialog from '~/components/dialog/misc/editRoomSettingsDialog'
@@ -404,10 +399,11 @@ import Scramble from '~/components/shared/scramble'
 import { mapGetters } from 'vuex'
 
 export default {
+  layout: 'lite',
+
   components: {
     CubeTimerOverlay,
     PreviewCuberPopover,
-    ChatHistoryCard,
     ViewRoundDialog,
     ViewRoundsDialog,
     EditRoomSettingsDialog,
@@ -419,128 +415,35 @@ export default {
   data() {
     return {
       inputMethodMap,
+      countriesMap,
       room: null,
       rounds: [],
       activeRound: null,
 
-      options: {
-        page: 1,
-        itemsPerPage: 5,
-        sortBy: [],
-        sortDesc: [],
-        groupBy: [],
-        groupDesc: [],
-        initialLoad: true,
-      },
-
-      footerOptions: {
-        'items-per-page-options': [5, 10, 25, 50],
-      },
-
-      headers: [
+      desserts: [
         {
-          text: 'Cuber',
-          sortable: true,
-          value: 'cuber.name',
-          align: 'left',
+          name: 'Frozen Yogurt',
+          calories: 159,
         },
         {
-          text: '#6',
-          offset: 0,
-          value: 'round0',
-          sortable: false,
-          width: '150px',
-          align: 'right',
+          name: 'Ice cream sandwich',
+          calories: 237,
         },
         {
-          text: '#5',
-          offset: 1,
-          value: 'round1',
-          sortable: false,
-          width: '100px',
-          align: 'right',
+          name: 'Eclair',
+          calories: 262,
         },
         {
-          text: '#4',
-          offset: 2,
-          value: 'round2',
-          sortable: false,
-          width: '100px',
-          align: 'right',
+          name: 'Cupcake',
+          calories: 305,
         },
         {
-          text: '#3',
-          offset: 3,
-          value: 'round3',
-          sortable: false,
-          width: '100px',
-          align: 'right',
-        },
-        {
-          text: '#2',
-          offset: 4,
-          value: 'round4',
-          sortable: false,
-          width: '100px',
-          align: 'right',
-        },
-        {
-          text: '#1',
-          offset: 5,
-          value: 'round5',
-          sortable: false,
-          width: '100px',
-          align: 'right',
-        },
-      ],
-
-      steps: [
-        {
-          target: '#v-step-startroom',
-          header: {
-            title: 'Get Started',
-          },
-          content: `If you are the room creator or manager, click <strong>Start Room</strong> to get started!<br/ />
-          Otherwise, you will need to wait until the current round is finished before participating.`,
-        },
-        {
-          target: '#v-step-scramble',
-          content: `Scramble the cube according the scramble, which will be shown when the next round has started.<br />
-          When the cube has been scrambled, <strong>press and hold space</strong> (or long tap on your mobile device) until the timer interface is <span class="green--text">green</span>.<br />
-          Then release and begin solving!<br />
-          Hit the space button (or tap the screen) when you are finished, then follow the instructions to finalize and record your time.`,
-          params: {
-            placement: 'top',
-          },
-        },
-        {
-          target: '#v-step-settings',
-          header: {
-            title: 'Room Settings',
-          },
-          content: `Click this button to view/edit your settings for this room, including the font size of the scramble and various timer settings.`,
-        },
-        {
-          target: '#v-step-cuberstatus',
-          header: {
-            title: 'Your Status',
-          },
-          content: `Click this button to toggle your status within the room as needed.`,
-        },
-        {
-          target: '#v-step-share',
-          header: {
-            title: 'Share Room',
-          },
-          content: `Click this button to copy the link to the room to your clipboard. You can then paste it and share with others who would like to join.`,
+          name: 'Gingerbread',
+          calories: 356,
         },
       ],
 
       currentUserSolve: null,
-      generation: {
-        room: 0,
-        rounds: 0,
-      },
 
       settingsObject: {
         inputMethod: 'keyboard',
@@ -592,12 +495,6 @@ export default {
 
       errorMessage: null,
 
-      chatMessages: [],
-      chatMessage: null,
-      chatBoxFocused: false,
-      expansionOpenedIndex: undefined,
-      chatUnreadMessages: 0,
-
       pageFocused: true,
 
       timerState: 0,
@@ -622,30 +519,28 @@ export default {
   },
 
   computed: {
-    headersComputed() {
-      return [
-        ...this.headers,
-        ...this.accumulatedResults.map((val) => ({
-          text: val.name,
-          value: 'accumulatedResults.' + val.name,
-          sortable: true,
-          width: '100px',
-          align: 'right',
-        })),
-      ]
+    roundsReversed() {
+      return Array.isArray(this.rounds) ? this.rounds.slice().reverse() : []
     },
 
     cubeTimerDisabled() {
       return (
         !(this.currentUserSolve && this.currentUserSolve.state != 'FINISHED') ||
-        this.chatBoxFocused ||
         this.loading.updatingSolve ||
         this.dialogs.editRoomSettings
       )
     },
 
-    isChatboxOpened() {
-      return this.expansionOpenedIndex === 0
+    // eslint-disable-next-line vue/return-in-computed-property
+    loadingText() {
+      if (this.errorMessage) return this.errorMessage
+      else if (
+        this.$apollo.queries.room.loading ||
+        this.$apollo.queries.rounds.loading
+      )
+        return 'Loading Room...'
+      else if (!this.room) return 'Initializing Room'
+      else return null
     },
     activeRoundNumber() {
       return this.activeRound ? this.activeRound.round_number : 0
@@ -668,11 +563,6 @@ export default {
   },
 
   watch: {
-    isChatboxOpened(val) {
-      if (val) {
-        this.chatUnreadMessages = 0
-      }
-    },
     user(val) {
       if (val) {
         this.reset()
@@ -687,8 +577,6 @@ export default {
     if (process.client) {
       window.addEventListener('blur', this.onPageBlur)
       window.addEventListener('focus', this.onPageFocus)
-      window.addEventListener('keyup', this.handleKeyUp)
-      window.addEventListener('beforeunload', this.handlePageClose)
     }
   },
 
@@ -696,8 +584,6 @@ export default {
     if (process.client) {
       window.removeEventListener('blur', this.onPageBlur)
       window.removeEventListener('focus', this.onPageFocus)
-      window.removeEventListener('keyup', this.handleKeyUp)
-      window.removeEventListener('beforeunload', this.handlePageClose)
     }
   },
 
@@ -708,7 +594,7 @@ export default {
       //save settings to localStorage
       if (process.client) {
         localStorage.setItem(
-          'roomSettings',
+          'roomStreamSettings',
           JSON.stringify(this.settingsObject),
         )
       }
@@ -729,9 +615,11 @@ export default {
       }
     },
 
-    renderSolveResults(round, cuberId) {
-      if (!round) return ''
-      let foundSolve = round.solves.find((solve) => solve.cuber.id === cuberId)
+    renderSolveResults(round, cuberResult) {
+      if (!round || !cuberResult) return ''
+      let foundSolve = round.solves.find(
+        (solve) => solve.cuber.id === cuberResult.id,
+      )
 
       if (!foundSolve) return ''
 
@@ -748,6 +636,8 @@ export default {
     },
 
     renderAccumulatedResults(cuberId, accItemObject) {
+      if (!this.rounds[1] || !this.rounds[1].accumulated_results) return 'N/A'
+
       let foundResult = this.findAccumulatedResult(cuberId, accItemObject)
 
       if (!foundResult) return 'N/A'
@@ -762,48 +652,12 @@ export default {
     },
 
     findAccumulatedResult(cuberId, accItemObject) {
-      if (this.rounds[1] && this.rounds[1].accumulated_results) {
-        return this.rounds[1].accumulated_results.find(
-          (accumulator) =>
-            accumulator.contextualAccumulator.type_id ===
-              accItemObject.type_id &&
-            accumulator.contextualAccumulator.pivot_n ===
-              accItemObject.pivot_n &&
-            accumulator.cuber.id == cuberId,
-        )
-      }
-    },
-
-    handleKeyUp(e) {
-      if (this.stopPropagation) {
-        this.stopPropagation = false
-        return
-      }
-      if (this.timerStatus) return
-      if (e.code == 'Enter') {
-        if (!this.chatBoxFocused) {
-          this.expansionOpenedIndex = 0
-          setTimeout(() => {
-            this.$refs.chatbox.focus()
-          }, 0)
-        }
-      }
-    },
-
-    handlePageClose(e) {
-      e.preventDefault()
-      if (e) {
-        e.returnValue = ''
-      }
-
-      this.$apollo.mutate({
-        mutation: LEAVE_ROOM_MUTATION,
-        variables: {
-          room_id: this.$route.query.id,
-        },
-      })
-
-      return ''
+      return this.rounds[1].accumulated_results.find(
+        (accumulator) =>
+          accumulator.contextualAccumulator.type_id === accItemObject.type_id &&
+          accumulator.contextualAccumulator.pivot_n === accItemObject.pivot_n &&
+          accumulator.cuber.id == cuberId,
+      )
     },
 
     onPageBlur() {
@@ -873,25 +727,6 @@ export default {
         )
 
         if (!foundResult) {
-          if (!initialLoad) {
-            if (active_cuber.pivot.type === 'VISITED') {
-              this.handleChatMessageReceived({
-                user: active_cuber,
-                message: 'has just left the room!',
-                system: true,
-              })
-            } else {
-              this.handleChatMessageReceived({
-                user: active_cuber,
-                message:
-                  'has just joined the room! (' +
-                  this.cuberStatusMap[active_cuber.pivot.type] +
-                  ')',
-                system: true,
-              })
-            }
-          }
-
           //if joining as spectator or visited, do not add to cuberResults
           if (
             active_cuber.pivot.type !== 'SPECTATING' &&
@@ -900,25 +735,11 @@ export default {
             this.cuberResults.push({
               id: active_cuber.id,
               cuber: active_cuber,
-              accumulatedResults: {},
               updating: false,
               recentActiveRound: null,
             })
           }
         } else if (foundResult) {
-          if (!initialLoad) {
-            const message =
-              active_cuber.pivot.type === 'VISITED'
-                ? 'has just left the room'
-                : 'has just set status to: ' +
-                  this.cuberStatusMap[active_cuber.pivot.type]
-            this.handleChatMessageReceived({
-              user: active_cuber,
-              message: message,
-              system: true,
-            })
-          }
-
           //update the cuber status
           foundResult.cuber.pivot = active_cuber.pivot
 
@@ -966,16 +787,6 @@ export default {
       })
     },
 
-    handleChatMessageReceived(chatMessage) {
-      this.chatMessages.push(chatMessage)
-      if (!this.isChatboxOpened) {
-        this.chatUnreadMessages++
-        if (this.timerState == 0 && this.settingsObject.enableSounds) {
-          sharedService.playSound('/alert2.mp3')
-        }
-      }
-    },
-
     //builds the cuberResults array from all rounds provided.
     buildCuberResults() {
       this.rounds.forEach((round) => {
@@ -996,29 +807,10 @@ export default {
               },
               updating: false,
               recentActiveRound: round,
-              accumulatedResults: {},
             })
           } else {
             foundResult.recentActiveRound = round
           }
-        })
-      })
-    },
-
-    //loads in the accumulatedResults into the cuberResults table from the 2nd to last round, if exists
-    loadAccumulatedResults() {
-      this.cuberResults.forEach((cuber) => {
-        this.accumulatedResults.forEach((accumulated) => {
-          //find the accumulatedResult object for the cuber
-          let foundResult = this.findAccumulatedResult(cuber.id, accumulated)
-
-          this.$set(
-            cuber.accumulatedResults,
-            accumulated.name,
-            foundResult
-              ? sharedService.generateAccumulatedResultString(foundResult)
-              : 'N/A',
-          )
         })
       })
     },
@@ -1051,7 +843,6 @@ export default {
             },
             updating: false,
             recentActiveRound: round,
-            accumulatedResults: {},
           })
         } else {
           foundResult.recentActiveRound = round
@@ -1089,31 +880,17 @@ export default {
       }
     },
 
-    async joinAndLoadRoom() {
-      this.loading.joiningRoom = true
+    async loadRoom() {
       try {
         //must be logged in
         if (!this.$store.getters['auth/user']) {
-          this.$root.$emit('login-dialog', this.$route.fullPath)
-          throw sharedService.generateError('Login required to join room.')
+          throw sharedService.generateError('Login required to stream room.')
         }
 
-        const participationType = this.$route.query.status || 'PARTICIPATING'
-
-        await this.$apollo.mutate({
-          mutation: JOIN_ROOM_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-            secret: this.$route.query.secret,
-            participationType: participationType,
-          },
-        })
-
-        this.currentUserStatus = participationType
+        //will NOT be joining the room (should already be joined)
 
         this.$apollo.queries.room.skip = false
 
-        this.$apollo.subscriptions.roomChatMessageReceived.skip = false
         this.$apollo.subscriptions.roundFinished.skip = false
         this.$apollo.subscriptions.roundStarted.skip = false
         this.$apollo.subscriptions.solveUpdated.skip = false
@@ -1122,60 +899,6 @@ export default {
       } catch (err) {
         sharedService.handleError(err, this.$root)
         this.errorMessage = sharedService.sanitizeErrorMessage(err.message)
-      }
-      this.loading.joiningRoom = false
-    },
-
-    async startNextRound() {
-      //confirm
-      if (this.activeRound) {
-        const answer = window.confirm(
-          'Do you really want to force start the next round? Anyone who has not submitted their solve for this round yet will not be able to do so.',
-        )
-        if (!answer) {
-          return
-        }
-      }
-
-      this.loading.startingNextRound = true
-      try {
-        await this.$apollo.mutate({
-          mutation: NEXT_ROUND_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-          },
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-        this.loading.startingNextRound = false
-      }
-      //we will turn loading off when the subscription returns the next round
-      //this.loading.startingNextRound = false;
-    },
-
-    async sendChatMessage() {
-      try {
-        if (this.$refs.chatbox) {
-          this.$refs.chatbox.blur()
-        }
-
-        if (!this.chatMessage) {
-          return
-        }
-
-        const message = this.chatMessage
-        this.chatMessage = null
-
-        await this.$apollo.mutate({
-          mutation: SEND_ROOM_CHAT_MESSAGE_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-            message: message,
-          },
-          fetchPolicy: 'no-cache',
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
       }
     },
 
@@ -1261,10 +984,6 @@ export default {
       //this.loading.updatingSolve = false;
     },
 
-    startTutorial() {
-      this.$tours['myTour'].start()
-    },
-
     async updateRoomStatus(status) {
       this.loading.updateRoomStatus = true
       try {
@@ -1286,49 +1005,14 @@ export default {
       this.loading.updateRoomStatus = false
     },
 
-    async assignNewManager(cuberId) {
-      this.loading.assigningManager = true
-      try {
-        let { data } = await this.$apollo.mutate({
-          mutation: GRANT_ROOM_MANAGEMENT_TO_CUBER_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-            cuber_id: cuberId,
-          },
-        })
-
-        //optimistically update the manager
-        this.room.manager = data.grantRoomManagementToCuber.manager
-
-        this.$notifier.showSnackbar({
-          message: 'Assigned New Manager',
-          variant: 'success',
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-      }
-      this.loading.assigningManager = false
-    },
-
-    openStreamerWindow() {
-      let routeData = this.$router.resolve({
-        name: 'room-stream',
-        query: { id: this.$route.query.id },
-      })
-      window.open(routeData.href, '_blank')
-    },
-
-    toggleChat() {
-      this.expansionOpenedIndex =
-        this.expansionOpenedIndex === undefined ? 0 : undefined
-    },
-
     reset() {
       this.errorMessage = null
 
       //load room settings
       if (process.client) {
-        const savedSettings = localStorage.getItem('roomSettings')
+        const savedSettings =
+          localStorage.getItem('roomStreamSettings') ||
+          localStorage.getItem('roomSettings')
         if (savedSettings) {
           const parsedSettings = JSON.parse(savedSettings)
 
@@ -1340,7 +1024,7 @@ export default {
         }
       }
 
-      this.joinAndLoadRoom()
+      this.loadRoom()
     },
   },
 
@@ -1368,8 +1052,22 @@ export default {
       manual: true,
       skip: true,
       result({ data }) {
-        if (++this.generation.room % 2 == 0) {
+        //load the first response only. the subsequent responses are corrupted
+        if (data.room && !this.room) {
           this.room = data.room
+
+          //if room.pivot is null, user is not joined. give error
+          /*
+          This check is currently not working
+          if (!data.room.pivot) {
+            this.errorMessage = 'Must be joined to room to use streamer mode'
+            return
+          }
+          
+          //load the currentUserStatus
+          this.currentUserStatus = data.room.pivot.type
+          */
+
           //allow rounds query to start after this is done.
           this.$apollo.queries.rounds.skip = false
         }
@@ -1389,7 +1087,7 @@ export default {
       manual: true,
       skip: true,
       result({ data }) {
-        if (++this.generation.rounds % 2 == 0) {
+        if (data) {
           if (this.cuberResults.length) {
             //subsequent load (due to subscription)
           } else {
@@ -1400,27 +1098,12 @@ export default {
             this.updateSolvesMap(this.rounds)
             this.updateActiveCubers(this.room.active_cubers.data, true)
             this.buildCuberResults()
-            this.loadAccumulatedResults()
           }
         }
       },
     },
 
     $subscribe: {
-      roomChatMessageReceived: {
-        query: ROOM_CHAT_MESSAGE_RECEIVED_SUBSCRIPTION,
-        variables() {
-          return {
-            room_id: this.$route.query.id,
-          }
-        },
-        result({ data }) {
-          this.handleChatMessageReceived(data.roomChatMessageReceived)
-        },
-        fetchPolicy: 'no-cache',
-        skip: true,
-      },
-
       roundFinished: {
         query: ROUND_FINISHED_SUBSCRIPTION,
         variables() {
@@ -1439,8 +1122,6 @@ export default {
 
           if (foundRound) {
             this.updateObject(foundRound, data.roundFinished)
-            //also update the cuberResults->accumulatedResults
-            this.loadAccumulatedResults()
           }
         },
         fetchPolicy: 'no-cache',
@@ -1456,6 +1137,7 @@ export default {
         },
         result({ data }) {
           this.rounds.unshift(data.roundStarted)
+
           this.updateActiveRound(data.roundStarted)
 
           this.findCurrentUserSolve()
@@ -1539,21 +1221,6 @@ export default {
       },
     },
   },
-
-  beforeRouteLeave(to, from, next) {
-    const answer = window.confirm('Do you really want to leave this room?')
-    if (answer) {
-      this.$apollo.mutate({
-        mutation: LEAVE_ROOM_MUTATION,
-        variables: {
-          room_id: this.$route.query.id,
-        },
-      })
-      next()
-    } else {
-      next(false)
-    }
-  },
 }
 </script>
 
@@ -1571,12 +1238,12 @@ export default {
   animation: yellowfade 1s;
 }
 
-.chat-box {
-  width: 100%;
+.num-wins-bg {
+  background: orange;
 }
 
-.td-border-right {
-  border-right: thin solid rgba(255, 255, 255, 0.12);
+.td-border-left {
+  border-left: thin solid rgba(255, 255, 255, 0.12);
 }
 
 .pointer-cursor {
@@ -1591,8 +1258,14 @@ export default {
   max-height: 100%;
 }
 
+.resizeable-card {
+  resize: vertical;
+  overflow: auto;
+  display: inline-block;
+}
+
 .resizeable-scramble {
-  resize: both;
+  resize: vertical;
   overflow: hidden;
 }
 </style>
@@ -1605,9 +1278,5 @@ export default {
 .winner-text {
   color: green;
   font-weight: bold;
-}
-
-th[aria-label='#1'] {
-  border-right: thin solid rgba(255, 255, 255, 0.12);
 }
 </style>

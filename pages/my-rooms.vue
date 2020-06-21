@@ -4,6 +4,7 @@
       <v-flex xs12 sm8 md6>
         <v-card class="mt-2">
           <v-toolbar flat color="accent">
+            <v-icon left>mdi-card-account-details</v-icon>
             <v-toolbar-title>
               My Recent Rooms
             </v-toolbar-title>
