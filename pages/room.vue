@@ -339,7 +339,7 @@
       :input-method="settingsObject.inputMethod"
       :timer-trigger-duration="settingsObject.timerTriggerDuration"
       :inspection-timer="settingsObject.inspectionTimer"
-      :streamer-mode="settingsObject.streamerMode"
+      :streamer-mode="false"
       @submit-results="updateSolve"
       @timer-state-updated="handleTimerStateUpdate"
       @timer-status-updated="handleTimerStatusUpdate"
@@ -550,7 +550,6 @@ export default {
         scrambleFontSize: 32,
         enableSounds: true,
         scramblePreviewVisualization: '2D',
-        streamerMode: false,
       },
 
       accumulatedResults: [
@@ -702,6 +701,14 @@ export default {
   },
 
   methods: {
+    triggerStorageEvent(key, data) {
+      localStorage.setItem(
+        key + '-' + this.$route.query.id,
+        JSON.stringify(data),
+      )
+      localStorage.removeItem(key)
+    },
+
     updateSettings(settingsObject) {
       Object.assign(this.settingsObject, settingsObject)
 
@@ -1442,6 +1449,8 @@ export default {
             //also update the cuberResults->accumulatedResults
             this.loadAccumulatedResults()
           }
+
+          this.triggerStorageEvent('roundFinished', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1469,6 +1478,8 @@ export default {
           }
           this.triggerGarbageCollection()
           this.loading.startingNextRound = false
+
+          this.triggerStorageEvent('roundStarted', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1494,6 +1505,8 @@ export default {
               (cuber) => cuber.id == data.solveUpdated.cuber.id,
             ),
           )
+
+          this.triggerStorageEvent('solveUpdated', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1508,6 +1521,7 @@ export default {
         },
         result({ data }) {
           Object.assign(this.room, data.roomUpdated)
+          this.triggerStorageEvent('roomUpdated', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1533,6 +1547,8 @@ export default {
             this.currentUserStatus =
               data.roomMemberStatusUpdated.cuber.pivot.type
           }
+
+          this.triggerStorageEvent('roomMemberStatusUpdated', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,

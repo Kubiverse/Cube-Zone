@@ -3,7 +3,7 @@
     <v-layout style="padding-bottom: 100px;">
       <v-layout v-if="loadingText" justify-center align-center>
         <span class="display-1 pl-2"
-          >Loading Room...
+          >{{ errorMessage || 'Loading Room...' }}
           <v-progress-circular
             v-if="!errorMessage"
             indeterminate
@@ -116,100 +116,6 @@
               </div>
             </v-col>
           </v-row>
-            <!--
-            <v-col xl="9" lg="12">
-              <v-card outlined tile>
-                <v-simple-table id="roomResults" fixed-header>
-                  <template v-slot:default>
-                    <thead>
-                      <tr>
-                        <th>Cuber</th>
-                        <th class="text-right" width="150">
-                          {{
-                            activeRoundNumber
-                              ? '#' + activeRoundNumber
-                              : '&nbsp;'
-                          }}
-                        </th>
-
-                        <th
-                          v-for="i in tableRounds - 1"
-                          :key="i"
-                          class="text-right"
-                          width="100"
-                        >
-                          <a @click="openViewRoundDialog(rounds[i])">{{
-                            rounds[i] ? '#' + rounds[i].round_number : ''
-                          }}</a>
-                        </th>
-
-                        <th
-                          v-for="(accItem, i) in accumulatedResults"
-                          :key="accItem.name"
-                          width="100"
-                          class="text-right"
-                          :class="{ 'td-border-left': i == 0 }"
-                        >
-                          {{ accItem.name }}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr
-                        v-for="item in cuberResults"
-                        :key="item.id"
-                        :class="{ 'item-highlight': item.updating }"
-                      >
-                        <td>
-                          <PreviewCuberPopover :selected-item="item.cuber">
-                          </PreviewCuberPopover>
-                          <v-icon
-                            v-if="item.cuber.pivot.type === 'IDLING'"
-                            small
-                            title="Away"
-                            >mdi-sleep</v-icon
-                          >
-                          <v-icon
-                            v-else-if="item.cuber.pivot.type === 'SPECTATING'"
-                            small
-                            title="Spectating"
-                            >mdi-eye</v-icon
-                          >
-                          <v-icon
-                            v-else-if="item.cuber.pivot.type === 'VISITED'"
-                            small
-                            title="Not in room"
-                            >mdi-exit-run</v-icon
-                          >
-                        </td>
-                        <td
-                          v-for="i in tableRounds"
-                          :key="i"
-                          class="text-right title"
-                          v-html="renderSolveResults(rounds[i - 1], item.id)"
-                        ></td>
-
-                        <td
-                          v-for="(accItem, i) in accumulatedResults"
-                          :key="accItem.name"
-                          class="text-right title"
-                          :class="{ 'td-border-left': i == 0 }"
-                        >
-                          <span
-                            class="pointer-cursor"
-                            @click="
-                              openViewAccumulatedResultDialog(item.id, accItem)
-                            "
-                            v-html="renderAccumulatedResults(item.id, accItem)"
-                          ></span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </template>
-                </v-simple-table>
-              </v-card>
-            </v-col>
-          -->
           <v-row>
             <v-col cols="4">
               <v-simple-table>
@@ -337,17 +243,6 @@
         </span>
       </v-row>
     </v-footer>
-    <CubeTimerOverlay
-      :disabled="cubeTimerDisabled"
-      :input-method="settingsObject.inputMethod"
-      :timer-trigger-duration="settingsObject.timerTriggerDuration"
-      :inspection-timer="settingsObject.inspectionTimer"
-      :streamer-mode="settingsObject.streamerMode"
-      @submit-results="updateSolve"
-      @timer-state-updated="handleTimerStateUpdate"
-      @timer-status-updated="handleTimerStatusUpdate"
-      @stopPropagation="stopPropagation = true"
-    ></CubeTimerOverlay>
     <ViewRoundDialog
       :round-id="lookupRoundId"
       :status="dialogs.viewRound"
@@ -376,19 +271,8 @@
 import sharedService from '~/services/shared.js'
 import { inputMethodMap, countriesMap } from '~/services/constants.js'
 import { ROOM_QUERY } from '~/gql/query/room.js'
+import { ME_ACTIVE_ROOM_QUERY } from '~/gql/query/cuber.js'
 import { ROUNDS_QUERY } from '~/gql/query/round.js'
-import {
-  UPDATE_SOLVE_MUTATION,
-  CHANGE_ROOM_STATUS_MUTATION,
-} from '~/gql/mutation/room.js'
-import {
-  ROOM_UPDATED_SUBSCRIPTION,
-  ROUND_STARTED_SUBSCRIPTION,
-  ROUND_FINISHED_SUBSCRIPTION,
-  SOLVE_UPDATED_SUBSCRIPTION,
-  ROOM_MEMBER_STATUS_UPDATED_SUBSCRIPTION,
-} from '~/gql/subscription/room.js'
-import CubeTimerOverlay from '~/components/overlay/cubeTimerOverlay'
 import PreviewCuberPopover from '~/components/popover/previewCuberPopover'
 import ViewRoundDialog from '~/components/dialog/round/viewRoundDialog'
 import ViewRoundsDialog from '~/components/dialog/round/viewRoundsDialog'
@@ -402,7 +286,6 @@ export default {
   layout: 'lite',
 
   components: {
-    CubeTimerOverlay,
     PreviewCuberPopover,
     ViewRoundDialog,
     ViewRoundsDialog,
@@ -453,7 +336,6 @@ export default {
         scrambleFontSize: 32,
         enableSounds: true,
         scramblePreviewVisualization: '2D',
-        streamerMode: false,
       },
 
       accumulatedResults: [
@@ -480,7 +362,6 @@ export default {
         startingNextRound: false,
         updatingSolve: false,
         assigningManager: false,
-        updateRoomStatus: false,
       },
 
       dialogs: {
@@ -494,12 +375,8 @@ export default {
       lookupAccumulated: null,
 
       errorMessage: null,
-
-      pageFocused: true,
-
       timerState: 0,
       timerStatus: false,
-      stopPropagation: false,
 
       cuberStatusOptions: [
         { value: 'PARTICIPATING', text: 'Active' },
@@ -515,6 +392,78 @@ export default {
       },
 
       currentUserStatus: null,
+
+      subscriptions: {
+        roundFinished: (data) => {
+          let foundRound = this.rounds.find(
+            (round) => round.id == data.roundFinished.id,
+          )
+
+          if (foundRound) {
+            this.updateObject(foundRound, data.roundFinished)
+          }
+        },
+        roundStarted: (data) => {
+          this.rounds.unshift(data.roundStarted)
+
+          this.updateActiveRound(data.roundStarted)
+
+          this.findCurrentUserSolve()
+          this.updateSolvesMap([data.roundStarted])
+          this.cuberResults.length
+            ? this.addCuberResults(data.roundStarted)
+            : this.buildCuberResults()
+          this.checkCuberResults()
+          this.triggerGarbageCollection()
+          this.loading.startingNextRound = false
+
+          //to-do: clear any cuberResult timers
+        },
+        solveUpdated: (data) => {
+          if (data.solveUpdated.id in this.solvesMap) {
+            this.updateObject(
+              this.solvesMap[data.solveUpdated.id],
+              data.solveUpdated,
+            )
+          }
+
+          const cuberResult = this.cuberResults.find(
+            (cuber) => cuber.id == data.solveUpdated.cuber.id,
+          )
+
+          //if solve is inspecting, start the timer
+          if (data.solveUpdated.state === 'INSPECTING') {
+            this.startCuberTimer(cuberResult)
+          }
+
+          //if solve is solving, (re)start the timer
+          if (data.solveUpdated.state === 'SOLVING') {
+            this.stopCuberTimer(cuberResult)
+            this.startCuberTimer(cuberResult)
+          }
+
+          //if solve is verifying, stop the timer
+          if (data.solveUpdated.state === 'VERIFYING') {
+            this.stopCuberTimer(cuberResult)
+          }
+
+          this.flashResultUpdating(cuberResult)
+        },
+        roomUpdated: (data) => {
+          Object.assign(this.room, data.roomUpdated)
+        },
+        roomMemberStatusUpdated: (data) => {
+          data.roomMemberStatusUpdated.cuber.pivot = {
+            type: data.roomMemberStatusUpdated.type,
+          }
+          this.updateActiveCubers([data.roomMemberStatusUpdated.cuber])
+
+          if (data.roomMemberStatusUpdated.cuber.id === this.user.id) {
+            this.currentUserStatus =
+              data.roomMemberStatusUpdated.cuber.pivot.type
+          }
+        }
+      }
     }
   },
 
@@ -523,15 +472,6 @@ export default {
       return Array.isArray(this.rounds) ? this.rounds.slice().reverse() : []
     },
 
-    cubeTimerDisabled() {
-      return (
-        !(this.currentUserSolve && this.currentUserSolve.state != 'FINISHED') ||
-        this.loading.updatingSolve ||
-        this.dialogs.editRoomSettings
-      )
-    },
-
-    // eslint-disable-next-line vue/return-in-computed-property
     loadingText() {
       if (this.errorMessage) return this.errorMessage
       else if (
@@ -575,24 +515,44 @@ export default {
     this.reset()
 
     if (process.client) {
-      window.addEventListener('blur', this.onPageBlur)
-      window.addEventListener('focus', this.onPageFocus)
       window.addEventListener('storage', this.handleMessageReceived)
     }
   },
 
   destroyed() {
     if (process.client) {
-      window.removeEventListener('blur', this.onPageBlur)
-      window.removeEventListener('focus', this.onPageFocus)
       window.removeEventListener('storage', this.handleMessageReceived)
     }
   },
 
   methods: {
+    generateTimeString: sharedService.generateTimeString,
+
+
+    startCuberTimer(cuberResult) {
+      if (cuberResult.timeBegan === null) {
+        cuberResult.timeBegan = new Date()
+      }
+
+      cuberResult.timer = setInterval(() => {
+        cuberResult.timeElapsed = new Date() - cuberResult.timeBegan
+      }, 17)
+    },
+
+    stopCuberTimer(cuberResult) {
+      cuberResult.timeBegan = null
+      clearInterval(cuberResult.timer)
+    },
+
     handleMessageReceived(event) {
-      if (event.key == 'message') {
-        var message = JSON.parse(event.newValue)
+      for (const subscription in this.subscriptions) {
+        if (
+          event.key === subscription + '-' + this.$route.query.id &&
+          event.newValue
+        ) {
+          this.subscriptions[subscription](JSON.parse(event.newValue))
+          break
+        }
       }
     },
 
@@ -625,6 +585,12 @@ export default {
 
     renderSolveResults(round, cuberResult) {
       if (!round || !cuberResult) return ''
+
+      //render time if the timer has started AND is current round
+      if (round === this.activeRound && cuberResult.timeBegan) {
+        return sharedService.generateTimeString(cuberResult.timeElapsed)
+      }
+
       let foundSolve = round.solves.find(
         (solve) => solve.cuber.id === cuberResult.id,
       )
@@ -667,15 +633,6 @@ export default {
           accumulator.cuber.id == cuberId,
       )
     },
-
-    onPageBlur() {
-      this.pageFocused = false
-    },
-
-    onPageFocus() {
-      this.pageFocused = true
-    },
-
     copyShareLink() {
       sharedService.copyToClipboard(this, window.location.href)
     },
@@ -745,6 +702,9 @@ export default {
               cuber: active_cuber,
               updating: false,
               recentActiveRound: null,
+              timeElapsed: 0,
+              timeBegan: null,
+              timer: null,
             })
           }
         } else if (foundResult) {
@@ -815,6 +775,9 @@ export default {
               },
               updating: false,
               recentActiveRound: round,
+              timeElapsed: 0,
+              timeBegan: null,
+              timer: null,
             })
           } else {
             foundResult.recentActiveRound = round
@@ -851,6 +814,9 @@ export default {
             },
             updating: false,
             recentActiveRound: round,
+            timeElapsed: 0,
+            timeBegan: null,
+            timer: null,
           })
         } else {
           foundResult.recentActiveRound = round
@@ -896,121 +862,21 @@ export default {
         }
 
         //will NOT be joining the room (should already be joined)
+        //check if the user's active room is this room
+        let { data } = await this.$apollo.query({
+          query: ME_ACTIVE_ROOM_QUERY,
+          fetchPolicy: 'no-cache',
+        })
+
+        if (data.me?.active_room?.id !== this.$route.query.id) {
+          throw sharedService.generateError('Must be joined to stream room.')
+        }
 
         this.$apollo.queries.room.skip = false
-
-        this.$apollo.subscriptions.roundFinished.skip = false
-        this.$apollo.subscriptions.roundStarted.skip = false
-        this.$apollo.subscriptions.solveUpdated.skip = false
-        this.$apollo.subscriptions.roomUpdated.skip = false
-        this.$apollo.subscriptions.roomMemberStatusUpdated.skip = false
       } catch (err) {
         sharedService.handleError(err, this.$root)
         this.errorMessage = sharedService.sanitizeErrorMessage(err.message)
       }
-    },
-
-    //this is for submitting a completed solve
-    async updateSolve(solveResult) {
-      this.loading.updatingSolve = true
-      try {
-        if (!this.activeRound) {
-          throw sharedService.generateError('No active round')
-        }
-
-        if (!this.currentUserSolve) {
-          throw sharedService.generateError(
-            'Could not find your solve in this round',
-          )
-        }
-
-        await this.$apollo.mutate({
-          mutation: UPDATE_SOLVE_MUTATION,
-          variables: {
-            solve_id: this.currentUserSolve.id,
-            ...solveResult,
-          },
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-      }
-      this.loading.updatingSolve = false
-    },
-
-    handleTimerStateUpdate(timerState) {
-      //solve must progress
-      if (
-        timerState > this.timerState &&
-        (timerState == 1 || timerState == 4 || timerState == 5)
-      ) {
-        this.updateSolveState(timerState)
-      }
-
-      this.timerState = timerState
-    },
-
-    handleTimerStatusUpdate(status) {
-      this.timerStatus = status
-    },
-
-    async updateSolveState(timerState) {
-      //this.loading.updatingSolve = true;
-      try {
-        if (!this.activeRound) {
-          throw sharedService.generateError('No active round')
-        }
-
-        if (!this.currentUserSolve) {
-          throw sharedService.generateError(
-            'Could not find your solve in this round',
-          )
-        }
-
-        let solveState
-        if (timerState == 1) {
-          solveState = 'INSPECTING'
-        } else if (timerState == 4) {
-          solveState = 'SOLVING'
-        } else if (timerState == 5) {
-          solveState = 'VERIFYING'
-        }
-
-        if (!solveState) {
-          throw sharedService.generateError('Invalid Solve State')
-        }
-
-        await this.$apollo.mutate({
-          mutation: UPDATE_SOLVE_MUTATION,
-          variables: {
-            solve_id: this.currentUserSolve.id,
-            state: solveState,
-          },
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-      }
-      //this.loading.updatingSolve = false;
-    },
-
-    async updateRoomStatus(status) {
-      this.loading.updateRoomStatus = true
-      try {
-        await this.$apollo.mutate({
-          mutation: CHANGE_ROOM_STATUS_MUTATION,
-          variables: {
-            room_id: this.$route.query.id,
-            participationType: status,
-          },
-        })
-
-        this.$notifier.showSnackbar({
-          message: 'Updated user status',
-          variant: 'success',
-        })
-      } catch (err) {
-        sharedService.handleError(err, this.$root)
-      }
-      this.loading.updateRoomStatus = false
     },
 
     reset() {
@@ -1061,7 +927,7 @@ export default {
       skip: true,
       result({ data }) {
         //load the first response only. the subsequent responses are corrupted
-        if (data.room && !this.room) {
+        if (data?.room && !this.room) {
           this.room = data.room
 
           //if room.pivot is null, user is not joined. give error
@@ -1108,124 +974,6 @@ export default {
             this.buildCuberResults()
           }
         }
-      },
-    },
-
-    $subscribe: {
-      roundFinished: {
-        query: ROUND_FINISHED_SUBSCRIPTION,
-        variables() {
-          return {
-            room_id: this.$route.query.id,
-          }
-        },
-        result({ data }) {
-          //set the loading state on the start round to true
-          //this.loading.startingNextRound = true;
-
-          //first, ensure that the finished round data auto-syncs with the one on file
-          let foundRound = this.rounds.find(
-            (round) => round.id == data.roundFinished.id,
-          )
-
-          if (foundRound) {
-            this.updateObject(foundRound, data.roundFinished)
-          }
-        },
-        fetchPolicy: 'no-cache',
-        skip: true,
-      },
-
-      roundStarted: {
-        query: ROUND_STARTED_SUBSCRIPTION,
-        variables() {
-          return {
-            room_id: this.$route.query.id,
-          }
-        },
-        result({ data }) {
-          this.rounds.unshift(data.roundStarted)
-
-          this.updateActiveRound(data.roundStarted)
-
-          this.findCurrentUserSolve()
-          this.updateSolvesMap([data.roundStarted])
-          this.cuberResults.length
-            ? this.addCuberResults(data.roundStarted)
-            : this.buildCuberResults()
-          this.checkCuberResults()
-          if (!this.pageFocused && this.settingsObject.enableSounds) {
-            sharedService.playSound('/alert2.mp3')
-          }
-          this.triggerGarbageCollection()
-          this.loading.startingNextRound = false
-        },
-        fetchPolicy: 'no-cache',
-        skip: true,
-      },
-
-      solveUpdated: {
-        query: SOLVE_UPDATED_SUBSCRIPTION,
-        variables() {
-          return {
-            room_id: this.$route.query.id,
-          }
-        },
-        result({ data }) {
-          if (data.solveUpdated.id in this.solvesMap) {
-            this.updateObject(
-              this.solvesMap[data.solveUpdated.id],
-              data.solveUpdated,
-            )
-          }
-          //flash the user time that just got updated
-          this.flashResultUpdating(
-            this.cuberResults.find(
-              (cuber) => cuber.id == data.solveUpdated.cuber.id,
-            ),
-          )
-        },
-        fetchPolicy: 'no-cache',
-        skip: true,
-      },
-
-      roomUpdated: {
-        query: ROOM_UPDATED_SUBSCRIPTION,
-        variables() {
-          return {
-            room_id: this.$route.query.id,
-          }
-        },
-        result({ data }) {
-          Object.assign(this.room, data.roomUpdated)
-        },
-        fetchPolicy: 'no-cache',
-        skip: true,
-      },
-
-      roomMemberStatusUpdated: {
-        query: ROOM_MEMBER_STATUS_UPDATED_SUBSCRIPTION,
-        variables() {
-          return {
-            room_id: this.$route.query.id,
-          }
-        },
-        result({ data }) {
-          //re-organize the data
-          data.roomMemberStatusUpdated.cuber.pivot = {
-            type: data.roomMemberStatusUpdated.type,
-          }
-          //update the active cubers.
-          this.updateActiveCubers([data.roomMemberStatusUpdated.cuber])
-
-          //if the cuber is current user, also update currentUserStatus
-          if (data.roomMemberStatusUpdated.cuber.id === this.user.id) {
-            this.currentUserStatus =
-              data.roomMemberStatusUpdated.cuber.pivot.type
-          }
-        },
-        fetchPolicy: 'no-cache',
-        skip: true,
       },
     },
   },
