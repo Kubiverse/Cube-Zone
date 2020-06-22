@@ -41,22 +41,22 @@ export default {
     return {
       colorToTextColorMap: {
         dark: {
-          primary: '#121212',
-          secondary: '#121212',
+          primary: '#000',
+          secondary: '#000',
           accent: '#fff',
-          success: '#082218',
-          warning: '#2A150D',
-          error: '#0e0000',
-          info: '#050709',
+          success: '#000',
+          warning: '#000',
+          error: '#000',
+          info: '#000',
         },
         light: {
           primary: '#fff',
           secondary: '#fff',
-          accent: '#121212',
-          success: '#082218',
-          warning: '#2A150D',
-          error: '#0e0000',
-          info: '#050709',
+          accent: '#000',
+          success: '#000',
+          warning: '#000',
+          error: '#000',
+          info: '#000',
         },
       },
     }
