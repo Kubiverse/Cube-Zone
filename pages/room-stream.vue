@@ -577,6 +577,7 @@ export default {
     if (process.client) {
       window.addEventListener('blur', this.onPageBlur)
       window.addEventListener('focus', this.onPageFocus)
+      window.addEventListener('storage', this.handleMessageReceived)
     }
   },
 
@@ -584,10 +585,17 @@ export default {
     if (process.client) {
       window.removeEventListener('blur', this.onPageBlur)
       window.removeEventListener('focus', this.onPageFocus)
+      window.removeEventListener('storage', this.handleMessageReceived)
     }
   },
 
   methods: {
+    handleMessageReceived(event) {
+      if (event.key == 'message') {
+        var message = JSON.parse(event.newValue)
+      }
+    },
+
     updateSettings(settingsObject) {
       Object.assign(this.settingsObject, settingsObject)
 
