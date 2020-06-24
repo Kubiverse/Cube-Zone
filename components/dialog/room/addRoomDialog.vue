@@ -98,7 +98,9 @@
             <v-col cols="12" class="py-0">
               Accumulators:
               <br />
-              <v-chip v-for="item in inputs.attachAccumulators" :key="item.id">{{ item.name }} of {{ item.n }}</v-chip>
+              <v-chip v-for="item in inputs.attachAccumulators" :key="item.id"
+                >{{ getAccumulatorName(item.id) }} of {{ item.n }}</v-chip
+              >
               <v-menu
                 v-model="menu"
                 :close-on-content-click="false"
@@ -116,11 +118,12 @@
                       <v-col cols="12" class="py-0">
                         <v-select
                           v-if="accumulators"
-                          v-model="menuInputs.accumulator"
+                          v-model="menuInputs.accumulator_id"
                           filled
                           dense
                           :items="accumulators.data"
                           label="Accumulator Type"
+                          item-value="id"
                           item-text="name"
                           class="py-0"
                         >
@@ -204,7 +207,7 @@ export default {
       },
 
       menuInputs: {
-        accumulator: null,
+        accumulator_id: null,
         accumulator_n: 0,
       },
 
@@ -233,16 +236,24 @@ export default {
       //reset the menu inputs
       if (val) {
         this.menuInputs = {
-          accumulator: null,
+          accumulator_id: null,
           accumulator_n: 0,
         }
       }
-    }
+    },
   },
 
   methods: {
     close() {
       this.$emit('close')
+    },
+
+    getAccumulatorName(id) {
+      const foundResult = this.accumulators.find(
+        (accumulator) => accumulator.id === id,
+      )
+
+      return foundResult ? foundResult.name : 'None'
     },
 
     async submit() {
@@ -325,8 +336,7 @@ export default {
 
     addAccumulator() {
       this.inputs.attachAccumulators.push({
-        id: this.menuInputs.accumulator.id,
-        name: this.menuInputs.accumulator.name,
+        id: this.menuInputs.accumulator_id,
         n: this.menuInputs.accumulator_n,
       })
       this.menu = false
