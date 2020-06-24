@@ -95,6 +95,60 @@
                 class="py-0"
               ></v-text-field>
             </v-col>
+            <v-col cols="12" class="py-0">
+              Accumulators:
+              <br />
+              <v-chip v-for="item in inputs.attachAccumulators" :key="item.id">{{ item.name }} of {{ item.n }}</v-chip>
+              <v-menu
+                v-model="menu"
+                :close-on-content-click="false"
+                max-width="300px"
+                offset-x
+              >
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on">
+                    <v-icon>mdi-plus</v-icon>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-text class="py-0">
+                    <v-row>
+                      <v-col cols="12" class="py-0">
+                        <v-select
+                          v-if="accumulators"
+                          v-model="menuInputs.accumulator"
+                          filled
+                          dense
+                          :items="accumulators.data"
+                          label="Accumulator Type"
+                          item-text="name"
+                          class="py-0"
+                        >
+                        </v-select>
+                      </v-col>
+                      <v-col cols="12" class="py-0">
+                        <v-text-field
+                          v-model="menuInputs.accumulator_n"
+                          label="Number of Solves (0 for entire session)"
+                          filled
+                          dense
+                          class="py-0"
+                          type="number"
+                          min="0"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text @click="menu = false">Cancel</v-btn>
+                    <v-btn color="primary" text @click="addAccumulator()"
+                      >Add</v-btn
+                    >
+                  </v-card-actions>
+                </v-card>
+              </v-menu>
+            </v-col>
           </v-row>
         </v-container>
       </v-card-text>
@@ -120,6 +174,7 @@
 import sharedService from '~/services/shared.js'
 import { CREATE_ROOM_MUTATION } from '~/gql/mutation/room.js'
 import { EVENTS_QUERY } from '~/gql/query/event.js'
+import { ACCUMULATORS_QUERY } from '~/gql/query/accumulator.js'
 import EventLabel from '~/components/shared/eventLabel.vue'
 
 export default {
@@ -135,6 +190,7 @@ export default {
 
   data() {
     return {
+      menu: false,
       inputs: {
         name: '',
         description: '',
@@ -143,7 +199,13 @@ export default {
         max_capacity: 8,
         is_public: true,
         event_id: '1',
+        attachAccumulators: [],
         secret: null,
+      },
+
+      menuInputs: {
+        accumulator: null,
+        accumulator_n: 0,
       },
 
       loading: {
@@ -156,12 +218,26 @@ export default {
     events: {
       query: EVENTS_QUERY,
     },
+
+    accumulators: {
+      query: ACCUMULATORS_QUERY,
+    },
   },
 
   watch: {
     status(_val) {
       this.reset()
     },
+
+    menu(val) {
+      //reset the menu inputs
+      if (val) {
+        this.menuInputs = {
+          accumulator: null,
+          accumulator_n: 0,
+        }
+      }
+    }
   },
 
   methods: {
@@ -247,6 +323,15 @@ export default {
       this.loading.addRoom = false
     },
 
+    addAccumulator() {
+      this.inputs.attachAccumulators.push({
+        id: this.menuInputs.accumulator.id,
+        name: this.menuInputs.accumulator.name,
+        n: this.menuInputs.accumulator_n,
+      })
+      this.menu = false
+    },
+
     reset() {
       if (!this.status) return
       this.inputs = {
@@ -257,6 +342,7 @@ export default {
         max_capacity: 8,
         is_public: true,
         event_id: '1',
+        attachAccumulators: [],
         secret: null,
       }
     },

@@ -44,6 +44,9 @@
                   >mdi-exit-run</v-icon
                 >
               </div>
+              <i v-else>
+                (None)
+              </i>
             </v-col>
             <v-col cols="2">
               <v-card class="resizeable-card text-center" width="100%">
@@ -114,6 +117,9 @@
                   >mdi-exit-run</v-icon
                 >
               </div>
+              <i v-else>
+                (None)
+              </i>
             </v-col>
           </v-row>
           <v-row>
@@ -183,16 +189,7 @@
           </v-row>
           <v-row>
             <v-col cols="12" class="text-center">
-              <span
-                v-if="
-                  !currentUserSolve ||
-                  (currentUserSolve && currentUserSolve.state == 'FINISHED')
-                "
-                id="v-step-scramble"
-                class="display-1"
-                >Waiting for next round...</span
-              >
-              <div v-else>
+              <div>
                 <Scramble
                   id="v-step-scramble"
                   :scramble="activeRound.scramble"
@@ -391,8 +388,6 @@ export default {
         SPECTATING: 'Spectating',
       },
 
-      currentUserStatus: null,
-
       subscriptions: {
         roundFinished: (data) => {
           let foundRound = this.rounds.find(
@@ -457,13 +452,8 @@ export default {
             type: data.roomMemberStatusUpdated.type,
           }
           this.updateActiveCubers([data.roomMemberStatusUpdated.cuber])
-
-          if (data.roomMemberStatusUpdated.cuber.id === this.user.id) {
-            this.currentUserStatus =
-              data.roomMemberStatusUpdated.cuber.pivot.type
-          }
-        }
-      }
+        },
+      },
     }
   },
 
@@ -527,7 +517,6 @@ export default {
 
   methods: {
     generateTimeString: sharedService.generateTimeString,
-
 
     startCuberTimer(cuberResult) {
       if (cuberResult.timeBegan === null) {
@@ -904,7 +893,8 @@ export default {
 
   head() {
     return {
-      title: 'Room' + (this.room ? ' - ' + this.room.name : ''),
+      title:
+        'Room' + (this.room ? ' - ' + this.room.name : '') + ' (Streamer Mode)',
       meta: [
         {
           hid: 'description',
@@ -929,18 +919,6 @@ export default {
         //load the first response only. the subsequent responses are corrupted
         if (data?.room && !this.room) {
           this.room = data.room
-
-          //if room.pivot is null, user is not joined. give error
-          /*
-          This check is currently not working
-          if (!data.room.pivot) {
-            this.errorMessage = 'Must be joined to room to use streamer mode'
-            return
-          }
-          
-          //load the currentUserStatus
-          this.currentUserStatus = data.room.pivot.type
-          */
 
           //allow rounds query to start after this is done.
           this.$apollo.queries.rounds.skip = false
