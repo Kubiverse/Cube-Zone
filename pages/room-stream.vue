@@ -13,7 +13,7 @@
       <div v-else style="width: 100%;">
         <template v-if="activeRound">
           <v-row justify="center">
-            <v-col cols="5" class="text-center">
+            <v-col cols="4" class="text-center">
               <v-card height="300px" class="resizeable-card" width="100%">
                 <v-layout align-center justify-center fill-height>
                   Stream Graphics Here
@@ -48,7 +48,7 @@
                 (None)
               </i>
             </v-col>
-            <v-col cols="2">
+            <v-col cols="4">
               <v-card class="resizeable-card text-center" width="100%">
                 <v-simple-table>
                   <template v-slot:default>
@@ -77,16 +77,32 @@
                         ></td>
                       </tr>
                       <tr key="-1" class="num-wins-bg">
-                        <td class="title">1</td>
+                        <td
+                          class="title"
+                          v-html="
+                            renderAccumulatedResults(
+                              cuberResults[0],
+                              accumulatorsMap.sessionWins,
+                            )
+                          "
+                        ></td>
                         <td class="title" style="width: 50px;">Wins</td>
-                        <td class="title">5</td>
+                        <td
+                          class="title"
+                          v-html="
+                            renderAccumulatedResults(
+                              cuberResults[1],
+                              accumulatorsMap.sessionWins,
+                            )
+                          "
+                        ></td>
                       </tr>
                     </tbody>
                   </template>
                 </v-simple-table>
               </v-card>
             </v-col>
-            <v-col cols="5" class="text-center">
+            <v-col cols="4" class="text-center">
               <v-card height="300px" class="resizeable-card" width="100%">
                 <v-layout align-center justify-center fill-height>
                   Stream Graphics Here
@@ -137,9 +153,30 @@
                   <tbody>
                     <tr key="-1">
                       <td>current</td>
-                      <td>7.97</td>
-                      <td>7.62</td>
-                      <td>7.62</td>
+                      <td
+                        v-html="
+                          renderAccumulatedResults(
+                            cuberResults[0],
+                            accumulatorsMap.currentAvg5,
+                          )
+                        "
+                      ></td>
+                      <td
+                        v-html="
+                          renderAccumulatedResults(
+                            cuberResults[0],
+                            accumulatorsMap.currentAvg5,
+                          )
+                        "
+                      ></td>
+                      <td
+                        v-html="
+                          renderAccumulatedResults(
+                            cuberResults[0],
+                            accumulatorsMap.currentAvg12,
+                          )
+                        "
+                      ></td>
                     </tr>
                     <tr key="-2">
                       <td>best</td>
@@ -172,9 +209,30 @@
                   <tbody>
                     <tr key="-1">
                       <td>current</td>
-                      <td>7.97</td>
-                      <td>7.62</td>
-                      <td>7.62</td>
+                      <td
+                        v-html="
+                          renderAccumulatedResults(
+                            cuberResults[1],
+                            accumulatorsMap.currentAvg5,
+                          )
+                        "
+                      ></td>
+                      <td
+                        v-html="
+                          renderAccumulatedResults(
+                            cuberResults[1],
+                            accumulatorsMap.currentAvg5,
+                          )
+                        "
+                      ></td>
+                      <td
+                        v-html="
+                          renderAccumulatedResults(
+                            cuberResults[1],
+                            accumulatorsMap.currentAvg12,
+                          )
+                        "
+                      ></td>
                     </tr>
                     <tr key="-2">
                       <td>best</td>
@@ -335,15 +393,33 @@ export default {
         scramblePreviewVisualization: '2D',
       },
 
-      accumulatedResults: [
+      accumulatorsMap: {
+        sessionWins: {
+          id: '1',
+          name: 'Average',
+          pivot_n: '5',
+        },
+        currentAvg5: {
+          id: '1',
+          name: 'Average',
+          pivot_n: '5',
+        },
+        currentAvg12: {
+          id: '1',
+          name: 'Average',
+          pivot_n: '12',
+        }
+      },
+
+      accumulators: [
         {
-          name: 'avg5',
-          type_id: '1',
+          id: '1',
+          name: 'Average',
           pivot_n: '5',
         },
         {
-          name: 'avg12',
-          type_id: '1',
+          id: '1',
+          name: 'Average',
           pivot_n: '12',
         },
       ],
@@ -598,10 +674,13 @@ export default {
       )
     },
 
-    renderAccumulatedResults(cuberId, accItemObject) {
-      if (!this.rounds[1] || !this.rounds[1].accumulated_results) return 'N/A'
+    renderAccumulatedResults(cuberResult, accItemObject) {
+      if (!cuberResult) return ''
 
-      let foundResult = this.findAccumulatedResult(cuberId, accItemObject)
+      let foundResult = this.findAccumulatedResult(
+        cuberResult.id,
+        accItemObject,
+      )
 
       if (!foundResult) return 'N/A'
 
@@ -615,13 +694,17 @@ export default {
     },
 
     findAccumulatedResult(cuberId, accItemObject) {
-      return this.rounds[1].accumulated_results.find(
-        (accumulator) =>
-          accumulator.contextualAccumulator.type_id === accItemObject.type_id &&
-          accumulator.contextualAccumulator.pivot_n === accItemObject.pivot_n &&
-          accumulator.cuber.id == cuberId,
-      )
+      if (this.rounds[1] && this.rounds[1].accumulated_results) {
+        return this.rounds[1].accumulated_results.find(
+          (accumulator) =>
+            accumulator.contextualAccumulator.type_id === accItemObject.id &&
+            accumulator.contextualAccumulator.pivot_n ===
+              accItemObject.pivot_n &&
+            accumulator.cuber.id == cuberId,
+        )
+      }
     },
+
     copyShareLink() {
       sharedService.copyToClipboard(this, window.location.href)
     },

@@ -196,18 +196,17 @@
                           renderSolveResults(rounds[i - 1], props.item.id)
                         "
                       ></td>
-
                       <td
-                        v-for="(accItem, i) in accumulatedResults"
-                        :key="accItem.name"
+                        v-for="(accItem, i) in accumulators"
+                        :key="accItem.id + '-' + accItem.pivot_n"
                         class="text-right title"
                       >
                         <span
                           class="pointer-cursor"
                           @click="
-                            openViewAccumulatedResultDialog(props.item.id, accItem)
+                            openViewAccumulatedResultDialog(props.item, accItem)
                           "
-                          v-html="renderAccumulatedResults(props.item.id, accItem)"
+                          v-html="renderAccumulatedResults(props.item, accItem)"
                         ></span>
                       </td>
                     </tr>
@@ -552,18 +551,7 @@ export default {
         scramblePreviewVisualization: '2D',
       },
 
-      accumulatedResults: [
-        {
-          name: 'avg5',
-          type_id: '1',
-          pivot_n: '5',
-        },
-        {
-          name: 'avg12',
-          type_id: '1',
-          pivot_n: '12',
-        },
-      ],
+      accumulators: [],
 
       tableRounds: 6,
 
@@ -624,8 +612,8 @@ export default {
     headersComputed() {
       return [
         ...this.headers,
-        ...this.accumulatedResults.map((val) => ({
-          text: val.name,
+        ...this.accumulators.map((val) => ({
+          text: val.name + (val.pivot_n ? '/' + val.pivot_n : ''),
           value: 'accumulatedResults.' + val.name,
           sortable: true,
           width: '100px',
@@ -754,8 +742,13 @@ export default {
       )
     },
 
-    renderAccumulatedResults(cuberId, accItemObject) {
-      let foundResult = this.findAccumulatedResult(cuberId, accItemObject)
+    renderAccumulatedResults(cuberResult, accItemObject) {
+      if (!cuberResult) return 'N/A'
+
+      let foundResult = this.findAccumulatedResult(
+        cuberResult.id,
+        accItemObject,
+      )
 
       if (!foundResult) return 'N/A'
 
@@ -772,8 +765,7 @@ export default {
       if (this.rounds[1] && this.rounds[1].accumulated_results) {
         return this.rounds[1].accumulated_results.find(
           (accumulator) =>
-            accumulator.contextualAccumulator.type_id ===
-              accItemObject.type_id &&
+            accumulator.contextualAccumulator.type_id === accItemObject.id &&
             accumulator.contextualAccumulator.pivot_n ===
               accItemObject.pivot_n &&
             accumulator.cuber.id == cuberId,
@@ -1015,7 +1007,7 @@ export default {
     //loads in the accumulatedResults into the cuberResults table from the 2nd to last round, if exists
     loadAccumulatedResults() {
       this.cuberResults.forEach((cuber) => {
-        this.accumulatedResults.forEach((accumulated) => {
+        this.accumulators.forEach((accumulated) => {
           //find the accumulatedResult object for the cuber
           let foundResult = this.findAccumulatedResult(cuber.id, accumulated)
 
@@ -1377,6 +1369,7 @@ export default {
       result({ data }) {
         if (++this.generation.room % 2 == 0) {
           this.room = data.room
+          this.accumulators = data.room.accumulators
           //allow rounds query to start after this is done.
           this.$apollo.queries.rounds.skip = false
         }

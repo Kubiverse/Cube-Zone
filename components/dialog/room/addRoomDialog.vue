@@ -98,12 +98,19 @@
             <v-col cols="12" class="py-0">
               Accumulators:
               <br />
-              <v-chip v-for="item in inputs.attachAccumulators" :key="item.id"
-                >{{ getAccumulatorName(item.id) }} of {{ item.n }}</v-chip
+              <v-chip
+                v-for="item in inputs.attachAccumulators"
+                :key="item.id + '-' + item.n"
+                close
+                class="ma-2"
+                @click:close="removeAccumulator(item)"
+                >{{ getAccumulatorName(item.id) }} of
+                {{ item.n || 'Session' }}</v-chip
               >
               <v-menu
                 v-model="menu"
                 :close-on-content-click="false"
+                :close-on-click="false"
                 max-width="300px"
                 offset-x
               >
@@ -145,9 +152,7 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn text @click="menu = false">Cancel</v-btn>
-                    <v-btn color="primary" text @click="addAccumulator()"
-                      >Add</v-btn
-                    >
+                    <v-btn color="primary" @click="addAccumulator()">Add</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-menu>
@@ -194,6 +199,7 @@ export default {
   data() {
     return {
       menu: false,
+      accumulators: [],
       inputs: {
         name: '',
         description: '',
@@ -249,11 +255,19 @@ export default {
     },
 
     getAccumulatorName(id) {
-      const foundResult = this.accumulators.find(
-        (accumulator) => accumulator.id === id,
+      if (!Array.isArray(this.accumulators.data)) return
+      const foundResult = this.accumulators.data.find(
+        (accumulator) => accumulator.id == id,
       )
 
       return foundResult ? foundResult.name : 'None'
+    },
+
+    removeAccumulator(accumulator) {
+      const index = this.inputs.attachAccumulators.indexOf(accumulator)
+      if (index !== -1) {
+        this.inputs.attachAccumulators.splice(index, 1)
+      }
     },
 
     async submit() {
@@ -289,35 +303,9 @@ export default {
             time_limit: parseInt(this.inputs.time_limit * 1000) || undefined,
             time_target: parseInt(this.inputs.time_target * 1000) || undefined,
             max_capacity: parseInt(this.inputs.max_capacity) || undefined,
+            attachAccumulators: this.inputs.attachAccumulators,
             secret: this.inputs.secret || undefined,
           },
-
-          /*
-          //we will not be updating the cache directly because ROOMS_QUERY is sorted and filtered
-          update: (store, { data: { createRoom } }) => {
-            const data = store.readQuery({ query: ROOMS_QUERY });
-            data.rooms.data.push(createRoom);
-            //increment rooms count
-            data.rooms.paginatorInfo.total++;
-            store.writeQuery({ query: ROOMS_QUERY, data });
-          },
-
-          
-          optimisticResponse: {
-            __typename: 'Mutation',
-            createRoom: {
-              __typename: 'Room',
-              id: -1,
-              ...this.inputs,
-              is_active: true,
-              creator: {
-                __typename: "Cuber",
-                id: this.$store.getters['auth/user'].id,
-                name: this.$store.getters['auth/user'].name
-              }
-            },
-          },
-          */
         })
 
         this.$notifier.showSnackbar({
@@ -335,11 +323,38 @@ export default {
     },
 
     addAccumulator() {
-      this.inputs.attachAccumulators.push({
-        id: this.menuInputs.accumulator_id,
-        n: this.menuInputs.accumulator_n,
-      })
-      this.menu = false
+      try {
+        if (!this.menuInputs.accumulator_id) {
+          throw sharedService.generateError('Accumulator type required')
+        }
+
+        //check for duplicate id-n combos
+        const foundResult = this.inputs.attachAccumulators.find(
+          (accumulator) =>
+            accumulator.id == this.menuInputs.accumulator_id &&
+            accumulator.n == this.menuInputs.accumulator_n,
+        )
+
+        if (foundResult) {
+          throw sharedService.generateError('Duplicate accumulator')
+        }
+
+        this.inputs.attachAccumulators.push({
+          id: this.menuInputs.accumulator_id,
+          n:
+            this.menuInputs.accumulator_n == '0'
+              ? undefined
+              : this.menuInputs.accumulator_n,
+        })
+        this.menu = false
+
+        this.$notifier.showSnackbar({
+          message: 'Accumulator Added',
+          variant: 'success',
+        })
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
+      }
     },
 
     reset() {
@@ -352,7 +367,10 @@ export default {
         max_capacity: 8,
         is_public: true,
         event_id: '1',
-        attachAccumulators: [],
+        attachAccumulators: [
+          { id: 1, n: 5 },
+          { id: 1, n: 12 },
+        ],
         secret: null,
       }
     },
