@@ -115,3 +115,16 @@ export const COMPETITION_ROUNDS_QUERY = gql`
   }
   ${competitionRoundFragment}
 `
+
+export const COMPETITION_ROUND_QUERY = gql`
+  query competitionRound($id: ID) {
+    competitionRound(id: $id) {
+      ...CompetitionRound
+      event {
+        id
+        name
+      }
+    }
+  }
+  ${competitionRoundFragment}
+`

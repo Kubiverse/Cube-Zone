@@ -42,7 +42,6 @@ export default {
     },
     competitionRound: {
       type: Object,
-      required: true,
     },
   },
   data() {

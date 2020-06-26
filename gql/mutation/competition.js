@@ -77,6 +77,29 @@ export const ADD_COMPETITION_ROUND = gql`
   ${competitionRoundFragment}
 `
 
+export const UPDATE_COMPETITION_ROUND = gql`
+  mutation updateCompetitionRound(
+    $id: ID!
+    $room_configuration_id: ID
+    $start_at: DateTime
+  ) {
+    updateCompetitionRound(
+      input: {
+        id: $id
+        room_configuration_id: $room_configuration_id
+        start_at: $start_at
+      }
+    ) {
+      ...CompetitionRound
+      event {
+        id
+        name
+      }
+    }
+  }
+  ${competitionRoundFragment}
+`
+
 export const REMOVE_COMPETITION_ROUND = gql`
   mutation removeCompetitionRound($competition_id: ID!, $event_id: ID!) {
     removeCompetitionRound(

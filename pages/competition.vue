@@ -115,7 +115,7 @@
                   <template v-if="isItemCreator(props.item)">
                     <v-icon
                       small
-                      @click.stop="openEditCompetitionDialog(props.item)"
+                      @click.stop="openEditCompetitionRoundDialog(props.item)"
                       >mdi-pencil</v-icon
                     >
                     <v-icon small @click.stop="openDeleteCompetitionRoundDialog(props.item)"
@@ -150,12 +150,12 @@
       @close="dialogs.addCompetitionRound = false"
       @submit="addItem"
     ></AddCompetitionRoundDialog>
-    <EditCompetitionDialog
-      :status="dialogs.editCompetition"
+    <EditCompetitionRoundDialog
+      :status="dialogs.editCompetitionRound"
       :selected-item="selectedItem"
-      @close="dialogs.editCompetition = false"
+      @close="dialogs.editCompetitionRound = false"
       @submit="editItem"
-    ></EditCompetitionDialog>
+    ></EditCompetitionRoundDialog>
     <DeleteCompetitionRoundDialog
       :status="dialogs.deleteCompetitionRound"
       :competition="competition"
@@ -187,14 +187,14 @@ import {
 import { EVENTS_QUERY } from '~/gql/query/event.js'
 
 import AddCompetitionRoundDialog from '~/components/dialog/competitionRound/addCompetitionRoundDialog.vue'
-import EditCompetitionDialog from '~/components/dialog/competition/editCompetitionDialog.vue'
+import EditCompetitionRoundDialog from '~/components/dialog/competitionRound/editCompetitionRoundDialog.vue'
 import DeleteCompetitionRoundDialog from '~/components/dialog/competitionRound/deleteCompetitionRoundDialog.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
 
 export default {
   components: {
     AddCompetitionRoundDialog,
-    EditCompetitionDialog,
+    EditCompetitionRoundDialog,
     DeleteCompetitionRoundDialog,
     EventLabel,
   },
@@ -219,7 +219,7 @@ export default {
 
       dialogs: {
         addCompetitionRound: false,
-        editCompetition: false,
+        editCompetitionRound: false,
         deleteCompetitionRound: false,
       },
 
@@ -318,9 +318,9 @@ export default {
       this.openDialog('deleteCompetitionRound')
     },
 
-    openEditCompetitionDialog(item) {
+    openEditCompetitionRoundDialog(item) {
       this.selectedItem = item
-      this.openDialog('editCompetition')
+      this.openDialog('editCompetitionRound')
     },
 
     openAddCompetitionRoundDialog() {
