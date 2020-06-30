@@ -48,12 +48,11 @@
                     <v-row>
                       <v-col cols="6">
                         <v-select
-                          v-model="filterObject.events"
+                          v-model="filterObject.event_id"
                           :items="events.data"
                           label="Filter by Events"
                           item-text="name"
                           item-value="id"
-                          multiple
                           chips
                           filled
                         >
@@ -94,7 +93,7 @@
               <tr
                 :key="props.item.event.id + '-' + props.item.round_number"
                 class="pointer-cursor"
-                @click="enterCompetition(props.item)"
+                @click="enterCompetitionRound(props.item)"
               >
                 <td class="text-xs-left">
                   {{ props.item.event.name }}
@@ -109,7 +108,7 @@
                   <v-icon
                     small
                     title="Join Competition"
-                    @click.stop="enterCompetition(item)"
+                    @click.stop="enterCompetitionRound(item)"
                     >mdi-location-enter</v-icon
                   >
                   <template v-if="isItemCreator(props.item)">
@@ -248,7 +247,7 @@ export default {
 
       filterObject: {
         is_final: null,
-        events: [],
+        event_id: null,
       },
 
       footerOptions: {
@@ -348,11 +347,11 @@ export default {
       //this.reset();
     },
 
-    enterCompetition(competition) {
+    enterCompetitionRound(competitionRound) {
       this.$router.push({
-        path: '/competition',
+        path: '/competition-round',
         query: {
-          id: competition.id,
+          id: competitionRound.id,
         },
       })
     },
@@ -415,8 +414,8 @@ export default {
           ...(this.filterObject.is_final !== null && {
             is_final: this.filterObject.is_final,
           }),
-          ...(this.filterObject.events.length > 0 && {
-            events: this.filterObject.events.map((ele) => parseInt(ele)),
+          ...(this.filterObject.event_id !== null && {
+            event_id: this.filterObject.event_id,
           }),
         }
       },

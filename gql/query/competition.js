@@ -3,6 +3,9 @@ import {
   competitionFragment,
   organisationFragment,
   competitionRoundFragment,
+  roomFragment,
+  eventFragment,
+  cuberBasicFragment,
 } from '~/gql/fragments.js'
 
 export const ROOM_QUERY = gql`
@@ -127,4 +130,42 @@ export const COMPETITION_ROUND_QUERY = gql`
     }
   }
   ${competitionRoundFragment}
+`
+
+export const COMPETITION_ROUND_ROOMS_QUERY = gql`
+  query competitionRound($id: ID!) {
+    competitionRound(id: $id) {
+      ...CompetitionRound
+      event {
+        id
+        name
+      }
+      competition {
+        ...Competition
+      }
+      rooms {
+        ...Room
+        event {
+          ...Event
+        }
+        creator {
+          ...CuberBasic
+        }
+        active_cubers(first: 3) {
+          paginatorInfo {
+            total
+            count
+          }
+          data {
+            ...CuberBasic
+          }
+        }
+      }
+    }
+  }
+  ${competitionRoundFragment}
+  ${competitionFragment}
+  ${roomFragment}
+  ${eventFragment}
+  ${cuberBasicFragment}
 `
