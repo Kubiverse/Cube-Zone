@@ -765,7 +765,7 @@ export default {
       if (this.rounds[1] && this.rounds[1].accumulated_results) {
         return this.rounds[1].accumulated_results.find(
           (accumulator) =>
-            accumulator.contextualAccumulator.type_id === accItemObject.id &&
+            accumulator.contextualAccumulator.type_id === accItemObject.type_id &&
             accumulator.contextualAccumulator.pivot_n ===
               accItemObject.pivot_n &&
             accumulator.cuber.id == cuberId,
@@ -826,8 +826,13 @@ export default {
       this.dialogs.editRoomSettings = true
     },
 
-    openViewAccumulatedResultDialog(cuberId, accItemObject) {
-      let accumulated = this.findAccumulatedResult(cuberId, accItemObject)
+    openViewAccumulatedResultDialog(cuberResult, accItemObject) {
+      if (!cuberResult) return 'N/A'
+
+      let accumulated = this.findAccumulatedResult(
+        cuberResult.id,
+        accItemObject,
+      )
 
       if (!accumulated) return
 

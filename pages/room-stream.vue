@@ -395,9 +395,9 @@ export default {
 
       accumulatorsMap: {
         sessionWins: {
-          id: '1',
-          name: 'Average',
-          pivot_n: '5',
+          id: '3',
+          name: 'Wins',
+          pivot_n: null,
         },
         currentAvg5: {
           id: '1',
@@ -716,15 +716,6 @@ export default {
 
     openEditRoomSettingsDialog() {
       this.dialogs.editRoomSettings = true
-    },
-
-    openViewAccumulatedResultDialog(cuberId, accItemObject) {
-      let accumulated = this.findAccumulatedResult(cuberId, accItemObject)
-
-      if (!accumulated) return
-
-      this.lookupAccumulated = accumulated
-      this.dialogs.viewAccumulated = true
     },
 
     openViewRoundsDialog() {

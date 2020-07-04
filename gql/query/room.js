@@ -38,7 +38,8 @@ export const ROOM_QUERY = gql`
         type
       }
       accumulators {
-        id
+        id: pivot_id
+        type_id: id
         name
         pivot_n
       }

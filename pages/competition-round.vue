@@ -17,6 +17,9 @@
           >
             <template v-slot:top>
               <v-toolbar flat color="accent">
+                <v-btn icon @click="goToCompetitionPage">
+                  <v-icon>mdi-arrow-left</v-icon>
+                </v-btn>
                 <v-icon left>mdi-google-classroom</v-icon>
                 <v-toolbar-title
                   >{{ competitionRound.competition.name }}:
@@ -399,6 +402,17 @@ export default {
 
   methods: {
     generateMomentString: sharedService.generateMomentString,
+
+    goToCompetitionPage() {
+      if (!this.competitionRound) return
+
+      this.$router.push({
+        path: '/competition',
+        query: {
+          id: this.competitionRound.competition.id,
+        },
+      })
+    },
 
     isItemCreator(item) {
       if (!this.$store.getters['auth/user']) return false
