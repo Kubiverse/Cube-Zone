@@ -1,5 +1,5 @@
 import gql from 'graphql-tag'
-import { organisationFragment } from '~/gql/fragments.js'
+import { organisationFragment, cuberBasicFragment } from '~/gql/fragments.js'
 
 export const ROOM_QUERY = gql`
   query room($id: ID!) {
@@ -59,4 +59,16 @@ export const ORGANISATIONS_QUERY = gql`
     }
   }
   ${organisationFragment}
+`
+
+export const ORGANISATION_MEMBERS_QUERY = gql`
+  query organisation($id: ID!) {
+    organisation(id: $id) {
+      id
+      members {
+        ...CuberBasic
+      }
+    }
+  }
+  ${cuberBasicFragment}
 `

@@ -332,7 +332,7 @@ export default {
         const foundResult = this.inputs.attachAccumulators.find(
           (accumulator) =>
             accumulator.id == this.menuInputs.accumulator_id &&
-            accumulator.n == this.menuInputs.accumulator_n,
+            accumulator.n == parseInt(this.menuInputs.accumulator_n),
         )
 
         if (foundResult) {
@@ -344,7 +344,7 @@ export default {
           n:
             this.menuInputs.accumulator_n == '0'
               ? undefined
-              : this.menuInputs.accumulator_n,
+              : parseInt(this.menuInputs.accumulator_n),
         })
         this.menu = false
 

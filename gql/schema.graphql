@@ -27,7 +27,7 @@ type Query {
     first: Int = 10
     page: Int
   ): CompetitionRoundPaginator
-  competitionRound(id: ID): CompetitionRound
+  competitionRound(id: ID!): CompetitionRound
   cubers(
     first: Int = 10
     page: Int
@@ -734,7 +734,7 @@ type Mutation {
   updateCompetition(input: UpdateCompetitionInput!): Competition!
   addCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
   removeCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
-  updateCompetitionRound(input: UpdateCompetitionRoundInput!): Competition!
+  updateCompetitionRound(input: UpdateCompetitionRoundInput!): CompetitionRound!
   createRoomsForCompetitionRound(
     competition_round_id: ID!
     quantity: Int!
@@ -745,6 +745,11 @@ type Mutation {
   inviteCuber(room_id: ID!, cuber_id: ID!): CuberRoom!
   createOrganisation(input: CreateOrganisationInput!): Organisation!
   updateOrganisation(input: UpdateOrganisationInput!): Organisation!
+  addMemberToOrganisation(organisation_id: ID!, cuber_id: ID!): Organisation!
+  removeMemberFromOrganisation(
+    organisation_id: ID!
+    cuber_id: ID!
+  ): Organisation!
   createRoom(input: CreateRoomInput!): Room!
   updateRoom(input: UpdateRoomInput!): Room!
   joinRoom(
@@ -1031,12 +1036,6 @@ type PageInfo {
   lastPage: Int
 }
 
-enum Trashed {
-  ONLY
-  WITH
-  WITHOUT
-}
-
 enum SortOrder {
   ASC
   DESC
@@ -1045,5 +1044,11 @@ enum SortOrder {
 input OrderByClause {
   field: String!
   order: SortOrder!
+}
+
+enum Trashed {
+  ONLY
+  WITH
+  WITHOUT
 }
 
