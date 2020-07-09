@@ -303,11 +303,13 @@ export default {
           title: 'Competitions',
           to: '/competitions',
         },
+        /*
         {
           icon: 'mdi-format-list-numbered',
           title: 'Global Stats',
           to: '/stats',
         },
+        */
       ],
 
       accountItems: [
