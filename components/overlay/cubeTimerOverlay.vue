@@ -392,6 +392,8 @@ export default {
           //if the overlay is not triggered, trigger it
           if (this.timerState != 5) this.timerState = 5
         } else if (e.key == 'Backspace') {
+          //prevent the default "go back" behavior in certain browsers
+          e.preventDefault()
           this.inputs.manualTime = this.inputs.manualTime.slice(0, -1)
         }
       } else if (e.code) {
