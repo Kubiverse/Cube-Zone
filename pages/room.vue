@@ -549,7 +549,7 @@ export default {
         scrambleFontSize: 32,
         enableSounds: true,
         scramblePreviewVisualization: '2D',
-        autoDefocusChat: true,
+        autoDefocusChat: false,
       },
 
       accumulators: [],
