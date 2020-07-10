@@ -6,7 +6,7 @@
           <v-toolbar color="primary" dark flat>
             <v-toolbar-title>Reset Password</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn text nuxt to="/login">Login</v-btn>
+            <Button variant="text" nuxt to="/login">Login</Button>
           </v-toolbar>
           <v-card-text>
             <v-text-field
@@ -19,11 +19,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              :disabled="loading.submitting"
-              @click="handleSubmit()"
-              >Reset Password</v-btn
+            <Button :disabled="loading.submitting" @click="handleSubmit()"
+              >Reset Password</Button
             >
           </v-card-actions>
         </v-card>
@@ -35,11 +32,12 @@
 <script>
 import { FORGOT_PASSWORD_MUTATION } from '~/gql/mutation/auth.js'
 import sharedService from '~/services/shared.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
   middleware: 'router-auth',
 
-  components: {},
+  components: { Button },
 
   data() {
     return {

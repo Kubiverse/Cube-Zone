@@ -9,7 +9,7 @@
       >
       <span>&nbsp;&copy; {{ new Date().getFullYear() }}</span>
       <v-spacer></v-spacer>
-      <v-btn small text @click="toggleTheme()">Toggle Theme</v-btn>
+      <Button variant="text" small @click="toggleTheme()">Toggle Theme</Button>
       <a href="mailto:feedback@cube.zone" class="pl-2">
         feedback@cube.zone
       </a>
@@ -30,10 +30,12 @@
 import { mapGetters } from 'vuex'
 import sharedService from '~/services/shared.js'
 import Snackbar from '~/components/snackbar/snackbar'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     Snackbar,
+    Button,
   },
   data() {
     return {}

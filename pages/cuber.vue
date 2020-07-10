@@ -12,11 +12,10 @@
               {{ cuber.name }}</v-toolbar-title
             >
             <v-divider class="mx-4" inset vertical></v-divider>
-            <v-btn
-              color="primary"
+            <Button
               :loading="loading.toggleFollow"
               @click="toggleFollowCuber(!cuber.is_followed_by_you)"
-              >{{ cuber.is_followed_by_you ? 'Un-Follow' : 'Follow' }}</v-btn
+              >{{ cuber.is_followed_by_you ? 'Un-Follow' : 'Follow' }}</Button
             >
             <template v-if="cuber.wca_id">
               <v-divider class="mx-4" inset vertical></v-divider>
@@ -54,9 +53,9 @@
               </span>
             </template>
             <v-spacer></v-spacer>
-            <v-btn icon @click="reset()">
+            <Button icon @click="reset()">
               <v-icon>mdi-refresh</v-icon>
-            </v-btn>
+            </Button>
           </v-toolbar>
           <v-tabs v-model="tab">
             <v-tab v-for="item in tabItems" :key="item.tab">
@@ -161,6 +160,7 @@ import ViewCuberRoomsInterface from '~/components/interface/viewCuberRoomsInterf
 import ViewCuberFollowersInterface from '~/components/interface/viewCuberFollowersInterface.vue'
 import ViewCuberFollowsInterface from '~/components/interface/viewCuberFollowsInterface.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
@@ -170,6 +170,7 @@ export default {
     ViewCuberFollowersInterface,
     ViewCuberFollowsInterface,
     EventLabel,
+    Button,
   },
 
   data() {

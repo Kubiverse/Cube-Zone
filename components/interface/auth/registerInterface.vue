@@ -44,11 +44,8 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        :loading="loading.submitting"
-        @click="handleSubmit()"
-        >Create Account</v-btn
+      <Button :loading="loading.submitting" @click="handleSubmit()"
+        >Create Account</Button
       >
     </v-card-actions>
   </v-card>
@@ -58,9 +55,10 @@
 import { REGISTER_MUTATION } from '~/gql/mutation/auth.js'
 import sharedService from '~/services/shared.js'
 import authService from '~/services/auth.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
-  components: {},
+  components: { Button },
 
   data() {
     return {

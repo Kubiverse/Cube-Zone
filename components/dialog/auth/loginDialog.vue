@@ -3,7 +3,7 @@
     <v-toolbar color="primary" dark flat>
       <v-toolbar-title>{{ loginMode ? 'Login' : 'Register' }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn text @click="goToWcaAuth()">
+      <Button variant="text" @click="goToWcaAuth()">
         <img
           src="~static/WCAlogo_notext.svg"
           alt=""
@@ -11,10 +11,10 @@
           class="pr-2"
         />
         WCA Login
-      </v-btn>
-      <v-btn text @click="loginMode = !loginMode">{{
+      </Button>
+      <Button variant="text" @click="loginMode = !loginMode">{{
         loginMode ? 'Register' : 'Login'
-      }}</v-btn>
+      }}</Button>
     </v-toolbar>
     <LoginInterface v-if="loginMode" @login-success="close()"></LoginInterface>
     <RegisterInterface v-else @login-success="close()"></RegisterInterface>
@@ -25,11 +25,13 @@
 import authService from '~/services/auth.js'
 import LoginInterface from '~/components/interface/auth/loginInterface.vue'
 import RegisterInterface from '~/components/interface/auth/registerInterface.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
     LoginInterface,
     RegisterInterface,
+    Button,
   },
 
   props: {

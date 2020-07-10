@@ -73,10 +73,8 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn color="primary" :loading="loading.editRoom" @click="submit()"
-          >Submit</v-btn
-        >
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button :loading="loading.editRoom" @click="submit()">Submit</Button>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -86,8 +84,10 @@
 import sharedService from '~/services/shared.js'
 import { UPDATE_ROOM_MUTATION } from '~/gql/mutation/room.js'
 import { ROOM_BASIC_QUERY } from '~/gql/query/room.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  components: { Button },
   props: {
     status: {
       type: Boolean,

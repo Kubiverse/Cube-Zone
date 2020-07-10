@@ -1,14 +1,17 @@
 <template>
   <v-snackbar v-model="open" :timeout="3000" :color="variant">
     <span :style="{ color: textColor }">{{ message }}</span>
-    <v-btn :style="{ color: textColor }" text @click="open = false"
-      >Close</v-btn
+    <Button :color="variant" variant="text" inversed @click="open = false"
+      >Close</Button
     >
   </v-snackbar>
 </template>
 
-<script lang="ts">
+<script>
+import Button from '../shared/button.vue'
+
 export default {
+  components: { Button },
   data() {
     return {
       open: false,

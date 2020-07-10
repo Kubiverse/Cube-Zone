@@ -57,28 +57,27 @@
       <v-card-actions>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on" @click="openCuberLookupDialog()">
+            <Button icon v-on="on" @click="openCuberLookupDialog()">
               <v-icon>mdi-badge-account-horizontal</v-icon>
-            </v-btn>
+            </Button>
           </template>
           <span>View Recent Solves</span>
         </v-tooltip>
 
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on" @click="openCuberProfile()">
+            <Button icon v-on="on" @click="openCuberProfile()">
               <v-icon>mdi-open-in-new</v-icon>
-            </v-btn>
+            </Button>
           </template>
           <span>Go to Profile</span>
         </v-tooltip>
         <v-spacer></v-spacer>
         <template v-if="cuber">
-          <v-btn
-            color="primary"
+          <Button
             :loading="loading.toggleFollow"
             @click="toggleFollowCuber(!cuber.is_followed_by_you)"
-            >{{ cuber.is_followed_by_you ? 'Un-Follow' : 'Follow' }}</v-btn
+            >{{ cuber.is_followed_by_you ? 'Un-Follow' : 'Follow' }}</Button
           >
         </template>
       </v-card-actions>
@@ -94,8 +93,10 @@ import {
   FOLLOW_CUBER_MUTATION,
   UNFOLLOW_CUBER_MUTATION,
 } from '~/gql/mutation/cuber.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  components: { Button },
   props: {
     selectedItem: {},
     chip: {

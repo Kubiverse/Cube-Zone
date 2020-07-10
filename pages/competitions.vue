@@ -20,19 +20,14 @@
                 <v-icon left>mdi-account-group</v-icon>
                 <v-toolbar-title>Competitions</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
-                <v-btn
-                  color="primary"
-                  dark
-                  class="mb-2"
-                  @click="openAddCompetitionDialog()"
-                >
+                <Button class="mb-2" @click="openAddCompetitionDialog()">
                   <v-icon left>mdi-plus</v-icon>
                   New Competition
-                </v-btn>
+                </Button>
                 <v-spacer></v-spacer>
-                <v-btn icon @click="reset()">
+                <Button icon @click="reset()">
                   <v-icon>mdi-refresh</v-icon>
-                </v-btn>
+                </Button>
               </v-toolbar>
               <v-expansion-panels>
                 <v-expansion-panel>
@@ -169,15 +164,10 @@
               <div>
                 No competitions matched your filters
                 <br />
-                <v-btn
-                  color="primary"
-                  class="my-2"
-                  dark
-                  @click="openAddCompetitionDialog()"
-                >
+                <Button class="my-2" @click="openAddCompetitionDialog()">
                   <v-icon left>mdi-plus</v-icon>
                   Create a Competition
-                </v-btn>
+                </Button>
               </div>
             </template>
           </v-data-table>
@@ -215,6 +205,7 @@ import AddCompetitionDialog from '~/components/dialog/competition/addCompetition
 import EditCompetitionDialog from '~/components/dialog/competition/editCompetitionDialog.vue'
 import DeleteRoomDialog from '~/components/dialog/room/deleteRoomDialog.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
@@ -222,6 +213,7 @@ export default {
     EditCompetitionDialog,
     DeleteRoomDialog,
     EventLabel,
+    Button,
   },
 
   data() {

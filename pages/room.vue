@@ -155,7 +155,9 @@
                           >mdi-crown</v-icon
                         >
                         <v-icon
-                          v-if="room.manager && room.manager.id == props.item.id"
+                          v-if="
+                            room.manager && room.manager.id == props.item.id
+                          "
                           color="green"
                           small
                           title="Room Manager"
@@ -175,7 +177,9 @@
                           >mdi-sleep</v-icon
                         >
                         <v-icon
-                          v-else-if="props.item.cuber.pivot.type === 'SPECTATING'"
+                          v-else-if="
+                            props.item.cuber.pivot.type === 'SPECTATING'
+                          "
                           small
                           title="Spectating"
                           >mdi-eye</v-icon
@@ -205,9 +209,14 @@
                         <span
                           class="pointer-cursor"
                           @click="
-                            openViewAccumulatedResultDialog(props.item.id, accItem)
+                            openViewAccumulatedResultDialog(
+                              props.item.id,
+                              accItem,
+                            )
                           "
-                          v-html="renderAccumulatedResults(props.item.id, accItem)"
+                          v-html="
+                            renderAccumulatedResults(props.item.id, accItem)
+                          "
                         ></span>
                       </td>
                     </tr>
@@ -278,24 +287,24 @@
         </v-expansion-panel>
       </v-expansion-panels>
       <div class="text-center pt-1" style="width: 100%;">
-        <v-btn
+        <Button
           v-if="isRoomManager"
           id="v-step-startroom"
           :loading="loading.startingNextRound"
           color="primary"
           @click="startNextRound()"
-          >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
+          >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</Button
         >
         <span v-else id="v-step-startroom">&nbsp;</span>
         <v-menu offset-y top>
           <template v-slot:activator="{ on }">
-            <v-btn
+            <Button
               id="v-step-cuberstatus"
               :loading="loading.updateRoomStatus"
               v-on="on"
             >
               Your Status: {{ cuberStatusMap[currentUserStatus] }}
-            </v-btn>
+            </Button>
           </template>
           <v-list>
             <v-list-item
@@ -307,23 +316,23 @@
             </v-list-item>
           </v-list>
         </v-menu>
-        <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
-        <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
-        <v-btn @click="startTutorial()">Tutorial</v-btn>
-        <v-btn @click="openStreamerWindow()">
+        <Button id="v-step-share" @click="copyShareLink()">Share Link</Button>
+        <Button @click="openViewRoundsDialog()">All Rounds</Button>
+        <Button @click="startTutorial()">Tutorial</Button>
+        <Button @click="openStreamerWindow()">
           <v-icon left>mdi-open-in-new</v-icon>
           Streamer Window
-        </v-btn>
-        <v-btn @click="toggleChat()">
+        </Button>
+        <Button @click="toggleChat()">
           <v-icon left>mdi-chat</v-icon>
           Chat Room
           <span v-if="chatUnreadMessages">
             ({{ chatUnreadMessages }} New Messages)
           </span>
-        </v-btn>
-        <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
+        </Button>
+        <Button id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
           <v-icon>mdi-cog</v-icon>
-        </v-btn>
+        </Button>
       </div>
       <v-row justify="center" class="pt-1">
         <span class="caption grey--text">
@@ -402,6 +411,7 @@ import ViewAccumulatedResultDialog from '~/components/dialog/accumulated/viewAcc
 import ScrambleDisplay from '~/components/shared/scrambleDisplay.vue'
 import Scramble from '~/components/shared/scramble'
 import { mapGetters } from 'vuex'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
@@ -414,6 +424,7 @@ export default {
     ViewAccumulatedResultDialog,
     ScrambleDisplay,
     Scramble,
+    Button,
   },
 
   data() {

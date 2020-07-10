@@ -31,9 +31,9 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" nuxt to="/rooms">
+          <Button nuxt to="/rooms">
             Get Started
-          </v-btn>
+          </Button>
         </v-card-actions>
       </v-card>
 
@@ -257,8 +257,10 @@
 </template>
 
 <script>
+import Button from '~/components/shared/button.vue'
+
 export default {
-  components: {},
+  components: { Button },
 
   methods: {},
   head() {

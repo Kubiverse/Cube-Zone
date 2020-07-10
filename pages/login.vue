@@ -5,7 +5,7 @@
         <v-toolbar color="primary" dark flat>
           <v-toolbar-title>Login</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn text @click="goToWcaAuth()">
+          <Button variant="text" @click="goToWcaAuth()">
             <img
               src="../static/WCAlogo_notext.svg"
               alt=""
@@ -13,8 +13,8 @@
               class="pr-2"
             />
             WCA Login
-          </v-btn>
-          <v-btn text nuxt to="/register">Register</v-btn>
+          </Button>
+          <Button variant="text" nuxt to="/register">Register</Button>
         </v-toolbar>
         <LoginInterface @login-success="handleLoginSuccess"></LoginInterface>
       </v-flex>
@@ -25,11 +25,13 @@
 <script>
 import authService from '~/services/auth.js'
 import LoginInterface from '~/components/interface/auth/loginInterface.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   middleware: 'router-auth',
   components: {
     LoginInterface,
+    Button,
   },
 
   data() {

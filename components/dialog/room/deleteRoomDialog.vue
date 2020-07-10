@@ -12,13 +12,13 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button
+          variant="text"
           color="error"
-          text
           :loading="loading.deleteRoom"
           @click="deleteRoom()"
-          >Delete</v-btn
+          >Delete</Button
         >
       </v-card-actions>
     </v-card>
@@ -28,8 +28,10 @@
 <script>
 import sharedService from '~/services/shared.js'
 import { DELETE_ROOM_MUTATION } from '~/gql/mutation/room.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  components: { Button },
   props: {
     status: {
       type: Boolean,

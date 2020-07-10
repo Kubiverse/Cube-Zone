@@ -19,10 +19,8 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn color="primary" :disabled="loading.submit" @click="submit()"
-          >Submit</v-btn
-        >
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button :disabled="loading.submit" @click="submit()">Submit</Button>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -30,8 +28,10 @@
 
 <script>
 import sharedService from '~/services/shared.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  components: { Button },
   props: {
     status: {
       type: Boolean,

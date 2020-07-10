@@ -37,11 +37,12 @@
                   >(+{{ solveResult.penalties / 1000 }})</span
                 >
                 <div v-if="isInspectionDnf">
-                  Your solve was DNFed due to inspection taking longer than 17 seconds.
+                  Your solve was DNFed due to inspection taking longer than 17
+                  seconds.
                 </div>
                 <div v-else-if="isInspectionPenalty">
-                  Your solve has incurred an extra +2 penalty because the inspection
-                  took between 15 and 17 seconds.
+                  Your solve has incurred an extra +2 penalty because the
+                  inspection took between 15 and 17 seconds.
                 </div>
               </v-col>
             </v-row>
@@ -49,7 +50,9 @@
               <v-col cols="12" class="text-center" style="height: 16px;">
                 <div v-if="timerState == 1" class="overline">Inspecting</div>
                 <div v-else-if="timerState == 4" class="overline">Solving</div>
-                <div v-else-if="timerState == 5" class="overline">Verifying</div>
+                <div v-else-if="timerState == 5" class="overline">
+                  Verifying
+                </div>
               </v-col>
               <v-col cols="12" class="text-center">
                 <div v-if="inputMethod == 'manual'" class="overline">
@@ -66,25 +69,25 @@
             <v-row>
               <v-col cols="12" class="text-center" style="height: 36px;">
                 <template v-if="timerState == 5 || timerState == 6">
-                  <v-btn color="error" @click="toggleDnf()">
+                  <Button color="error" @click="toggleDnf()">
                     DNF
-                  </v-btn>
-                  <v-btn color="warning" @click="togglePenalty()">
+                  </Button>
+                  <Button color="warning" @click="togglePenalty()">
                     +2
-                  </v-btn>
-                  <v-btn
+                  </Button>
+                  <Button
                     color="success"
                     :loading="timerState == 6"
                     @click="timerState = 7"
                   >
                     Finalize Results (or hold Space)
-                  </v-btn>
+                  </Button>
                 </template>
-                <v-btn
+                <Button
                   v-else-if="timerState == 8"
                   color="warning"
                   @click="timerState = 9"
-                  >Go Back</v-btn
+                  >Go Back</Button
                 >
               </v-col>
             </v-row>
@@ -92,15 +95,16 @@
         </v-row>
       </v-layout>
     </v-container>
-
   </v-overlay>
 </template>
 
 <script>
 import sharedService from '~/services/shared.js'
 import Stackmat from '~/services/stackmat.js'
+import Button from '~/components/shared/button.vue'
 
 export default {
+  components: { Button },
   props: {
     disabled: {},
 

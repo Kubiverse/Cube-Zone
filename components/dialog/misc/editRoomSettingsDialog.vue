@@ -84,16 +84,18 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn color="primary" @click="submit()">Apply</v-btn>
+        <Button variant="text" @click="close()">Cancel</Button>
+        <Button @click="submit()">Apply</Button>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
+import Button from '~/components/shared/button.vue'
+
 export default {
-  components: {},
+  components: { Button },
 
   props: {
     status: {

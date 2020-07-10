@@ -44,9 +44,9 @@
             </v-list-item-action>
             <v-list-item-content></v-list-item-content>
             <v-list-item-action>
-              <v-btn icon @click.stop="miniVariant = !miniVariant">
+              <Button icon @click.stop="miniVariant = !miniVariant">
                 <v-icon>mdi-chevron-left</v-icon>
-              </v-btn>
+              </Button>
             </v-list-item-action>
           </v-list-item>
           <client-only>
@@ -219,7 +219,7 @@
         Terms and Conditions
       </nuxt-link>
       <v-spacer></v-spacer>
-      <v-btn small text @click="toggleTheme()">Toggle Theme</v-btn>
+      <Button variant="text" small @click="toggleTheme()">Toggle Theme</Button>
       <a href="mailto:feedback@cube.zone" class="pl-2">
         feedback@cube.zone
       </a>
@@ -266,6 +266,7 @@ import ViewCuberSolvesDialog from '~/components/dialog/solve/viewCuberSolvesDial
 import LoginDialog from '~/components/dialog/auth/loginDialog'
 import Snackbar from '~/components/snackbar/snackbar'
 import CuberNotificationSnackbar from '~/components/snackbar/cuberNotificationSnackbar'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
@@ -273,6 +274,7 @@ export default {
     Snackbar,
     CuberNotificationSnackbar,
     LoginDialog,
+    Button,
   },
   data() {
     return {

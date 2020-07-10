@@ -22,19 +22,14 @@
                   >Competition: {{ competition.name }}</v-toolbar-title
                 >
                 <v-divider class="mx-4" inset vertical></v-divider>
-                <v-btn
-                  color="primary"
-                  dark
-                  class="mb-2"
-                  @click="openAddCompetitionRoundDialog()"
-                >
+                <Button class="mb-2" @click="openAddCompetitionRoundDialog()">
                   <v-icon left>mdi-plus</v-icon>
                   New Round
-                </v-btn>
+                </Button>
                 <v-spacer></v-spacer>
-                <v-btn icon @click="reset()">
+                <Button icon @click="reset()">
                   <v-icon>mdi-refresh</v-icon>
-                </v-btn>
+                </Button>
               </v-toolbar>
               <v-expansion-panels>
                 <v-expansion-panel>
@@ -118,7 +113,9 @@
                       @click.stop="openEditCompetitionDialog(props.item)"
                       >mdi-pencil</v-icon
                     >
-                    <v-icon small @click.stop="openDeleteCompetitionRoundDialog(props.item)"
+                    <v-icon
+                      small
+                      @click.stop="openDeleteCompetitionRoundDialog(props.item)"
                       >mdi-delete</v-icon
                     >
                   </template>
@@ -129,15 +126,10 @@
               <div>
                 No rounds matched your filters
                 <br />
-                <v-btn
-                  color="primary"
-                  class="my-2"
-                  dark
-                  @click="openAddCompetitionRoundDialog()"
-                >
+                <Button class="my-2" @click="openAddCompetitionRoundDialog()">
                   <v-icon left>mdi-plus</v-icon>
                   Create a Round
-                </v-btn>
+                </Button>
               </div>
             </template>
           </v-data-table>
@@ -190,6 +182,7 @@ import AddCompetitionRoundDialog from '~/components/dialog/competitionRound/addC
 import EditCompetitionDialog from '~/components/dialog/competition/editCompetitionDialog.vue'
 import DeleteCompetitionRoundDialog from '~/components/dialog/competitionRound/deleteCompetitionRoundDialog.vue'
 import EventLabel from '~/components/shared/eventLabel.vue'
+import Button from '~/components/shared/button.vue'
 
 export default {
   components: {
@@ -197,6 +190,7 @@ export default {
     EditCompetitionDialog,
     DeleteCompetitionRoundDialog,
     EventLabel,
+    Button,
   },
 
   data() {
