@@ -549,6 +549,7 @@ export default {
         scrambleFontSize: 32,
         enableSounds: true,
         scramblePreviewVisualization: '2D',
+        autoDefocusChat: true,
       },
 
       accumulators: [],
@@ -1160,7 +1161,7 @@ export default {
 
     async sendChatMessage() {
       try {
-        if (this.$refs.chatbox) {
+        if (this.$refs.chatbox && this.autoDefocusChat) {
           this.$refs.chatbox.blur()
         }
 

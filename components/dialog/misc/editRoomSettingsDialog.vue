@@ -73,6 +73,12 @@
               label="Enable Sound Effects"
             ></v-switch>
           </v-col>
+          <v-col cols="4" class="py-0">
+            <v-switch
+              v-model="inputs.autoDefocusChat"
+              label="De-Focus Chat After Message Sent"
+            ></v-switch>
+          </v-col>
         </v-row>
       </v-card-text>
 
