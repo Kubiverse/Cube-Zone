@@ -162,6 +162,7 @@ type Room {
   configuration: RoomConfiguration!
   pivot: CuberRoomPivot
   manager: Cuber
+  activate_at: DateTime
   created_at: DateTime!
   updated_at: DateTime
 }
@@ -821,6 +822,18 @@ input UpdateCompetitionRoundInput {
   id: ID!
   room_configuration_id: ID
   start_at: DateTime
+  update_rooms: [UpdateRoomInput!]
+}
+
+input UpdateRoomInput {
+  id: ID!
+  name: String
+  description: String
+  activate_at: DateTime
+  room_configuration_id: ID
+  time_limit: Milliseconds
+  time_target: Milliseconds
+  max_capacity: Int
 }
 
 input UpdateCuberInput {
@@ -859,6 +872,7 @@ input CreateRoomInput {
   max_capacity: Int
   is_public: Boolean
   event_id: ID!
+  activate_at: DateTime
   room_configuration_id: ID
   secret: String
 }
@@ -866,16 +880,6 @@ input CreateRoomInput {
 input AccumulatorPair {
   id: ID!
   n: Int
-}
-
-input UpdateRoomInput {
-  id: ID!
-  name: String
-  description: String
-  room_configuration_id: ID
-  time_limit: Milliseconds
-  time_target: Milliseconds
-  max_capacity: Int
 }
 
 input UpdateRoomConfigurationInput {

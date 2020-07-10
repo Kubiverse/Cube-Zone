@@ -972,7 +972,8 @@ export default {
 
     handleChatMessageReceived(chatMessage) {
       this.chatMessages.push(chatMessage)
-      if (!this.isChatboxOpened) {
+      //if chatbox is not opened and chatMessage not from current user
+      if (!this.isChatboxOpened && chatMessage.user.id !== this.user.id) {
         this.chatUnreadMessages++
         if (this.timerState == 0 && this.settingsObject.enableSounds) {
           sharedService.playSound('/alert2.mp3')

@@ -120,7 +120,7 @@ export const COMPETITION_ROUNDS_QUERY = gql`
 `
 
 export const COMPETITION_ROUND_QUERY = gql`
-  query competitionRound($id: ID) {
+  query competitionRound($id: ID!) {
     competitionRound(id: $id) {
       ...CompetitionRound
       event {
