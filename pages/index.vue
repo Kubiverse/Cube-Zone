@@ -45,12 +45,31 @@
           <div class="release">
             <span class="headline">Coming Soon...</span>
             <ul>
-              <li>Notifications when someone you follow joins a room</li>
               <li>
-                Ability to invite someone to your room through notifications
-                instead of sending a link
+                Streamer mode
+              </li>
+              <li>
+                Online Competitions
               </li>
               <li>Ability to display your personal bests on your profile</li>
+            </ul>
+          </div>
+
+          <div class="release">
+            <span class="headline">v1.1.2 (11 July 2020)</span>
+            <ul>
+              <li>Moved Recent Rooms button to the user menu</li>
+              <li>Implemented a notifications system</li>
+              <li>
+                User&#39;s own messages will no longer trigger notifications or
+                sounds
+              </li>
+              <li>Improved overall appearance of the room page</li>
+              <li>
+                Can now add custom accumulators to each room, such as avg5,
+                number of wins (must be added at room creation)
+              </li>
+              <li>Can now sort room results by accumulator</li>
             </ul>
           </div>
 

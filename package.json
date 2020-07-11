@@ -26,7 +26,7 @@
     "nuxt-clipboard2": "^0.2.1",
     "pusher-js": "^6.0.3",
     "randomstring": "^1.1.5",
-    "scramble-display": "^0.2.2",
+    "scramble-display": "^0.1.1",
     "vue-tour": "^1.4.0"
   },
   "devDependencies": {

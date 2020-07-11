@@ -246,7 +246,7 @@
           >
             <span>
               <v-icon left>mdi-chat</v-icon>
-              Chat Room
+              Chat
               <span v-if="chatUnreadMessages">
                 ({{ chatUnreadMessages }} New Messages)
               </span>
@@ -286,6 +286,13 @@
           >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
         >
         <span v-else id="v-step-startroom">&nbsp;</span>
+        <v-btn color="primary" @click="toggleChat()">
+          <v-icon left>mdi-chat</v-icon>
+          Chat
+          <span v-if="chatUnreadMessages">
+            ({{ chatUnreadMessages }} New Messages)
+          </span>
+        </v-btn>
         <v-menu offset-y top>
           <template v-slot:activator="{ on }">
             <v-btn
@@ -315,13 +322,6 @@
           Streamer Window
         </v-btn>
         -->
-        <v-btn @click="toggleChat()">
-          <v-icon left>mdi-chat</v-icon>
-          Chat Room
-          <span v-if="chatUnreadMessages">
-            ({{ chatUnreadMessages }} New Messages)
-          </span>
-        </v-btn>
         <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
           <v-icon>mdi-cog</v-icon>
         </v-btn>
@@ -617,7 +617,7 @@ export default {
         ...this.headers,
         ...this.accumulators.map((val) => ({
           text: val.name + (val.pivot_n ? '/' + val.pivot_n : ''),
-          value: 'accumulatedResults.' + val.name,
+          value: 'accumulatedResults.' + val.type_id + '_' + val.pivot_n,
           sortable: true,
           width: '100px',
           align: 'right',
@@ -768,7 +768,8 @@ export default {
       if (this.rounds[1] && this.rounds[1].accumulated_results) {
         return this.rounds[1].accumulated_results.find(
           (accumulator) =>
-            accumulator.contextualAccumulator.type_id === accItemObject.type_id &&
+            accumulator.contextualAccumulator.type_id ===
+              accItemObject.type_id &&
             accumulator.contextualAccumulator.pivot_n ===
               accItemObject.pivot_n &&
             accumulator.cuber.id == cuberId,
@@ -1022,7 +1023,7 @@ export default {
 
           this.$set(
             cuber.accumulatedResults,
-            accumulated.name,
+            accumulated.type_id + '_' + accumulated.pivot_n,
             foundResult
               ? sharedService.generateAccumulatedResultString(foundResult)
               : 'N/A',
