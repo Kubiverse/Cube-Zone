@@ -27,7 +27,7 @@ type Query {
     first: Int = 10
     page: Int
   ): CompetitionRoundPaginator
-  competitionRound(id: ID): CompetitionRound
+  competitionRound(id: ID!): CompetitionRound
   cubers(
     first: Int = 10
     page: Int
@@ -162,6 +162,7 @@ type Room {
   configuration: RoomConfiguration!
   pivot: CuberRoomPivot
   manager: Cuber
+  activate_at: DateTime
   created_at: DateTime!
   updated_at: DateTime
 }
@@ -734,7 +735,7 @@ type Mutation {
   updateCompetition(input: UpdateCompetitionInput!): Competition!
   addCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
   removeCompetitionRound(competition_id: ID!, event_id: ID!): CompetitionRound!
-  updateCompetitionRound(input: UpdateCompetitionRoundInput!): Competition!
+  updateCompetitionRound(input: UpdateCompetitionRoundInput!): CompetitionRound!
   createRoomsForCompetitionRound(
     competition_round_id: ID!
     quantity: Int!
@@ -745,6 +746,11 @@ type Mutation {
   inviteCuber(room_id: ID!, cuber_id: ID!): CuberRoom!
   createOrganisation(input: CreateOrganisationInput!): Organisation!
   updateOrganisation(input: UpdateOrganisationInput!): Organisation!
+  addMemberToOrganisation(organisation_id: ID!, cuber_id: ID!): Organisation!
+  removeMemberFromOrganisation(
+    organisation_id: ID!
+    cuber_id: ID!
+  ): Organisation!
   createRoom(input: CreateRoomInput!): Room!
   updateRoom(input: UpdateRoomInput!): Room!
   joinRoom(
@@ -816,6 +822,18 @@ input UpdateCompetitionRoundInput {
   id: ID!
   room_configuration_id: ID
   start_at: DateTime
+  update_rooms: [UpdateRoomInput!]
+}
+
+input UpdateRoomInput {
+  id: ID!
+  name: String
+  description: String
+  activate_at: DateTime
+  room_configuration_id: ID
+  time_limit: Milliseconds
+  time_target: Milliseconds
+  max_capacity: Int
 }
 
 input UpdateCuberInput {
@@ -854,6 +872,7 @@ input CreateRoomInput {
   max_capacity: Int
   is_public: Boolean
   event_id: ID!
+  activate_at: DateTime
   room_configuration_id: ID
   secret: String
 }
@@ -861,16 +880,6 @@ input CreateRoomInput {
 input AccumulatorPair {
   id: ID!
   n: Int
-}
-
-input UpdateRoomInput {
-  id: ID!
-  name: String
-  description: String
-  room_configuration_id: ID
-  time_limit: Milliseconds
-  time_target: Milliseconds
-  max_capacity: Int
 }
 
 input UpdateRoomConfigurationInput {
@@ -1031,12 +1040,6 @@ type PageInfo {
   lastPage: Int
 }
 
-enum Trashed {
-  ONLY
-  WITH
-  WITHOUT
-}
-
 enum SortOrder {
   ASC
   DESC
@@ -1045,5 +1048,11 @@ enum SortOrder {
 input OrderByClause {
   field: String!
   order: SortOrder!
+}
+
+enum Trashed {
+  ONLY
+  WITH
+  WITHOUT
 }
 

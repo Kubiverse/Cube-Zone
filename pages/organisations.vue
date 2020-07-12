@@ -67,6 +67,11 @@
                     @click.stop="openEditOrganisationDialog(props.item)"
                     >mdi-pencil</v-icon
                   >
+                  <v-icon
+                    small
+                    @click.stop="openEditOrganisationManagersDialog(props.item)"
+                    >mdi-account</v-icon
+                  >
                 </td>
               </tr>
             </template>
@@ -88,21 +93,28 @@
       @close="dialogs.editOrganisation = false"
       @submit="editItem"
     ></EditOrganisationDialog>
+    <EditOrganisationManagersDialog
+      :status="dialogs.editOrganisationManagers"
+      :selected-item="selectedItem"
+      @close="dialogs.editOrganisationManagers = false"
+      @submit="editItem"
+    ></EditOrganisationManagersDialog>
   </v-container>
 </template>
 
 <script>
-import sharedService from '~/services/shared.js'
 import { booleanOptionsArray } from '~/services/constants.js'
 import { ORGANISATIONS_QUERY } from '~/gql/query/organisation.js'
 
 import AddOrganisationDialog from '~/components/dialog/organisation/addOrganisationDialog.vue'
 import EditOrganisationDialog from '~/components/dialog/organisation/editOrganisationDialog.vue'
+import EditOrganisationManagersDialog from '~/components/dialog/organisation/editOrganisationManagersDialog.vue'
 
 export default {
   components: {
     AddOrganisationDialog,
     EditOrganisationDialog,
+    EditOrganisationManagersDialog,
   },
 
   data() {
@@ -120,6 +132,7 @@ export default {
       dialogs: {
         addOrganisation: false,
         editOrganisation: false,
+        editOrganisationManagers: false,
       },
 
       loading: {
@@ -219,6 +232,11 @@ export default {
     openEditOrganisationDialog(item) {
       this.selectedItem = item
       this.openDialog('editOrganisation')
+    },
+
+    openEditOrganisationManagersDialog(item) {
+      this.selectedItem = item
+      this.openDialog('editOrganisationManagers')
     },
 
     openAddOrganisationDialog() {

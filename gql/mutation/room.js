@@ -16,6 +16,7 @@ export const CREATE_ROOM_MUTATION = gql`
     $max_capacity: Int
     $is_public: Boolean
     $event_id: ID!
+    $attachAccumulators: [AccumulatorPair]
     $secret: String
   ) {
     createRoom(
@@ -27,6 +28,7 @@ export const CREATE_ROOM_MUTATION = gql`
         max_capacity: $max_capacity
         is_public: $is_public
         event_id: $event_id
+        attachAccumulators: $attachAccumulators
         secret: $secret
       }
     ) {

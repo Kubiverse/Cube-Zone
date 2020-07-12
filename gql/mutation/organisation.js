@@ -39,3 +39,27 @@ export const UPDATE_ORGANISATION_MUTATION = gql`
   }
   ${organisationFragment}
 `
+
+export const ADD_MEMBER_TO_ORGANISATION = gql`
+  mutation addMemberToOrganisation($organisation_id: ID!, $cuber_id: ID!) {
+    addMemberToOrganisation(
+      organisation_id: $organisation_id
+      cuber_id: $cuber_id
+    ) {
+      id
+    }
+  }
+`
+
+export const REMOVE_MEMBER_FROM_ORGANISATION = gql`
+  mutation removeMemberFromOrganisation($organisation_id: ID!, $cuber_id: ID!) {
+    removeMemberFromOrganisation(
+      organisation_id: $organisation_id
+      cuber_id: $cuber_id
+    ) {
+      id
+    }
+  }
+`
+
+

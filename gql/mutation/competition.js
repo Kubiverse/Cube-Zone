@@ -2,6 +2,7 @@ import gql from 'graphql-tag'
 import {
   competitionFragment,
   competitionRoundFragment,
+  roomBasicFragment,
 } from '~/gql/fragments.js'
 
 export const CREATE_COMPETITION_MUTATION = gql`
@@ -77,6 +78,29 @@ export const ADD_COMPETITION_ROUND = gql`
   ${competitionRoundFragment}
 `
 
+export const UPDATE_COMPETITION_ROUND = gql`
+  mutation updateCompetitionRound(
+    $id: ID!
+    $room_configuration_id: ID
+    $start_at: DateTime
+  ) {
+    updateCompetitionRound(
+      input: {
+        id: $id
+        room_configuration_id: $room_configuration_id
+        start_at: $start_at
+      }
+    ) {
+      ...CompetitionRound
+      event {
+        id
+        name
+      }
+    }
+  }
+  ${competitionRoundFragment}
+`
+
 export const REMOVE_COMPETITION_ROUND = gql`
   mutation removeCompetitionRound($competition_id: ID!, $event_id: ID!) {
     removeCompetitionRound(
@@ -91,4 +115,19 @@ export const REMOVE_COMPETITION_ROUND = gql`
     }
   }
   ${competitionRoundFragment}
+`
+
+export const CREATE_ROOMS_FOR_COMPETITION_ROUND = gql`
+  mutation createRoomsForCompetitionRound(
+    $competition_round_id: ID!
+    $quantity: Int!
+  ) {
+    createRoomsForCompetitionRound(
+      competition_round_id: $competition_round_id
+      quantity: $quantity
+    ) {
+      ...RoomBasic
+    }
+  }
+  ${roomBasicFragment}
 `

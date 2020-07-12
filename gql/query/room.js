@@ -37,6 +37,12 @@ export const ROOM_QUERY = gql`
       pivot {
         type
       }
+      accumulators {
+        id: pivot_id
+        type_id: id
+        name
+        pivot_n
+      }
     }
   }
   ${roomFragment}

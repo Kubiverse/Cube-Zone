@@ -196,18 +196,17 @@
                           renderSolveResults(rounds[i - 1], props.item.id)
                         "
                       ></td>
-
                       <td
-                        v-for="(accItem, i) in accumulatedResults"
-                        :key="accItem.name"
+                        v-for="(accItem, i) in accumulators"
+                        :key="accItem.id + '-' + accItem.pivot_n"
                         class="text-right title"
                       >
                         <span
                           class="pointer-cursor"
                           @click="
-                            openViewAccumulatedResultDialog(props.item.id, accItem)
+                            openViewAccumulatedResultDialog(props.item, accItem)
                           "
-                          v-html="renderAccumulatedResults(props.item.id, accItem)"
+                          v-html="renderAccumulatedResults(props.item, accItem)"
                         ></span>
                       </td>
                     </tr>
@@ -247,7 +246,7 @@
           >
             <span>
               <v-icon left>mdi-chat</v-icon>
-              Chat Room
+              Chat
               <span v-if="chatUnreadMessages">
                 ({{ chatUnreadMessages }} New Messages)
               </span>
@@ -287,6 +286,13 @@
           >{{ activeRound ? 'Start Next Round' : 'Start Room' }}</v-btn
         >
         <span v-else id="v-step-startroom">&nbsp;</span>
+        <v-btn color="primary" @click="toggleChat()">
+          <v-icon left>mdi-chat</v-icon>
+          Chat
+          <span v-if="chatUnreadMessages">
+            &nbsp;({{ chatUnreadMessages }})
+          </span>
+        </v-btn>
         <v-menu offset-y top>
           <template v-slot:activator="{ on }">
             <v-btn
@@ -310,17 +316,12 @@
         <v-btn id="v-step-share" @click="copyShareLink()">Share Link</v-btn>
         <v-btn @click="openViewRoundsDialog()">All Rounds</v-btn>
         <v-btn @click="startTutorial()">Tutorial</v-btn>
+        <!--
         <v-btn @click="openStreamerWindow()">
           <v-icon left>mdi-open-in-new</v-icon>
           Streamer Window
         </v-btn>
-        <v-btn @click="toggleChat()">
-          <v-icon left>mdi-chat</v-icon>
-          Chat Room
-          <span v-if="chatUnreadMessages">
-            ({{ chatUnreadMessages }} New Messages)
-          </span>
-        </v-btn>
+        -->
         <v-btn id="v-step-settings" icon @click="openEditRoomSettingsDialog()">
           <v-icon>mdi-cog</v-icon>
         </v-btn>
@@ -339,7 +340,7 @@
       :input-method="settingsObject.inputMethod"
       :timer-trigger-duration="settingsObject.timerTriggerDuration"
       :inspection-timer="settingsObject.inspectionTimer"
-      :streamer-mode="settingsObject.streamerMode"
+      :streamer-mode="false"
       @submit-results="updateSolve"
       @timer-state-updated="handleTimerStateUpdate"
       @timer-status-updated="handleTimerStatusUpdate"
@@ -550,21 +551,10 @@ export default {
         scrambleFontSize: 32,
         enableSounds: true,
         scramblePreviewVisualization: '2D',
-        streamerMode: false,
+        autoDefocusChat: false,
       },
 
-      accumulatedResults: [
-        {
-          name: 'avg5',
-          type_id: '1',
-          pivot_n: '5',
-        },
-        {
-          name: 'avg12',
-          type_id: '1',
-          pivot_n: '12',
-        },
-      ],
+      accumulators: [],
 
       tableRounds: 6,
 
@@ -625,9 +615,9 @@ export default {
     headersComputed() {
       return [
         ...this.headers,
-        ...this.accumulatedResults.map((val) => ({
-          text: val.name,
-          value: 'accumulatedResults.' + val.name,
+        ...this.accumulators.map((val) => ({
+          text: val.name + (val.pivot_n ? '/' + val.pivot_n : ''),
+          value: 'accumulatedResults.' + val.type_id + '_' + val.pivot_n,
           sortable: true,
           width: '100px',
           align: 'right',
@@ -702,6 +692,14 @@ export default {
   },
 
   methods: {
+    triggerStorageEvent(key, data) {
+      localStorage.setItem(
+        key + '-' + this.$route.query.id,
+        JSON.stringify(data),
+      )
+      localStorage.removeItem(key)
+    },
+
     updateSettings(settingsObject) {
       Object.assign(this.settingsObject, settingsObject)
 
@@ -747,8 +745,13 @@ export default {
       )
     },
 
-    renderAccumulatedResults(cuberId, accItemObject) {
-      let foundResult = this.findAccumulatedResult(cuberId, accItemObject)
+    renderAccumulatedResults(cuberResult, accItemObject) {
+      if (!cuberResult) return 'N/A'
+
+      let foundResult = this.findAccumulatedResult(
+        cuberResult.id,
+        accItemObject,
+      )
 
       if (!foundResult) return 'N/A'
 
@@ -827,8 +830,13 @@ export default {
       this.dialogs.editRoomSettings = true
     },
 
-    openViewAccumulatedResultDialog(cuberId, accItemObject) {
-      let accumulated = this.findAccumulatedResult(cuberId, accItemObject)
+    openViewAccumulatedResultDialog(cuberResult, accItemObject) {
+      if (!cuberResult) return 'N/A'
+
+      let accumulated = this.findAccumulatedResult(
+        cuberResult.id,
+        accItemObject,
+      )
 
       if (!accumulated) return
 
@@ -968,7 +976,8 @@ export default {
 
     handleChatMessageReceived(chatMessage) {
       this.chatMessages.push(chatMessage)
-      if (!this.isChatboxOpened) {
+      //if chatbox is not opened and chatMessage not from current user
+      if (!this.isChatboxOpened && chatMessage.user.id !== this.user.id) {
         this.chatUnreadMessages++
         if (this.timerState == 0 && this.settingsObject.enableSounds) {
           sharedService.playSound('/alert2.mp3')
@@ -1008,13 +1017,13 @@ export default {
     //loads in the accumulatedResults into the cuberResults table from the 2nd to last round, if exists
     loadAccumulatedResults() {
       this.cuberResults.forEach((cuber) => {
-        this.accumulatedResults.forEach((accumulated) => {
+        this.accumulators.forEach((accumulated) => {
           //find the accumulatedResult object for the cuber
           let foundResult = this.findAccumulatedResult(cuber.id, accumulated)
 
           this.$set(
             cuber.accumulatedResults,
-            accumulated.name,
+            accumulated.type_id + '_' + accumulated.pivot_n,
             foundResult
               ? sharedService.generateAccumulatedResultString(foundResult)
               : 'N/A',
@@ -1155,7 +1164,7 @@ export default {
 
     async sendChatMessage() {
       try {
-        if (this.$refs.chatbox) {
+        if (this.$refs.chatbox && this.autoDefocusChat) {
           this.$refs.chatbox.blur()
         }
 
@@ -1370,6 +1379,7 @@ export default {
       result({ data }) {
         if (++this.generation.room % 2 == 0) {
           this.room = data.room
+          this.accumulators = data.room.accumulators
           //allow rounds query to start after this is done.
           this.$apollo.queries.rounds.skip = false
         }
@@ -1442,6 +1452,8 @@ export default {
             //also update the cuberResults->accumulatedResults
             this.loadAccumulatedResults()
           }
+
+          this.triggerStorageEvent('roundFinished', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1469,6 +1481,8 @@ export default {
           }
           this.triggerGarbageCollection()
           this.loading.startingNextRound = false
+
+          this.triggerStorageEvent('roundStarted', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1494,6 +1508,8 @@ export default {
               (cuber) => cuber.id == data.solveUpdated.cuber.id,
             ),
           )
+
+          this.triggerStorageEvent('solveUpdated', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1508,6 +1524,7 @@ export default {
         },
         result({ data }) {
           Object.assign(this.room, data.roomUpdated)
+          this.triggerStorageEvent('roomUpdated', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,
@@ -1533,6 +1550,8 @@ export default {
             this.currentUserStatus =
               data.roomMemberStatusUpdated.cuber.pivot.type
           }
+
+          this.triggerStorageEvent('roomMemberStatusUpdated', data)
         },
         fetchPolicy: 'no-cache',
         skip: true,

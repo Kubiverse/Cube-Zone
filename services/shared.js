@@ -60,9 +60,18 @@ export default {
 
   generateAccumulatedResultString(accumulated) {
     if (!accumulated) return 'N/A'
-    return accumulated.is_dnf
-      ? 'DNF'
-      : this.generateTimeString(accumulated.result.toFixed())
+
+    switch (accumulated.contextualAccumulator.type_id) {
+      case '1':
+        return accumulated.is_dnf
+          ? 'DNF'
+          : this.generateTimeString(accumulated.result.toFixed())
+      case '2':
+      case '3':
+        return accumulated.result
+      default:
+        return 'N/A'
+    }
   },
 
   generateAverageString(solves, numSolves) {

@@ -12,8 +12,19 @@
       :footer-props="footerOptions"
       @update:options="handleUpdateOptions"
     >
-      <template v-slot:item.name="{ item }">
-        <PreviewCuberPopover :selected-item="item"></PreviewCuberPopover>
+      <template v-slot:item="props">
+        <tr
+          :key="props.item.id"
+          class="pointer-cursor"
+          :class="{ 'selected-bg': props.item === selected }"
+          @click="handleItemSelect(props.item)"
+        >
+          <td>
+            <PreviewCuberPopover
+              :selected-item="props.item"
+            ></PreviewCuberPopover>
+          </td>
+        </tr>
       </template>
       <template v-slot:no-data>
         No results
@@ -39,6 +50,9 @@ export default {
 
     cuber: {},
     generation: {},
+    selectable: {
+      type: Boolean,
+    },
   },
 
   data() {
@@ -51,6 +65,8 @@ export default {
           value: 'name',
         },
       ],
+
+      selected: null,
 
       options: {
         page: 1,
@@ -124,6 +140,11 @@ export default {
     generateSolveString: sharedService.generateSolveString.bind(sharedService),
     generateMomentString: sharedService.generateMomentString,
 
+    handleItemSelect(cuber) {
+      this.selected = cuber === this.selected ? null : cuber
+      this.$emit('item-selected', this.selected)
+    },
+
     handleUpdateOptions(options) {
       if (options.initialLoad) {
         options.initialLoad = false
@@ -137,8 +158,19 @@ export default {
     },
 
     reset() {
+      this.selected = null
       this.$apollo.queries.cuber.refresh()
     },
   },
 }
 </script>
+
+<style scoped>
+.pointer-cursor {
+  cursor: pointer;
+}
+
+.selected-bg {
+  background-color: yellow;
+}
+</style>

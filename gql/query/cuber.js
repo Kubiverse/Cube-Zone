@@ -3,6 +3,7 @@ import {
   cuberFragment,
   cuberBasicFragment,
   roomFragment,
+  roomBasicFragment,
   eventFragment,
 } from '~/gql/fragments.js'
 
@@ -94,4 +95,17 @@ export const ME_QUERY = gql`
     }
   }
   ${cuberFragment}
+`
+
+export const ME_ACTIVE_ROOM_QUERY = gql`
+  query {
+    me {
+      ...CuberBasic
+      active_room {
+        ...RoomBasic
+      }
+    }
+  }
+  ${roomBasicFragment}
+  ${cuberBasicFragment}
 `
