@@ -1169,6 +1169,7 @@ export default {
         }
 
         if (!this.chatMessage) {
+          this.$refs.chatbox.blur()
           return
         }
 
