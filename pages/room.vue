@@ -290,7 +290,7 @@
           <v-icon left>mdi-chat</v-icon>
           Chat
           <span v-if="chatUnreadMessages">
-            ({{ chatUnreadMessages }} New Messages)
+            &nbsp;({{ chatUnreadMessages }})
           </span>
         </v-btn>
         <v-menu offset-y top>
