@@ -298,13 +298,11 @@ export default {
           title: 'All Rooms',
           to: '/rooms',
         },
-        /*
         {
           icon: 'mdi-account-group',
           title: 'Competitions',
           to: '/competitions',
         },
-        */
         /*
         {
           icon: 'mdi-format-list-numbered',
@@ -316,7 +314,7 @@ export default {
 
       accountItems: [
         { title: 'My Recent Rooms', to: '/my-rooms', exact: false },
-        //{ title: 'My Organisations', to: '/organisations', exact: false },
+        { title: 'My Organisations', to: '/organisations', exact: false },
         { title: 'Settings', to: '/settings', exact: false },
       ],
       miniVariant: false,
