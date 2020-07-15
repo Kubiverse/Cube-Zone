@@ -48,30 +48,12 @@
                 readonly
               ></v-text-field>
             </v-col>
-            <v-col cols="4" class="py-0">
-              <v-menu
-                v-model="menu.start_at"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                transition="scale-transition"
-                offset-y
-                min-width="290px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="inputs.start_at"
-                    label="Start Date"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="inputs.start_at"
-                  @input="menu.start_at = false"
-                ></v-date-picker>
-              </v-menu>
+            <v-col cols="6" class="py-0">
+              <v-text-field
+                v-model="inputs.start_at"
+                label="Start At"
+                type="datetime-local"
+              ></v-text-field>
             </v-col>
           </v-row>
         </v-container>
@@ -113,13 +95,15 @@ export default {
   data() {
     return {
       inputs: {
-        start_at: null,
+        start_at_date: null,
+        start_at_time: null,
         event_id: null,
         round_number: null,
       },
 
       menu: {
-        start_at: false,
+        start_at_date: false,
+        start_at_time: false,
       },
 
       loading: {
@@ -155,7 +139,9 @@ export default {
           mutation: UPDATE_COMPETITION_ROUND,
           variables: {
             id: this.selectedItem.id,
-            start_at: this.inputs.start_at,
+            start_at: this.inputs.start_at
+              ? this.inputs.start_at.replace('T', ' ') + ':00'
+              : null,
           },
         })
 
@@ -185,7 +171,11 @@ export default {
         })
 
         this.inputs = {
-          start_at: data.competitionRound.start_at,
+          start_at: data.competitionRound.start_at
+            ? new Date(data.competitionRound.start_at)
+                .toISOString()
+                .slice(0, -1)
+            : null,
           event_id: data.competitionRound.event.id,
           round_number: data.competitionRound.round_number,
         }

@@ -369,7 +369,7 @@ export default {
           text: 'Actions',
           sortable: false,
           value: 'action',
-          width: '90px',
+          width: '110px',
         },
       ],
 
