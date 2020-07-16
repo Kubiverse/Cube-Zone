@@ -12,7 +12,22 @@
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
-        <div v-if="loading.loadData" class="text-center" style="width: 100%;">
+        <div v-if="errorMessage">
+          <v-alert type="error">
+            {{ errorMessage }}
+          </v-alert>
+          <v-btn
+            color="primary"
+            :loading="loading.unhideRoom"
+            @click="unhideRoomAndReset(selectedItem)"
+            >Unhide Room</v-btn
+          >
+        </div>
+        <div
+          v-else-if="loading.loadData"
+          class="text-center"
+          style="width: 100%;"
+        >
           <v-progress-circular indeterminate></v-progress-circular>
         </div>
         <v-container v-else>
@@ -74,7 +89,11 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn color="primary" :loading="loading.editRoom" @click="submit()"
+        <v-btn
+          v-if="!errorMessage"
+          color="primary"
+          :loading="loading.editRoom"
+          @click="submit()"
           >Submit</v-btn
         >
       </v-card-actions>
@@ -85,6 +104,7 @@
 <script>
 import sharedService from '~/services/shared.js'
 import { UPDATE_ROOM_MUTATION } from '~/gql/mutation/room.js'
+import { UNHIDE_ROOM } from '~/gql/mutation/competition.js'
 import { ROOM_BASIC_QUERY } from '~/gql/query/room.js'
 
 export default {
@@ -108,7 +128,9 @@ export default {
       loading: {
         editRoom: false,
         loadData: false,
+        unhideRoom: false,
       },
+      errorMessage: null,
       events: null,
     }
   },
@@ -159,6 +181,31 @@ export default {
       this.loading.editRoom = false
     },
 
+    async unhideRoomAndReset(item) {
+      await this.unhideRoom(item)
+      this.reset()
+    },
+
+    async unhideRoom(item) {
+      this.loading.unhideRoom = true
+      try {
+        await this.$apollo.mutate({
+          mutation: UNHIDE_ROOM,
+          variables: {
+            id: item.id,
+          },
+        })
+
+        this.$notifier.showSnackbar({
+          message: 'Room Unhidden',
+          variant: 'success',
+        })
+      } catch (err) {
+        sharedService.handleError(err, this.$root)
+      }
+      this.loading.unhideRoom = false
+    },
+
     async loadData() {
       this.loading.loadData = true
       try {
@@ -170,6 +217,11 @@ export default {
           fetchPolicy: 'no-cache',
         })
 
+        //if room is null, room could be hidden or deleted
+        if (!data.room) {
+          throw sharedService.generateError('Room is either hidden or deleted')
+        }
+
         this.inputs = {
           name: data.room.name,
           description: data.room.description,
@@ -178,6 +230,7 @@ export default {
           max_capacity: data.room.max_capacity,
         }
       } catch (err) {
+        this.errorMessage = err.message
         sharedService.handleError(err, this.$root)
       }
       this.loading.loadData = false
@@ -185,6 +238,7 @@ export default {
 
     reset() {
       if (!this.status) return
+      this.errorMessage = null
       this.loadData()
     },
   },

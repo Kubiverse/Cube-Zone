@@ -288,6 +288,7 @@ export default {
 
       loading: {
         table: false,
+        unhideRoom: false,
       },
 
       selectedItem: null,
@@ -369,7 +370,7 @@ export default {
           text: 'Actions',
           sortable: false,
           value: 'action',
-          width: '110px',
+          width: '130px',
         },
       ],
 

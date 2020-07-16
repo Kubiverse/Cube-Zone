@@ -53,6 +53,7 @@
                 v-model="inputs.start_at"
                 label="Start At"
                 type="datetime-local"
+                step="1"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -140,7 +141,7 @@ export default {
           variables: {
             id: this.selectedItem.id,
             start_at: this.inputs.start_at
-              ? this.inputs.start_at.replace('T', ' ') + ':00'
+              ? this.inputs.start_at.replace('T', ' ')
               : null,
           },
         })
