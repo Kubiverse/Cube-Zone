@@ -12,16 +12,10 @@
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
-        <div v-if="errorMessage">
+        <div v-if="hidden">
           <v-alert type="error">
             {{ errorMessage }}
           </v-alert>
-          <v-btn
-            color="primary"
-            :loading="loading.unhideRoom"
-            @click="unhideRoomAndReset(selectedItem)"
-            >Unhide Room</v-btn
-          >
         </div>
         <div
           v-else-if="loading.loadData"
@@ -31,7 +25,7 @@
           <v-progress-circular indeterminate></v-progress-circular>
         </div>
         <v-container v-else>
-          <v-row>
+          <v-row v-if="!hidden">
             <v-col cols="12" xs="12" class="py-0">
               <v-text-field
                 v-model="inputs.name"
@@ -84,16 +78,32 @@
             </v-col>
           </v-row>
         </v-container>
+        <v-container>
+          <v-row>
+            <v-col v-if="hidden" cols="6" class="py-0">
+              <v-btn
+                color="primary"
+                :loading="loading.unhideRoom"
+                @click="unhideRoomAndReset(selectedItem)"
+                >Unhide Room Now</v-btn
+              >
+            </v-col>
+            <v-col cols="6" class="py-0">
+              <v-text-field
+                v-model="inputs.activate_at"
+                label="Activate At"
+                type="datetime-local"
+                step="1"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-card-text>
 
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-        <v-btn
-          v-if="!errorMessage"
-          color="primary"
-          :loading="loading.editRoom"
-          @click="submit()"
+        <v-btn color="primary" :loading="loading.editRoom" @click="submit()"
           >Submit</v-btn
         >
       </v-card-actions>
@@ -120,10 +130,13 @@ export default {
       inputs: {
         name: '',
         description: '',
+        activate_at: null,
         time_limit: 10,
         time_target: 20,
         max_capacity: 8,
       },
+
+      hidden: false,
 
       loading: {
         editRoom: false,
@@ -159,11 +172,17 @@ export default {
           mutation: UPDATE_ROOM_MUTATION,
           variables: {
             id: this.selectedItem.id,
-            name: this.inputs.name,
-            description: this.inputs.description,
-            time_limit: parseInt(this.inputs.time_limit * 1000) || undefined,
-            time_target: parseInt(this.inputs.time_target * 1000) || undefined,
-            max_capacity: parseInt(this.inputs.max_capacity) || undefined,
+            ...(!this.hidden && {
+              name: this.inputs.name,
+              description: this.inputs.description,
+              time_limit: parseInt(this.inputs.time_limit * 1000) || undefined,
+              time_target:
+                parseInt(this.inputs.time_target * 1000) || undefined,
+              max_capacity: parseInt(this.inputs.max_capacity) || undefined,
+            }),
+            activate_at: this.inputs.activate_at
+              ? this.inputs.activate_at.replace('T', ' ')
+              : null,
           },
         })
 
@@ -176,7 +195,17 @@ export default {
 
         this.close()
       } catch (err) {
-        sharedService.handleError(err, this.$root)
+        //if the room is hidden, it will throw an error, which we much handle specially
+        if (this.hidden) {
+          this.$notifier.showSnackbar({
+            message: 'Room Updated',
+            variant: 'success',
+          })
+
+          this.close()
+        } else {
+          sharedService.handleError(err, this.$root)
+        }
       }
       this.loading.editRoom = false
     },
@@ -219,12 +248,16 @@ export default {
 
         //if room is null, room could be hidden or deleted
         if (!data.room) {
+          this.hidden = true
           throw sharedService.generateError('Room is either hidden or deleted')
         }
 
         this.inputs = {
           name: data.room.name,
           description: data.room.description,
+          activate_at: data.room.activate_at
+            ? new Date(data.room.activate_at).toISOString().slice(0, -1)
+            : null,
           time_limit: data.room.time_limit / 1000,
           time_target: data.room.time_target / 1000,
           max_capacity: data.room.max_capacity,
@@ -238,6 +271,7 @@ export default {
 
     reset() {
       if (!this.status) return
+      this.hidden = false
       this.errorMessage = null
       this.loadData()
     },

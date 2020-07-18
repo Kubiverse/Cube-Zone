@@ -6,7 +6,12 @@
   >
     <v-layout align-center justify-center>
       <div v-if="errorMessage">
-        <span class="display-1 pl-2">{{ errorMessage }} </span>
+        <span class="display-1 pl-2">
+          {{ errorMessage }}
+          <div class="text-center">
+            <v-btn color="primary" @click="goBackHistory()">Go Back</v-btn>
+          </div>
+        </span>
       </div>
       <div v-else-if="loading.joiningRoom">
         <span class="display-1 pl-2"
@@ -139,6 +144,14 @@
                         : ''
                     }}</a>
                   </template>
+                  <template v-slot:header.editAccumulators="{ header }">
+                    <v-icon
+                      small
+                      title="Edit Accumulators"
+                      @click="openEditRoomAccumulatorsDialog()"
+                      >mdi-pencil</v-icon
+                    >
+                  </template>
                   <template v-slot:item="props">
                     <tr
                       :key="props.item.id"
@@ -197,7 +210,7 @@
                         "
                       ></td>
                       <td
-                        v-for="(accItem, i) in accumulators"
+                        v-for="(accItem, i) in showAccumulators"
                         :key="accItem.id + '-' + accItem.pivot_n"
                         class="text-right title"
                       >
@@ -209,6 +222,7 @@
                           v-html="renderAccumulatedResults(props.item, accItem)"
                         ></span>
                       </td>
+                      <td>&nbsp;</td>
                     </tr>
                   </template>
                 </v-data-table>
@@ -362,6 +376,13 @@
       @update-settings="updateSettings"
       @close="dialogs.editRoomSettings = false"
     ></EditRoomSettingsDialog>
+    <EditRoomAccumulatorsDialog
+      :status="dialogs.editRoomAccumulators"
+      :accumulators="accumulators"
+      :show-accumulators="showAccumulators"
+      @submit="updateShownAccumulators"
+      @close="dialogs.editRoomAccumulators = false"
+    ></EditRoomAccumulatorsDialog>
     <ViewAccumulatedResultDialog
       :selected-item="lookupAccumulated"
       :status="dialogs.viewAccumulated"
@@ -399,6 +420,7 @@ import ChatHistoryCard from '~/components/card/chatHistoryCard'
 import ViewRoundDialog from '~/components/dialog/round/viewRoundDialog'
 import ViewRoundsDialog from '~/components/dialog/round/viewRoundsDialog'
 import EditRoomSettingsDialog from '~/components/dialog/misc/editRoomSettingsDialog'
+import EditRoomAccumulatorsDialog from '~/components/dialog/misc/editRoomAccumulatorsDialog'
 import ViewAccumulatedResultDialog from '~/components/dialog/accumulated/viewAccumulatedResultDialog'
 import ScrambleDisplay from '~/components/shared/scrambleDisplay.vue'
 import Scramble from '~/components/shared/scramble'
@@ -412,6 +434,7 @@ export default {
     ViewRoundDialog,
     ViewRoundsDialog,
     EditRoomSettingsDialog,
+    EditRoomAccumulatorsDialog,
     ViewAccumulatedResultDialog,
     ScrambleDisplay,
     Scramble,
@@ -556,6 +579,8 @@ export default {
 
       accumulators: [],
 
+      showAccumulators: [],
+
       tableRounds: 6,
 
       solvesMap: {},
@@ -575,6 +600,7 @@ export default {
         viewRounds: false,
         viewAccumulated: false,
         editRoomSettings: false,
+        editRoomAccumulators: false,
       },
 
       lookupRoundId: null,
@@ -615,13 +641,20 @@ export default {
     headersComputed() {
       return [
         ...this.headers,
-        ...this.accumulators.map((val) => ({
+        ...this.showAccumulators.map((val) => ({
           text: val.name + (val.pivot_n ? '/' + val.pivot_n : ''),
           value: 'accumulatedResults.' + val.type_id + '_' + val.pivot_n,
           sortable: true,
           width: '100px',
           align: 'right',
         })),
+        {
+          text: 'editAccumulators',
+          value: 'editAccumulators',
+          sortable: false,
+          width: '20px',
+          align: 'center',
+        },
       ]
     },
 
@@ -715,6 +748,10 @@ export default {
         message: 'Settings Saved',
         variant: 'success',
       })
+    },
+
+    updateShownAccumulators(accumulators) {
+      this.showAccumulators = accumulators
     },
 
     //checks the rounds and deletes any historical rounds and references to solves
@@ -828,6 +865,10 @@ export default {
 
     openEditRoomSettingsDialog() {
       this.dialogs.editRoomSettings = true
+    },
+
+    openEditRoomAccumulatorsDialog() {
+      this.dialogs.editRoomAccumulators = true
     },
 
     openViewAccumulatedResultDialog(cuberResult, accItemObject) {
@@ -1333,6 +1374,10 @@ export default {
         this.expansionOpenedIndex === undefined ? 0 : undefined
     },
 
+    goBackHistory() {
+      this.$router.go(-1)
+    },
+
     reset() {
       this.errorMessage = null
 
@@ -1381,6 +1426,7 @@ export default {
         if (++this.generation.room % 2 == 0) {
           this.room = data.room
           this.accumulators = data.room.accumulators
+          this.showAccumulators = this.accumulators.slice()
           //allow rounds query to start after this is done.
           this.$apollo.queries.rounds.skip = false
         }
@@ -1561,6 +1607,9 @@ export default {
   },
 
   beforeRouteLeave(to, from, next) {
+    //if there has been an error, don't trigger this
+    if (this.errorMessage) return next()
+
     const answer = window.confirm('Do you really want to leave this room?')
     if (answer) {
       this.$apollo.mutate({

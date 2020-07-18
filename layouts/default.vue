@@ -367,6 +367,8 @@ export default {
 
     if (this.user) {
       this.subscribeToCuberNotifications()
+      //subscribe to presence channel
+      //this.$root.context.app.pusher.subscribe('presence-12345')
     }
   },
 
