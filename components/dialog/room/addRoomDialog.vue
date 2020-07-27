@@ -96,17 +96,22 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" class="py-0">
-              Accumulators:
-              <br />
-              <v-chip
-                v-for="item in inputs.attachAccumulators"
-                :key="item.id + '-' + item.n"
-                close
-                class="ma-2"
-                @click:close="removeAccumulator(item)"
-                >{{ getAccumulatorName(item.id) }} of
-                {{ item.n || 'Session' }}</v-chip
+              <div>Accumulators: (drag to set default order)</div>
+              <draggable
+                v-model="inputs.attachAccumulators"
+                group="accumulators"
+                style="display: inline-flex;"
               >
+                <v-chip
+                  v-for="item in inputs.attachAccumulators"
+                  :key="item.id + '-' + item.n"
+                  close
+                  class="ma-2"
+                  @click:close="removeAccumulator(item)"
+                  >{{ getAccumulatorName(item.id) }} of
+                  {{ item.n || 'Session' }}</v-chip
+                >
+              </draggable>
               <v-menu
                 v-model="menu"
                 :close-on-content-click="false"
@@ -184,10 +189,12 @@ import { CREATE_ROOM_MUTATION } from '~/gql/mutation/room.js'
 import { EVENTS_QUERY } from '~/gql/query/event.js'
 import { ACCUMULATORS_QUERY } from '~/gql/query/accumulator.js'
 import EventLabel from '~/components/shared/eventLabel.vue'
+import draggable from 'vuedraggable'
 
 export default {
   components: {
     EventLabel,
+    draggable,
   },
 
   props: {

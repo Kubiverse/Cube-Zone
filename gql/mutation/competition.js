@@ -83,12 +83,14 @@ export const UPDATE_COMPETITION_ROUND = gql`
     $id: ID!
     $room_configuration_id: ID
     $start_at: DateTime
+    $update_rooms: [UpdateRoomInput!]
   ) {
     updateCompetitionRound(
       input: {
         id: $id
         room_configuration_id: $room_configuration_id
         start_at: $start_at
+        update_rooms: $update_rooms
       }
     ) {
       ...CompetitionRound
@@ -126,6 +128,15 @@ export const CREATE_ROOMS_FOR_COMPETITION_ROUND = gql`
       competition_round_id: $competition_round_id
       quantity: $quantity
     ) {
+      ...RoomBasic
+    }
+  }
+  ${roomBasicFragment}
+`
+
+export const UNHIDE_ROOM = gql`
+  mutation unhideRoom($id: ID!) {
+    unhideRoom(id: $id) {
       ...RoomBasic
     }
   }

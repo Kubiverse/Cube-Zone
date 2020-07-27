@@ -99,7 +99,10 @@
                   {{ props.item.event.name }}
                 </td>
                 <td class="text-xs-left">
-                  {{ props.item.round_number }}
+                  {{
+                    props.item.round_number +
+                    (props.item.is_final ? ' (Final)' : '')
+                  }}
                 </td>
                 <td class="text-xs-left">
                   {{ props.item.start_at || 'None' }}

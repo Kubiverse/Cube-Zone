@@ -67,6 +67,7 @@ export const roomFragment = gql`
     is_public
     is_active
     created_at
+    activate_at
   }
 `
 

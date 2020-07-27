@@ -56,6 +56,20 @@
           </div>
 
           <div class="release">
+            <span class="headline">v1.1.3 (26 July 2020)</span>
+            <ul>
+              <li>
+                Accumulators within can now be re-ordered or hidden within
+                rooms.
+              </li>
+              <li>
+                Pressing enter in chatbox when there is no message to be sent
+                will shift focus back to timer.
+              </li>
+            </ul>
+          </div>
+
+          <div class="release">
             <span class="headline">v1.1.2 (11 July 2020)</span>
             <ul>
               <li>Moved Recent Rooms button to the user menu</li>

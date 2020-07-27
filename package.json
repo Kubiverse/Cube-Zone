@@ -27,7 +27,8 @@
     "pusher-js": "^6.0.3",
     "randomstring": "^1.1.5",
     "scramble-display": "^0.1.1",
-    "vue-tour": "^1.4.0"
+    "vue-tour": "^1.4.0",
+    "vuedraggable": "^2.24.0"
   },
   "devDependencies": {
     "@nuxtjs/dotenv": "^1.4.1",

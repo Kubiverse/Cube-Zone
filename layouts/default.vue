@@ -304,8 +304,6 @@ export default {
           title: 'Competitions',
           to: '/competitions',
         },
-        */
-        /*
         {
           icon: 'mdi-format-list-numbered',
           title: 'Global Stats',
@@ -369,6 +367,8 @@ export default {
 
     if (this.user) {
       this.subscribeToCuberNotifications()
+      //subscribe to presence channel
+      //this.$root.context.app.pusher.subscribe('presence-12345')
     }
   },
 

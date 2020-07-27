@@ -81,8 +81,9 @@ export const LEAVE_ROOM_MUTATION = gql`
 export const UPDATE_ROOM_MUTATION = gql`
   mutation updateRoom(
     $id: ID!
-    $name: String!
+    $name: String
     $description: String
+    $activate_at: DateTime
     $time_limit: Milliseconds
     $time_target: Milliseconds
     $max_capacity: Int
@@ -92,6 +93,7 @@ export const UPDATE_ROOM_MUTATION = gql`
         id: $id
         name: $name
         description: $description
+        activate_at: $activate_at
         time_limit: $time_limit
         time_target: $time_target
         max_capacity: $max_capacity
