@@ -7,14 +7,14 @@
   >
     <v-card>
       <v-card-title>
-        <v-icon left>mdi-cog</v-icon>
-        <span class="headline">Room Accumulators</span>
+        <v-icon left>mdi-pencil</v-icon>
+        <span class="headline">Edit Room Accumulators</span>
       </v-card-title>
 
       <v-card-text style="max-height: 600px;">
         <v-row>
           <v-col cols="12" class="py-0">
-            <div>Visible Accumulators: (drag to change default order)</div>
+            <div>Visible Accumulators: (drag to change the order)</div>
             <draggable v-model="inputs.showAccumulators" group="accumulators">
               <v-chip
                 v-for="(item, index) in inputs.showAccumulators"

@@ -96,7 +96,7 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" class="py-0">
-              <div>Accumulators: (drag to re-order)</div>
+              <div>Accumulators: (drag to set default order)</div>
               <draggable
                 v-model="inputs.attachAccumulators"
                 group="accumulators"
