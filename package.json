@@ -16,7 +16,7 @@
     "validate": "npm-run-all --parallel check-format lint"
   },
   "dependencies": {
-    "@nuxtjs/apollo": "^4.0.1-rc.1",
+    "@nuxtjs/apollo": "^4.0.1-rc.4",
     "apollo-link": "^1.2.14",
     "apollo-link-http": "^1.5.17",
     "graphql-tag": "^2.10.4",
