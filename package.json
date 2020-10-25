@@ -28,7 +28,7 @@
     "randomstring": "^1.1.5",
     "scramble-display": "^0.1.1",
     "vue-tour": "^1.4.0",
-    "vuedraggable": "^2.24.0"
+    "vuedraggable": "^2.24.3"
   },
   "devDependencies": {
     "@nuxtjs/dotenv": "^1.4.1",
